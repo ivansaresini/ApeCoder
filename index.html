@@ -31,6 +31,24 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,9vw,48px);mar
 .gioco.presto{opacity:.72;box-shadow:none;border:2px dashed #d9cdb3;cursor:default}
 .gioco.presto .em{filter:grayscale(.6)}
 .gioco.presto .tasto{background:#eee4cc;box-shadow:none;color:var(--ink-soft)}
+.gioco{font:inherit;border:0;cursor:pointer;width:100%}
+.gioco.presto{cursor:pointer;opacity:.85}
+.velo{position:fixed;inset:0;background:rgba(40,30,10,.55);display:flex;align-items:center;justify-content:center;z-index:20;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+[hidden]{display:none!important}
+.scheda{background:var(--paper);border-radius:22px;padding:22px 20px;width:100%;max-width:440px;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.scheda .em{font-size:48px;text-align:center;line-height:1}
+.scheda h2{font-family:var(--display);font-size:28px;margin:0;text-align:center;line-height:1.1}
+.scheda .cosa{text-align:center;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--sky-d);font-weight:800}
+.scheda p{margin:0;line-height:1.45;font-size:16px}
+.blocco{background:var(--sky);border-radius:14px;padding:12px 14px}
+.blocco b{font-family:var(--display);color:var(--sky-d);display:block;margin-bottom:4px}
+.codice{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff;border-radius:8px;padding:4px 8px;display:inline-block;font-size:14px;margin-top:4px}
+.azioni{display:flex;gap:10px}
+.azioni button,.azioni a{flex:1;font-family:var(--display);font-weight:700;font-size:20px;border:0;border-radius:14px;padding:12px;cursor:pointer;text-decoration:none;text-align:center;color:var(--ink)}
+.gioca{background:var(--honey);box-shadow:0 4px 0 var(--honey-d)}
+.gioca[aria-disabled="true"]{background:#eee4cc;box-shadow:none;color:var(--ink-soft);pointer-events:none}
+.chiudi{background:var(--sky)}
 footer{text-align:center;font-size:13px;color:var(--ink-soft)}
 </style>
 </head>
@@ -39,26 +57,85 @@ footer{text-align:center;font-size:13px;color:var(--ink-soft)}
   <h1>🐝 Scuola Ape</h1>
   <p class="sotto">Impara a programmare giocando con le api. Scegli un gioco!</p>
   <nav class="griglia" aria-label="Giochi">
-    <a class="gioco" href="ape-coder.html">
+    <button class="gioco" data-g="ape">
       <span class="em">🍯</span><h2>Ape Coder</h2><span class="cosa">Sequenze</span><span class="tasto">GIOCA</span>
-    </a>
-    <div class="gioco presto" aria-disabled="true">
+    </button>
+    <button class="gioco presto" data-g="danza">
       <span class="em">💃</span><h2>Danza dell'ape</h2><span class="cosa">Cicli</span><span class="tasto">In arrivo</span>
-    </div>
-    <div class="gioco presto" aria-disabled="true">
+    </button>
+    <button class="gioco presto" data-g="guardiana">
       <span class="em">🛡️</span><h2>Guardiana dell'alveare</h2><span class="cosa">Condizioni</span><span class="tasto">In arrivo</span>
-    </div>
-    <div class="gioco presto" aria-disabled="true">
+    </button>
+    <button class="gioco presto" data-g="fabbrica">
       <span class="em">🏭</span><h2>Fabbrica del miele</h2><span class="cosa">Ordine e debug</span><span class="tasto">In arrivo</span>
-    </div>
-    <div class="gioco presto" aria-disabled="true">
+    </button>
+    <button class="gioco presto" data-g="favo">
       <span class="em">⬡</span><h2>Celle esagonali</h2><span class="cosa">Pattern</span><span class="tasto">In arrivo</span>
-    </div>
-    <div class="gioco presto" aria-disabled="true">
+    </button>
+    <button class="gioco presto" data-g="impollinatrice">
       <span class="em">🌸</span><h2>Impollinatrice</h2><span class="cosa">Funzioni</span><span class="tasto">In arrivo</span>
-    </div>
+    </button>
   </nav>
   <footer>Progetto scuola sulle api · ogni gioco ha la sua classifica</footer>
 </main>
+<div class="velo" id="velo" hidden>
+  <div class="scheda" role="dialog" aria-modal="true" aria-labelledby="sTitolo">
+    <div class="em" id="sEm"></div>
+    <h2 id="sTitolo"></h2>
+    <div class="cosa" id="sCosa"></div>
+    <p id="sGioco"></p>
+    <div class="blocco"><b>Cosa impari</b><span id="sImpari"></span></div>
+    <div class="blocco"><b>Come nel coding vero</b><span id="sCoding"></span><br><span class="codice" id="sEsempio"></span></div>
+    <div class="azioni"><button class="chiudi" id="bChiudi">Indietro</button><a class="gioca" id="bGioca" href="#">GIOCA</a></div>
+  </div>
+</div>
+<script>
+const GIOCHI = {
+  ape: { em: "🍯", titolo: "Ape Coder", cosa: "Sequenze", link: "ape-coder.html",
+    gioco: "Scrivi con le frecce il percorso dall'alveare all'albero col miele, poi premi INVIA e guarda l'ape eseguirlo. Devi fare in fretta: il miele finisce!",
+    impari: " Un programma è una lista di istruzioni eseguite una dopo l'altra, nell'ordine esatto in cui le hai scritte. Il computer non indovina: fa solo quello che gli dici. E ci sono tanti modi per arrivare allo stesso posto, ma alcuni sono più corti.",
+    coding: " Ogni freccia è un'istruzione, INVIA è il tasto \"esegui\". Un robot aspirapolvere o un videogioco funzionano così.",
+    esempio: "destra 3 · su 2 · esegui" },
+  danza: { em: "💃", titolo: "Danza dell'ape", cosa: "Cicli", link: "",
+    gioco: "I fiori sono disposti in una figura che si ripete. Hai pochi mattoncini: per visitarli tutti devi usare il blocco RIPETI.",
+    impari: " Quando un'azione si ripete, non la riscrivi dieci volte: la scrivi una volta e dici quante volte ripeterla. Si chiama ciclo, ed è il trucco con cui i programmi fanno milioni di cose in un secondo.",
+    coding: " Il blocco RIPETI è il \"for\" dei linguaggi di programmazione.",
+    esempio: "ripeti 4 volte [ destra, destra ]" },
+  guardiana: { em: "🛡️", titolo: "Guardiana dell'alveare", cosa: "Condizioni", link: "",
+    gioco: "Sei l'ape guardiana. Scrivi le regole di chi può entrare, poi arriva la fila di insetti sempre più veloce: le tue regole faranno passare le amiche e fermeranno le vespe?",
+    impari: " Un programma può decidere: SE succede una cosa ALLORA fai questo, ALTRIMENTI fai quest'altro. Le regole vanno scritte prima e devono coprire tutti i casi, anche quelli strani.",
+    coding: " Il SE / ALLORA è l'istruzione \"if\". Ogni app che chiede una password funziona così.",
+    esempio: "se ha le strisce e le ali trasparenti → entra" },
+  fabbrica: { em: "🏭", titolo: "Fabbrica del miele", cosa: "Ordine e debug", link: "",
+    gioco: "Le fasi per fare il miele arrivano mischiate: rimettile in ordine trascinandole. Nei livelli alti c'è una fase sbagliata da scovare e togliere.",
+    impari: " L'ordine conta: se metti il tetto prima dei muri la casa crolla. E quando un programma non funziona, cercare l'errore si chiama debug: è il lavoro più importante di chi programma.",
+    coding: " Un \"bug\" è un errore nel codice. Trovarlo e toglierlo è ciò che i programmatori fanno ogni giorno.",
+    esempio: "1. raccogli nettare → 2. ... → 5. chiudi con la cera" },
+  favo: { em: "⬡", titolo: "Celle esagonali", cosa: "Pattern", link: "",
+    gioco: "Il favo ha celle colorate che seguono una regola. Scopri la regola e completa le celle mancanti prima che il tempo scada.",
+    impari: " Riconoscere uno schema che si ripete è il primo passo per scrivere un programma corto: invece di descrivere ogni cella, descrivi la regola.",
+    coding: " Trovare il pattern e scriverlo come regola si chiama astrazione. Anche il computer disegna così le trame e i colori.",
+    esempio: "giallo, giallo, nero · ripeti" },
+  impollinatrice: { em: "🌸", titolo: "Impollinatrice", cosa: "Funzioni", link: "",
+    gioco: "Insegna all'ape una mossa (per esempio \"vai al fiore e torna\") e dalle un nome. Poi richiamala con un tasto solo, tutte le volte che vuoi.",
+    impari: " Una funzione è un pezzo di programma con un nome: lo scrivi una volta e lo usi ovunque. Così i programmi grandi restano ordinati e si capiscono.",
+    coding: " Le funzioni sono i mattoni di ogni app: \"salva\", \"invia\", \"stampa\" sono funzioni.",
+    esempio: "definisci raccogli = [ su 2, destra 1, giù 2 ] · raccogli · raccogli" },
+};
+const $ = id => document.getElementById(id);
+let ultimo = null;
+function apri(k) {
+  const g = GIOCHI[k]; ultimo = document.activeElement;
+  $("sEm").textContent = g.em; $("sTitolo").textContent = g.titolo; $("sCosa").textContent = g.cosa;
+  $("sGioco").textContent = g.gioco; $("sImpari").textContent = g.impari; $("sCoding").textContent = g.coding; $("sEsempio").textContent = g.esempio;
+  const b = $("bGioca"); b.href = g.link || "#"; b.textContent = g.link ? "GIOCA" : "In arrivo"; b.setAttribute("aria-disabled", g.link ? "false" : "true");
+  $("velo").hidden = false; $("bChiudi").focus();
+}
+function chiudi() { $("velo").hidden = true; if (ultimo) ultimo.focus(); }
+document.querySelectorAll(".gioco").forEach(b => b.addEventListener("click", () => apri(b.dataset.g)));
+$("bChiudi").addEventListener("click", chiudi);
+$("velo").addEventListener("click", e => { if (e.target === $("velo")) chiudi(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("velo").hidden) chiudi(); });
+</script>
 </body>
 </html>
