@@ -90,7 +90,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .regole{text-align:left;font-size:15px;display:grid;gap:6px;padding:0;margin:0;list-style:none}
 .regole li{display:flex;gap:10px;align-items:center}
 .regole .em{font-size:24px;flex:0 0 46px;text-align:center}
-.regole .frecce{font-size:18px;letter-spacing:2px}
+.regole .frecce{display:inline-flex;justify-content:center;gap:3px;line-height:1}
+.regole .frecce i{font-style:normal;font-size:13px;width:20px;height:20px;display:grid;place-items:center;background:var(--honey);border-radius:6px;color:var(--ink)}
 .curiosita{background:var(--sky);border-radius:14px;padding:12px;text-align:left}
 .curiosita b{font-family:var(--display);color:var(--sky-d)}
 .classifica{list-style:none;margin:0;padding:0;text-align:left;display:grid;gap:4px;font-variant-numeric:tabular-nums}
@@ -133,7 +134,7 @@ html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
     <h1>🐝 Ape Coder</h1>
     <p>Scrivi il codice per portare l'ape dall'alveare all'albero col miele, prima che il miele finisca!</p>
     <ul class="regole">
-      <li><span class="em frecce">▲▶</span><span>Ogni freccia è un passo. Tocca due volte la stessa per fare 2 passi.</span></li>
+      <li><span class="em frecce"><i>▲</i><i>▶</i></span><span>Ogni freccia è un passo. Tocca due volte la stessa per fare 2 passi.</span></li>
       <li><span class="em">🍯</span><span>Premi INVIA: l'ape vola. Se atterra sull'albero, punti!</span></li>
       <li><span class="em">🕸️</span><span>Se atterra su una ragnatela, perde una vita.</span></li>
       <li><span class="em">🌸</span><span>Passa sopra un fiore per riprendere una vita.</span></li>
