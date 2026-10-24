@@ -60,7 +60,7 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
 .gioca{background:var(--honey);box-shadow:0 4px 0 var(--honey-d)}
 .gioca[aria-disabled="true"]{background:#eee4cc;box-shadow:none;color:var(--ink-soft);pointer-events:none}
 .chiudi{background:var(--sky)}
-.tab{display:flex;gap:6px;background:var(--sky);border-radius:14px;padding:4px}
+.tab{display:flex;flex-wrap:wrap;gap:6px;background:var(--sky);border-radius:14px;padding:4px}
 .tab button{flex:1 1 auto;min-width:0;min-height:44px;border:0;border-radius:11px;padding:8px 6px;font-family:var(--display);font-weight:700;font-size:clamp(12px,3.6vw,14px);background:transparent;color:var(--ink-soft);cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px}
 @media (max-width:440px){.tab button .ico{display:none}}
 .tab button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 2px 0 #d9cdb3}
@@ -86,10 +86,12 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
       <button role="tab" data-tab="coding" aria-selected="true"><span class="ico">💻</span><span data-t="tabCoding"></span></button>
       <button role="tab" data-tab="ric" aria-selected="false"><span class="ico">🙏</span><span data-t="tabRic"></span></button>
       <button role="tab" data-tab="priv" aria-selected="false"><span class="ico">🔒</span><span data-t="tabPriv"></span></button>
+      <button role="tab" data-tab="maestre" aria-selected="false"><span class="ico">🍎</span><span data-t="tabMaestre"></span></button>
     </div>
     <div class="pannello" data-pan="coding">
       <h2 id="iTitolo" data-t="infoTitolo"></h2>
       <p data-t="info1"></p>
+      <p data-t="info1b"></p>
       <div class="blocco"><b data-t="info2t"></b><span data-t="info2"></span></div>
       <div class="blocco"><b data-t="info3t"></b><span data-t="info3"></span></div>
     </div>
@@ -103,6 +105,11 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
       <p data-t="priv1"></p>
       <p data-t="priv2"></p>
       <p data-t="priv3"></p>
+    </div>
+    <div class="pannello" data-pan="maestre" hidden>
+      <h2 data-t="maestreTitolo"></h2>
+      <p data-t="maestre1"></p>
+      <p><a href="maestre.html" data-t="maestreLink"></a></p>
     </div>
     <div class="azioni"><button class="chiudi" id="bChiudiInfo" data-t="chiudi"></button></div>
   </div>
@@ -134,35 +141,37 @@ const T = {
   it: {
     sotto: "Impara a programmare giocando con le api. Scegli un gioco!",
     piede: "App generata con l'intelligenza artificiale · Proprietà intellettuale di Xei S.r.l.",
-    gioca: "GIOCA", presto: "In arrivo", indietro: "Indietro", chiudi: "Chiudi", tabCoding: "Coding", tabRic: "Riconoscimenti", tabPriv: "Privacy",
+    gioca: "GIOCA", presto: "In arrivo", indietro: "Indietro", chiudi: "Chiudi", tabCoding: "Coding", tabRic: "Riconoscimenti", tabPriv: "Privacy", tabMaestre: "Per le maestre",
     giocoT: "Come si gioca", impariT: "Cosa impari", codingT: "Come nel coding vero",
     infoTitolo: "Cos'è il coding?",
     info1: "Il coding è il modo in cui si parla ai computer. Un computer è velocissimo ma non capisce niente da solo: bisogna spiegargli ogni cosa con istruzioni precise, una alla volta, nell'ordine giusto. Scrivere queste istruzioni si chiama programmare.",
-    info2t: "Perché impararlo da piccoli", info2: "Programmare insegna a dividere un problema grande in pezzi piccoli, a provare, sbagliare e correggere senza paura. Serve anche a chi non farà il programmatore: è un modo di pensare.",
+    info1b: "Una lista di istruzioni in ordine, che risolve un problema, si chiama algoritmo. Anche la ricetta della torta è un algoritmo!",
+    info2t: "Per i grandi: perché impararlo da piccoli", info2: "Programmare insegna a dividere un problema grande in pezzi piccoli, a provare, sbagliare e correggere senza paura. Serve anche a chi non farà il programmatore: è un modo di pensare.",
     info3t: "E le api?", info3: "Un alveare funziona come un programma ben scritto: ogni ape ha un compito preciso, le regole sono chiare e tutte insieme fanno cose incredibili. Per questo in Scuola Ape si impara con loro.",
     ricTitolo: "Riconoscimenti",
     ric1: "Scuola Ape è nata per un progetto scolastico sulle api. Le curiosità sulle api vengono dall'apicoltura e dalla divulgazione scientifica; i giochi sono originali.",
     ric2: "App generata con l'intelligenza artificiale (Claude di Anthropic). Idea, direzione e proprietà intellettuale di Xei S.r.l.",
+    maestreTitolo: "🍎 Per le maestre", maestre1: "Per ogni gioco: il concetto di coding, un'attività da fare in classe senza computer, le domande da porre e cosa fare dopo.", maestreLink: "Apri la pagina per le maestre",
     privTitolo: "Privacy",
     priv1: "Scuola Ape non raccoglie dati personali: non ci sono registrazioni, pubblicità, cookie di profilazione né strumenti di analisi. Il nome che scrivi, i punteggi e la lingua scelta restano solo sul tuo dispositivo (memoria locale del browser) e puoi cancellarli dalle impostazioni del browser. Nessuna informazione viene inviata a Xei S.r.l. o a terzi.",
     priv2: "Il sito è ospitato su GitHub Pages: per servire le pagine GitHub può registrare dati tecnici di connessione (come l'indirizzo IP) secondo la privacy policy di GitHub.",
     priv3: "I bambini possono giocare senza l'intervento di un adulto: non viene chiesto né trattato alcun dato che richieda il consenso dei genitori.",
     giochi: {
       ape: { titolo: "Ape Coder", cosa: "Sequenze",
-        gioco: "Scrivi con le frecce il percorso dall'alveare all'albero col miele, poi premi INVIA e guarda l'ape eseguirlo. Devi fare in fretta: il miele finisce!",
+        gioco: "Scrivi con le frecce il percorso dall'alveare all'albero col miele, poi premi ESEGUI e guarda l'ape eseguirlo. Devi fare in fretta: il miele finisce!",
         impari: "Un programma è una lista di istruzioni eseguite una dopo l'altra, nell'ordine esatto in cui le hai scritte. Il computer non indovina: fa solo quello che gli dici. E ci sono tanti modi per arrivare allo stesso posto, ma alcuni sono più corti.",
-        coding: "Ogni freccia è un'istruzione, INVIA è il tasto \"esegui\". Un robot aspirapolvere o un videogioco funzionano così.", esempio: "destra 3 · su 2 · esegui" },
+        coding: "Ogni freccia è un'istruzione, ESEGUI è il tasto \"esegui\". Un robot aspirapolvere o un videogioco funzionano così.", esempio: "destra 3 · su 2 · esegui" },
       danza: { titolo: "Danza dell'ape", cosa: "Cicli",
         gioco: "I fiori sono disposti in una figura che si ripete. Hai pochi mattoncini: per visitarli tutti devi usare il blocco RIPETI.",
         impari: "Quando un'azione si ripete, non la riscrivi dieci volte: la scrivi una volta e dici quante volte ripeterla. Si chiama ciclo, ed è il trucco con cui i programmi fanno milioni di cose in un secondo.",
-        coding: "Il blocco RIPETI è il \"for\" dei linguaggi di programmazione.", esempio: "ripeti 4 volte [ destra, destra ]" },
+        coding: "Nei linguaggi veri il RIPETI si scrive 'for' o 'repeat': i programmatori lo usano per non riscrivere mille volte la stessa riga.", esempio: "ripeti 4 volte [ destra, destra ]" },
       guardiana: { titolo: "Guardiana dell'alveare", cosa: "Condizioni",
-        gioco: "Sei l'ape guardiana. Scrivi le regole di chi può entrare, poi arriva la fila di insetti sempre più veloce: le tue regole faranno passare le amiche e fermeranno le vespe?",
+        gioco: "Sei l'ape guardiana. Guarda chi è entrato e chi no, scopri la regola e scrivila. Poi arriva la fila: la tua regola decide chi passa.",
         impari: "Un programma può decidere: SE succede una cosa ALLORA fai questo, ALTRIMENTI fai quest'altro. Le regole vanno scritte prima e devono coprire tutti i casi, anche quelli strani.",
-        coding: "Il SE / ALLORA è l'istruzione \"if\". Ogni app che chiede una password funziona così.", esempio: "se ha le strisce e le ali trasparenti → entra" },
+        coding: "Il SE / ALLORA è l'istruzione \"if\". Ogni app che chiede una password funziona così. Anche il semaforo è un SE: SE è verde ALLORA passo, ALTRIMENTI aspetto.", esempio: "se ha le strisce e le ali trasparenti → entra" },
       fabbrica: { titolo: "Fabbrica del miele", cosa: "Ordine e debug",
-        gioco: "Le fasi per fare il miele arrivano mischiate: rimettile in ordine trascinandole. Nei livelli alti c'è una fase sbagliata da scovare e togliere.",
-        impari: "L'ordine conta: se metti il tetto prima dei muri la casa crolla. E quando un programma non funziona, cercare l'errore si chiama debug: è il lavoro più importante di chi programma.",
+        gioco: "Le fasi del lavoro delle api arrivano mischiate: tocca due carte per scambiarle e rimettile in ordine. Nei livelli alti si nasconde una fase che non c'entra: scovala e toglila.",
+        impari: "L'ordine conta: se metti il tetto prima dei muri la casa crolla. Il bug può essere un passo nell'ordine sbagliato o un passo che non c'entra niente: trovarlo e toglierlo si chiama debug.",
         coding: "Un \"bug\" è un errore nel codice. Trovarlo e toglierlo è ciò che i programmatori fanno ogni giorno.", esempio: "1. raccogli nettare → 2. … → 5. chiudi con la cera" },
       favo: { titolo: "Celle esagonali", cosa: "Pattern",
         gioco: "Il favo ha celle colorate che seguono una regola. Scopri la regola e completa le celle mancanti prima che il tempo scada.",
@@ -177,35 +186,37 @@ const T = {
   en: {
     sotto: "Learn to code by playing with bees. Pick a game!",
     piede: "App generated with artificial intelligence · Intellectual property of Xei S.r.l.",
-    gioca: "PLAY", presto: "Coming soon", indietro: "Back", chiudi: "Close", tabCoding: "Coding", tabRic: "Credits", tabPriv: "Privacy",
+    gioca: "PLAY", presto: "Coming soon", indietro: "Back", chiudi: "Close", tabCoding: "Coding", tabRic: "Credits", tabPriv: "Privacy", tabMaestre: "For teachers",
     giocoT: "How to play", impariT: "What you learn", codingT: "In real coding",
     infoTitolo: "What is coding?",
     info1: "Coding is how we talk to computers. A computer is super fast but understands nothing on its own: you have to explain everything with precise instructions, one at a time, in the right order. Writing those instructions is called programming.",
-    info2t: "Why learn it young", info2: "Programming teaches you to split a big problem into small pieces, and to try, fail and fix without fear. It helps even if you never become a programmer: it is a way of thinking.",
+    info1b: "An ordered list of instructions that solves a problem is called an algorithm. A cake recipe is an algorithm too!",
+    info2t: "For grown-ups: why learn it young", info2: "Programming teaches you to split a big problem into small pieces, and to try, fail and fix without fear. It helps even if you never become a programmer: it is a way of thinking.",
     info3t: "And the bees?", info3: "A beehive works like a well-written program: every bee has a precise job, the rules are clear, and together they do amazing things. That is why in Bee School you learn with them.",
     ricTitolo: "Credits",
     ric1: "Bee School was created for a school project about bees. The bee facts come from beekeeping and popular science; the games are original.",
     ric2: "App generated with artificial intelligence (Claude by Anthropic). Concept, direction and intellectual property of Xei S.r.l.",
+    maestreTitolo: "🍎 For teachers", maestre1: "For each game: the coding concept, an unplugged classroom activity, questions to ask and what to do afterwards.", maestreLink: "Open the teachers' page",
     privTitolo: "Privacy",
     priv1: "Bee School collects no personal data: there are no sign-ups, ads, profiling cookies or analytics. The name you type, your scores and your language choice stay on your device only (browser local storage) and can be deleted from your browser settings. Nothing is sent to Xei S.r.l. or to third parties.",
     priv2: "The site is hosted on GitHub Pages: to serve the pages GitHub may log technical connection data (such as your IP address) under GitHub's privacy policy.",
     priv3: "Children can play without an adult: no data is requested or processed that would require parental consent.",
     giochi: {
       ape: { titolo: "Bee Coder", cosa: "Sequences",
-        gioco: "Use the arrows to write the path from the hive to the honey tree, press GO and watch the bee follow it. Be quick: the honey runs out!",
+        gioco: "Use the arrows to write the path from the hive to the honey tree, press RUN and watch the bee follow it. Be quick: the honey runs out!",
         impari: "A program is a list of instructions run one after another, in the exact order you wrote them. The computer never guesses: it does only what you tell it. There are many ways to reach the same place, but some are shorter.",
-        coding: "Each arrow is an instruction, GO is the \"run\" button. A robot vacuum or a video game works the same way.", esempio: "right 3 · up 2 · run" },
+        coding: "Each arrow is an instruction, RUN is the \"run\" button. A robot vacuum or a video game works the same way.", esempio: "right 3 · up 2 · run" },
       danza: { titolo: "Bee Dance", cosa: "Loops",
         gioco: "The flowers form a repeating shape. You only have a few blocks: to visit them all you need the REPEAT block.",
         impari: "When an action repeats, you don't write it ten times: you write it once and say how many times to repeat it. That is a loop, the trick that lets programs do millions of things in a second.",
-        coding: "The REPEAT block is the \"for\" loop of programming languages.", esempio: "repeat 4 times [ right, right ]" },
+        coding: "In real languages REPEAT is written 'for' or 'repeat': programmers use it so they don't rewrite the same line a thousand times.", esempio: "repeat 4 times [ right, right ]" },
       guardiana: { titolo: "Hive Guard", cosa: "Conditions",
-        gioco: "You are the guard bee. Write the rules for who may enter, then the line of insects arrives faster and faster: will your rules let friends in and keep wasps out?",
+        gioco: "You are the guard bee. See who got in and who didn't, work out the rule and write it. Then the line arrives: your rule decides who gets through.",
         impari: "A program can decide: IF something happens THEN do this, ELSE do that. Rules are written in advance and must cover every case, even the odd ones.",
-        coding: "IF / THEN is the \"if\" statement. Every app that asks for a password works this way.", esempio: "if it has stripes and clear wings → let it in" },
+        coding: "IF / THEN is the \"if\" statement. Every app that asks for a password works this way. A traffic light is an IF too: IF it's green THEN I go, ELSE I wait.", esempio: "if it has stripes and clear wings → let it in" },
       fabbrica: { titolo: "Honey Factory", cosa: "Order & debugging",
-        gioco: "The steps for making honey arrive shuffled: drag them back into order. In higher levels one wrong step hides among them: find it and remove it.",
-        impari: "Order matters: put the roof before the walls and the house falls down. And when a program doesn't work, hunting the mistake is called debugging: the most important job of any programmer.",
+        gioco: "The steps of the bees' work arrive shuffled: tap two cards to swap them and put them back in order. In higher levels a step that doesn't belong hides among them: spot it and remove it.",
+        impari: "Order matters: put the roof before the walls and the house falls down. A bug can be a step in the wrong order or a step that doesn't belong at all: finding and removing it is called debugging.",
         coding: "A \"bug\" is an error in the code. Finding and removing it is what programmers do every day.", esempio: "1. collect nectar → 2. … → 5. seal with wax" },
       favo: { titolo: "Honeycomb Cells", cosa: "Patterns",
         gioco: "The honeycomb has coloured cells that follow a rule. Work out the rule and fill the missing cells before time runs out.",

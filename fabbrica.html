@@ -7,7 +7,7 @@
 <style>
 @font-face{font-family:'Fredoka';font-weight:500 700;font-display:swap;src:url(fonts/fredoka.woff2) format('woff2')}
 @font-face{font-family:'Nunito';font-weight:600 800;font-display:swap;src:url(fonts/nunito.woff2) format('woff2')}
-/* Layout: barra stato, titolo del processo, pila di carte da riordinare (tocca due carte per scambiarle), barra tempo, INVIA */
+/* Layout: barra stato, titolo del processo, pila di carte da riordinare (tocca due carte per scambiarle), barra tempo, ESEGUI */
 :root{
   --sky:#dcf1fb; --meadow:#9bd56a; --honey:#f6b73c; --honey-d:#c98610; --ink:#3b2a10; --ink-soft:#7a6240; --paper:#fffaf0;
   --danger:#c0332a; --ok:#2a7527; --sky-d:#2d7fc1; --sel:#ffe08a;
@@ -51,7 +51,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .tempo{width:100%;max-width:520px;height:14px;background:var(--paper);border-radius:999px;overflow:hidden;position:relative}
 .tempo i{position:absolute;inset:0;background:var(--honey);transform-origin:left;transition:transform .1s linear,background .2s}
 .tempo.urgente i{background:var(--danger)}
-.msg{height:22px;line-height:22px;font-size:clamp(13px,3.9vw,15px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-soft);text-align:center;width:100%;max-width:520px}
+.msg{min-height:22px;line-height:1.25;font-size:clamp(13px,3.9vw,15px);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ink-soft);text-align:center;width:100%;max-width:520px}
 .msg.bene{color:var(--ok)}.msg.male{color:var(--danger)}
 .azioni{width:100%;max-width:520px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:8px}
 #bMescola{font-size:clamp(15px,4.6vw,20px);white-space:nowrap;padding:0 6px;overflow:hidden;text-overflow:ellipsis}
@@ -75,12 +75,15 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .regole{text-align:left;font-size:15px;display:grid;gap:6px;padding:0;margin:0;list-style:none}
 .regole li{display:flex;gap:10px;align-items:center}
 .regole .em{font-size:24px;flex:0 0 46px;text-align:center}
-.livelli{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.livelli{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .livelli label{position:relative;display:block}
 .livelli input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
 .livelli span{display:block;padding:12px 2px;border-radius:12px;background:var(--sky);font-family:var(--display);font-size:clamp(13px,3.8vw,17px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:2px solid transparent;min-height:44px}
 .livelli input:checked + span{background:var(--honey);border-color:var(--honey-d)}
 .livelli input:focus-visible + span{outline:3px solid var(--sky-d);outline-offset:2px}
+.partenza{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-size:16px}
+.partenza select{font:inherit;font-size:18px;padding:6px 10px;border-radius:12px;border:2px solid var(--honey);background:var(--paper);color:var(--ink);min-height:44px}
+.partenza select:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
 .curiosita{background:var(--sky);border-radius:14px;padding:12px;text-align:left}
 .curiosita b{font-family:var(--display);color:var(--sky-d)}
 .soluzione{display:flex;flex-direction:column;gap:6px;text-align:left}
@@ -128,7 +131,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
       <label><input type="radio" name="diff" value="facile" checked><span data-t="facile"></span></label>
       <label><input type="radio" name="diff" value="medio"><span data-t="medio"></span></label>
       <label><input type="radio" name="diff" value="difficile"><span data-t="difficile"></span></label>
+      <label><input type="radio" name="diff" value="senzafretta"><span data-t="senzafretta"></span></label>
     </div>
+    <label class="partenza"><span data-t="partiDa"></span> <select id="inLivello"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option></select></label>
     <button class="grande" type="submit" data-t="gioca"></button>
     <div id="classificaInizio"></div>
   </form>
@@ -187,6 +192,7 @@ const DIFFICOLTA = {
   facile:    { tempoLivello: 60, riduzionePerLivello: 0.04, tempoMin: 20, vite: 5, bugDalLivello: 4, dueBugDalLivello: 8 },
   medio:     { tempoLivello: 45, riduzionePerLivello: 0.06, tempoMin: 14, vite: 4, bugDalLivello: 3, dueBugDalLivello: 6 },
   difficile: { tempoLivello: 30, riduzionePerLivello: 0.08, tempoMin: 9,  vite: 3, bugDalLivello: 2, dueBugDalLivello: 5 },
+  senzafretta: { tempoLivello: 60, riduzionePerLivello: 0.04, tempoMin: 20, vite: 5, bugDalLivello: 4, dueBugDalLivello: 8, senzaTempo: true },   // il tempo non scade mai
 };
 // ===================== lingua =====================
 function leggiLingua() { try { const l = localStorage.getItem("scuolaApe.lingua"); if (l === "it" || l === "en") return l; } catch (e) {} return (navigator.language || "it").toLowerCase().startsWith("en") ? "en" : "it"; }
@@ -194,65 +200,73 @@ const L = leggiLingua();
 const T = {
   it: { titolo: "🏭 Fabbrica del miele", intro: "Le fasi del lavoro delle api arrivano mischiate. Rimettile in ordine, e scova quelle che non c'entrano!",
     r1: "Le carte sono le fasi di un lavoro delle api, ma sono in disordine.",
-    r2: "Tocca una carta e poi un'altra: si scambiano di posto. Premi INVIA quando l'ordine è giusto.",
-    r3: "Dai livelli più alti si nasconde una fase che non c'entra: toglila con ✕. È il bug!",
-    r4: "La barra gialla è il tempo. Un INVIA sbagliato o il tempo finito costano una vita.",
-    nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", gioca: "GIOCA", invia: "INVIA", annulla: "🔀 Rimescola",
+    r2: "Tocca una carta e poi un'altra: si scambiano di posto. Premi ESEGUI quando l'ordine è giusto.",
+    r3: "Dal livello 4 tra le carte si nasconde una fase che non c'entra: è il bug! Toglila con 🐛✕.",
+    r4: "La barra gialla è il tempo. Un ESEGUI sbagliato o il tempo finito costano una vita.",
+    nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", senzafretta: "🐢 Senza fretta", gioca: "GIOCA", invia: "ESEGUI", annulla: "🔀 Rimescola",
+    partiDa: "Parti dal livello",
     sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello", capito: "HO CAPITO!",
     porta: "Tocca due carte per scambiarle.", nuovoLiv: "Nuovo livello!", tardi: "Tempo scaduto! −1 vita",
-    sbagliato: "Le carte rosse sono fuori posto. −1 vita", bugResta: "C'è una fase che non c'entra! Toglila con ✕. −1 vita",
-    serviva: "Quella fase serve! L'ho rimessa.", bravo: "Ordine perfetto!", primo: " (al primo colpo!)", serie: " · serie ×",
+    sbagliato: "Le carte verdi sono al posto giusto, le rosse no. Sistema le rosse e riprova. −1 vita", bugResta: "C'è una fase che non c'entra! Toglila con 🐛✕. −1 vita",
+    serviva: "Quella fase serve! L'ho rimessa.", servivaPenale: "Quella fase serve! L'ho rimessa (−5 s).", bravo: "Ordine perfetto!", primo: " (al primo colpo!)", serie: " · serie ×",
     solTitolo: "L'ordine giusto era:", solNota: "",
-    lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per ogni lavoro.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
+    lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per ogni lavoro.`, lvTestoSenzaTempo: p => `Hai ${p} punti. Prenditi tutto il tempo che vuoi.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
     fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
-    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile" },
+    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" },
     tutorial: {
-      1: { em: "👆", titolo: "Come si gioca", testo: "Le carte sono le fasi di un lavoro, ma mischiate. Tocca una carta (diventa gialla), poi tocca il posto dove deve andare: le due carte si scambiano. Quando pensi che l'ordine sia giusto, premi INVIA." },
-      bug: { em: "🐛", titolo: "Attenzione al bug!", testo: "Da adesso tra le carte si nasconde una fase che non c'entra niente con le api. Si chiama bug: trovala e toglila con ✕ prima di premere INVIA." },
+      1: { em: "👆", titolo: "Come si gioca", testo: "Le carte sono le fasi di un lavoro, ma mischiate. Tocca una carta (diventa gialla), poi tocca il posto dove deve andare: le due carte si scambiano. Quando pensi che l'ordine sia giusto, premi ESEGUI." },
+      bug: { em: "🐛", titolo: "Attenzione al bug!", testo: "Un bug è un errore nel programma. Qui il bug è una carta intrusa: trovala e toglila con 🐛✕ prima di premere ESEGUI." },
     },
     processi: [
-      { titolo: "Come nasce il miele", min: 1, fasi: [["🌸", "L'ape raccoglie il nettare dai fiori"], ["🐝", "Lo passa a un'ape di casa"], ["🍯", "Il nettare va nella cella del favo"], ["💨", "Le api sventolano le ali per asciugarlo"], ["🕯️", "La cella viene chiusa con la cera"]] },
-      { titolo: "La vita di un'ape", min: 4, fasi: [["🥚", "La regina depone un uovo nella cella"], ["🐛", "Dall'uovo nasce una larva"], ["🍼", "Le api nutrici la nutrono"], ["🛌", "La cella viene chiusa e la larva si trasforma"], ["🐝", "Esce un'ape adulta"]] },
-      { titolo: "Il polline", min: 5, fasi: [["🌼", "L'ape si rotola nel fiore e si riempie di polline"], ["🦵", "Lo spazzola nelle cestelle delle zampe"], ["🏠", "Vola fino all'alveare"], ["📦", "Scarica il polline in una cella"], ["🍞", "Il polline diventa pane d'api"]] },
-      { titolo: "Nasce una regina", min: 6, fasi: [["👑", "Le api scelgono una larva"], ["🏰", "Costruiscono una cella grande"], ["🥛", "La nutrono solo con pappa reale"], ["🐝", "Nasce la nuova regina"], ["✈️", "Fa il volo nuziale"]] },
+      { titolo: "Come nasce il miele", min: 1, fasi: [["🌸", "L'ape raccoglie il nettare dai fiori"], ["🐝", "Lo passa di bocca in bocca a un'ape di casa"], ["🍯", "Il nettare va nella cella del favo"], ["💨", "Le api sventolano le ali per asciugarlo"], ["🕯️", "La cella viene chiusa con la cera"]] },
+      { titolo: "La vita di un'ape", min: 1, fasi: [["🥚", "La regina depone un uovo nella cella"], ["🐛", "Dall'uovo nasce una larva"], ["🍼", "Le api nutrici la nutrono"], ["🛌", "La cella viene chiusa e la larva diventa pupa, come la farfalla nel bozzolo"], ["🐝", "Esce un'ape adulta"]] },
+      { titolo: "Il polline", min: 1, fasi: [["🌼", "L'ape si rotola nel fiore e si riempie di polline"], ["🦵", "Lo spazzola nelle cestelle delle zampe posteriori"], ["🏠", "Vola fino all'alveare"], ["📦", "Scarica il polline in una cella"], ["🍞", "Il polline diventa pane d'api"]] },
+      { titolo: "Nasce una regina", min: 1, fasi: [["👑", "Le api scelgono una larva"], ["🏰", "Allargano la sua cella e la fanno grande"], ["🥛", "La nutrono solo con pappa reale"], ["🐝", "Nasce la nuova regina"], ["✈️", "Fa il volo nuziale"]] },
+      { titolo: "La giornata della bottinatrice", min: 1, fasi: [["🌅", "Esce dall'alveare all'alba"], ["🔍", "Cerca i fiori"], ["🌸", "Raccoglie nettare e polline"], ["🏠", "Torna all'alveare"], ["💃", "Danza per dire alle compagne dov'erano i fiori"]] },
+      { titolo: "Costruire il favo", min: 1, fasi: [["🍯", "Le api mangiano molto miele"], ["🧈", "Producono scaglie di cera dall'addome"], ["🤲", "Le impastano con le mandibole"], ["⬡", "Costruiscono le celle a sei lati"], ["🥚", "La regina depone le uova nelle celle nuove"]] },
+      { titolo: "L'inverno nell'alveare", min: 1, fasi: [["🍂", "In autunno le api raccolgono le ultime scorte"], ["🚪", "Chiudono le fessure con il propoli"], ["🧶", "Si stringono in un grappolo attorno alla regina"], ["💪", "Tremano con i muscoli per fare calore"], ["🌱", "In primavera ricominciano a uscire"]] },
     ],
     bug: [["🍕", "Ordina una pizza"], ["🚗", "Va in macchina"], ["📺", "Guarda la televisione"], ["⚽", "Gioca a calcio"], ["🛒", "Fa la spesa"], ["🎸", "Suona la chitarra"], ["🛏️", "Va a dormire fino a mezzogiorno"], ["🧊", "Mette tutto in frigo"]],
     curiosita: ["Il nettare diventa miele quando le api lo asciugano: da 80% d'acqua a meno del 18%.", "Per fare un barattolo di miele servono circa 50.000 voli.",
       "Il miele non va mai a male: ne hanno trovato di 3.000 anni fa ancora buono.", "Un'ape nasce in 21 giorni; una regina in soli 16.",
-      "Il pane d'api è polline fermentato: è il cibo delle larve.", "La pappa reale fa diventare regina una larva che sarebbe stata un'ape normale."] },
+      "Il pane d'api è polline fermentato: lo mangiano le api giovani, che così producono la pappa per le larve.", "La pappa reale fa diventare regina una larva che sarebbe stata un'ape normale."] },
   en: { titolo: "🏭 Honey Factory", intro: "The steps of the bees' work arrive shuffled. Put them back in order, and spot the ones that don't belong!",
     r1: "The cards are the steps of a job bees do, but they are mixed up.",
-    r2: "Tap one card and then another: they swap places. Press GO when the order is right.",
-    r3: "From higher levels a step that doesn't belong hides among them: remove it with ✕. That's the bug!",
-    r4: "The yellow bar is the time. A wrong GO or running out of time costs a life.",
-    nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", gioca: "PLAY", invia: "GO", annulla: "🔀 Shuffle",
+    r2: "Tap one card and then another: they swap places. Press RUN when the order is right.",
+    r3: "From level 4 a step that doesn't belong hides among the cards: that's the bug! Remove it with 🐛✕.",
+    r4: "The yellow bar is the time. A wrong RUN or running out of time costs a life.",
+    nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", senzafretta: "🐢 No rush", gioca: "PLAY", invia: "RUN", annulla: "🔀 Shuffle",
+    partiDa: "Start at level",
     sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level", capito: "GOT IT!",
     porta: "Tap two cards to swap them.", nuovoLiv: "New level!", tardi: "Time's up! −1 life",
-    sbagliato: "The red cards are out of place. −1 life", bugResta: "There's a step that doesn't belong! Remove it with ✕. −1 life",
-    serviva: "That step is needed! I put it back.", bravo: "Perfect order!", primo: " (first try!)", serie: " · streak ×",
+    sbagliato: "Green cards are in place, red ones are not. Fix the red ones and try again. −1 life", bugResta: "There's a step that doesn't belong! Remove it with 🐛✕. −1 life",
+    serviva: "That step is needed! I put it back.", servivaPenale: "That step is needed! I put it back (−5 s).", bravo: "Perfect order!", primo: " (first try!)", serie: " · streak ×",
     solTitolo: "The right order was:", solNota: "",
-    lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds per job.`, vitaExtra: " You earned an extra life! ❤️",
+    lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds per job.`, lvTestoSenzaTempo: p => `You have ${p} points. Take all the time you want.`, vitaExtra: " You earned an extra life! ❤️",
     fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
-    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard" },
+    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" },
     tutorial: {
-      1: { em: "👆", titolo: "How to play", testo: "The cards are the steps of a job, but shuffled. Tap a card (it turns yellow), then tap the place it should go: the two cards swap. When you think the order is right, press GO." },
-      bug: { em: "🐛", titolo: "Watch out for the bug!", testo: "From now on a step that has nothing to do with bees hides among the cards. It's called a bug: find it and remove it with ✕ before pressing GO." },
+      1: { em: "👆", titolo: "How to play", testo: "The cards are the steps of a job, but shuffled. Tap a card (it turns yellow), then tap the place it should go: the two cards swap. When you think the order is right, press RUN." },
+      bug: { em: "🐛", titolo: "Watch out for the bug!", testo: "A bug is a mistake in the program. Here the bug is an intruder card: find it and remove it with 🐛✕ before pressing RUN." },
     },
     processi: [
-      { titolo: "How honey is made", min: 1, fasi: [["🌸", "The bee collects nectar from flowers"], ["🐝", "She passes it to a house bee"], ["🍯", "The nectar goes into a comb cell"], ["💨", "Bees fan their wings to dry it"], ["🕯️", "The cell is sealed with wax"]] },
-      { titolo: "A bee's life", min: 4, fasi: [["🥚", "The queen lays an egg in a cell"], ["🐛", "A larva hatches from the egg"], ["🍼", "Nurse bees feed it"], ["🛌", "The cell is sealed and the larva transforms"], ["🐝", "An adult bee comes out"]] },
-      { titolo: "Pollen", min: 5, fasi: [["🌼", "The bee rolls in a flower and gets covered in pollen"], ["🦵", "She brushes it into the baskets on her legs"], ["🏠", "She flies back to the hive"], ["📦", "She unloads the pollen into a cell"], ["🍞", "The pollen becomes bee bread"]] },
-      { titolo: "A queen is born", min: 6, fasi: [["👑", "The bees choose a larva"], ["🏰", "They build a large cell"], ["🥛", "They feed her only royal jelly"], ["🐝", "The new queen is born"], ["✈️", "She takes her mating flight"]] },
+      { titolo: "How honey is made", min: 1, fasi: [["🌸", "The bee collects nectar from flowers"], ["🐝", "She passes it mouth to mouth to a house bee"], ["🍯", "The nectar goes into a comb cell"], ["💨", "Bees fan their wings to dry it"], ["🕯️", "The cell is sealed with wax"]] },
+      { titolo: "A bee's life", min: 1, fasi: [["🥚", "The queen lays an egg in a cell"], ["🐛", "A larva hatches from the egg"], ["🍼", "Nurse bees feed it"], ["🛌", "The cell is sealed and the larva becomes a pupa, like a butterfly in its cocoon"], ["🐝", "An adult bee comes out"]] },
+      { titolo: "Pollen", min: 1, fasi: [["🌼", "The bee rolls in a flower and gets covered in pollen"], ["🦵", "She brushes it into the baskets on her back legs"], ["🏠", "She flies back to the hive"], ["📦", "She unloads the pollen into a cell"], ["🍞", "The pollen becomes bee bread"]] },
+      { titolo: "A queen is born", min: 1, fasi: [["👑", "The bees choose a larva"], ["🏰", "They enlarge her cell and make it big"], ["🥛", "They feed her only royal jelly"], ["🐝", "The new queen is born"], ["✈️", "She takes her mating flight"]] },
+      { titolo: "A forager's day", min: 1, fasi: [["🌅", "She leaves the hive at dawn"], ["🔍", "She looks for flowers"], ["🌸", "She collects nectar and pollen"], ["🏠", "She flies back to the hive"], ["💃", "She dances to tell her sisters where the flowers were"]] },
+      { titolo: "Building the comb", min: 1, fasi: [["🍯", "The bees eat lots of honey"], ["🧈", "They make wax flakes from their belly"], ["🤲", "They knead them with their jaws"], ["⬡", "They build six-sided cells"], ["🥚", "The queen lays eggs in the new cells"]] },
+      { titolo: "Winter in the hive", min: 1, fasi: [["🍂", "In autumn the bees gather the last supplies"], ["🚪", "They seal the cracks with propolis"], ["🧶", "They huddle in a cluster around the queen"], ["💪", "They shiver their muscles to make heat"], ["🌱", "In spring they start going out again"]] },
     ],
     bug: [["🍕", "Orders a pizza"], ["🚗", "Drives a car"], ["📺", "Watches TV"], ["⚽", "Plays football"], ["🛒", "Goes shopping"], ["🎸", "Plays the guitar"], ["🛏️", "Sleeps until noon"], ["🧊", "Puts everything in the fridge"]],
     curiosita: ["Nectar becomes honey when bees dry it: from 80% water to less than 18%.", "A jar of honey takes about 50,000 flights.",
       "Honey never goes bad: 3,000-year-old honey has been found still good.", "A bee is born in 21 days; a queen in only 16.",
-      "Bee bread is fermented pollen: it is the larvae's food.", "Royal jelly turns a larva that would have been a normal bee into a queen."] },
+      "Bee bread is fermented pollen: young bees eat it to make food for the larvae.", "Royal jelly turns a larva that would have been a normal bee into a queen."] },
 };
 const t = k => T[L][k];
 
 // ===================== stato =====================
-const S = { nome: "", diff: "facile", livello: 1, punti: 0, vite: 3, serie: 0, proc: null, carte: [], sel: -1, tentativi: 0,
+const S = { nome: "", diff: "facile", livello: 1, base: 0, punti: 0, vite: 3, serie: 0, proc: null, carte: [], sel: -1, tentativi: 0,
   fase: "fermo", loop: null, scade: 0, totale: 0, firma: "", bugSpiegato: false };
 const $ = id => document.getElementById(id);
 const el = { stato: $("stato"), processo: $("processo"), carte: $("carte"), tempo: $("tempo"), msg: $("msg"), azioni: $("azioni") };
@@ -269,11 +283,15 @@ function nuovoLavoro() {
   S.firma = firma; S.proc = proc;
   // prendo le prime nCarte fasi del processo (l'ordine resta sensato)
   const fasi = proc.fasi.slice(0, nCarte).map((f, i) => ({ em: f[0], testo: f[1], ordine: i, bug: false }));
-  const bugs = mescola([...t("bug")]).slice(0, nBug).map(b => ({ em: b[0], testo: b[1], ordine: -1, bug: true }));
+  // intrusi: carte buffe nei primi livelli; dal livello dueBugDalLivello (o comunque dal 6) fasi vere di un altro processo
+  const seri = S.livello >= Math.min(6, CONFIG.dueBugDalLivello);
+  const altre = seri ? t("processi").filter(p => p !== proc).flatMap(p => p.fasi).filter(f => !fasi.some(c => c.em === f[0] || c.testo === f[1])) : t("bug");
+  const bugs = mescola([...altre]).slice(0, nBug).map(b => ({ em: b[0], testo: b[1], ordine: -1, bug: true }));
   let carte;
   do { carte = mescola([...fasi, ...bugs]); } while (carte.filter(c => !c.bug).every((c, i, a) => i === 0 || a[i - 1].ordine < c.ordine));
   S.carte = carte; S.sel = -1; S.tentativi = 0; S.fase = "fermo"; S.conBug = nBug > 0;
   S.totale = tempoLivello(S.livello) * 1000; S.scade = Date.now() + S.totale;
+  if (CONFIG.senzaTempo) $("tempoBarra").style.transform = "none";
   el.processo.textContent = proc.titolo;
   aggiornaStato(); disegna();
 }
@@ -304,7 +322,11 @@ el.carte.addEventListener("click", e => {
 });
 function togli(i) {
   const c = S.carte[i];
-  if (!c.bug) { messaggio(t("serviva"), "male"); S.carte.splice(i, 1); disegna(); setTimeout(() => { S.carte.splice(i, 0, c); S.sel = -1; disegna(); }, 500); return; }
+  if (!c.bug) {
+    // togliere una fase giusta costa 5 secondi (mai sotto il tempo attuale); senza tempo nessuna penalità
+    if (CONFIG.senzaTempo) messaggio(t("serviva"), "male"); else { S.scade = Math.max(Date.now(), S.scade - 5000); messaggio(t("servivaPenale"), "male"); }
+    S.carte.splice(i, 1); disegna(); setTimeout(() => { S.carte.splice(i, 0, c); S.sel = -1; disegna(); }, 500); return;
+  }
   S.carte.splice(i, 1); S.sel = -1; disegna();
 }
 $("bMescola").addEventListener("click", () => { if (S.fase !== "fermo") return; mescola(S.carte); S.sel = -1; disegna(); });
@@ -328,7 +350,7 @@ function perdiVita(testo) {
 }
 function successo() {
   S.fase = "ok";
-  const rimasto = Math.max(0, S.scade - Date.now());
+  const rimasto = CONFIG.senzaTempo ? S.totale : Math.max(0, S.scade - Date.now());
   const bonus = Math.round(CONFIG.punti.bonusVelocita * rimasto / S.totale);
   const primo = S.tentativi === 1 ? CONFIG.punti.bonusPrimoColpo : 0;
   const molt = 1 + Math.min(CONFIG.punti.serieMax, S.serie * CONFIG.punti.serieStep);
@@ -336,7 +358,7 @@ function successo() {
   S.punti += guadagno; S.serie++; aggiornaStato();
   disegna(S.carte.map(() => true));
   messaggio(`${t("bravo")} +${guadagno}` + (primo ? t("primo") : "") + (S.serie > 1 ? `${t("serie")}${S.serie}` : ""), "bene");
-  if (S.punti >= sogliaLivello(S.livello)) { setTimeout(salitaLivello, 700); return; }
+  if (S.base + S.punti >= sogliaLivello(S.livello)) { setTimeout(salitaLivello, 700); return; }
   setTimeout(nuovoLavoro, 1100);
 }
 function mostraSoluzione(testo) {
@@ -349,7 +371,7 @@ function mostraSoluzione(testo) {
 
 // ===================== tempo =====================
 function tick() {
-  if (S.fase !== "fermo") return;
+  if (S.fase !== "fermo" || CONFIG.senzaTempo) return;
   const resto = S.scade - Date.now();
   $("tempoBarra").style.transform = `scaleX(${Math.max(0, resto / S.totale)})`;
   el.tempo.classList.toggle("urgente", resto < 5000);
@@ -364,7 +386,7 @@ function salitaLivello() {
   let extra = "";
   if ((S.livello - 1) % CONFIG.vitaOgniLivelli === 0 && S.vite < CONFIG.viteMax) { S.vite++; extra = t("vitaExtra"); }
   $("lvTitolo").textContent = `${t("livello")} ${S.livello}!`;
-  $("lvTesto").textContent = t("lvTesto")(S.punti, Math.round(tempoLivello(S.livello))) + extra;
+  $("lvTesto").textContent = (CONFIG.senzaTempo ? t("lvTestoSenzaTempo")(S.punti) : t("lvTesto")(S.punti, Math.round(tempoLivello(S.livello)))) + extra;
   $("lvCuriosita").textContent = t("curiosita")[(S.livello - 2) % t("curiosita").length];
   $("schermoLivello").hidden = false; $("bContinua").focus({ preventScroll: true });
 }
@@ -398,16 +420,18 @@ function mostraTutorial(k, poi) {
   $("schermoTutorial").hidden = false; $("bTutorialOk").focus({ preventScroll: true });
   $("bTutorialOk").onclick = () => { $("schermoTutorial").hidden = true; poi(); };
 }
-function tutorialLivello(poi) {
-  if (S.livello === 1) { mostraTutorial(1, poi); return; }
+// all'inizio (anche partendo da un livello alto) mostra il tutorial 1 e poi, se serve, quello del bug
+function tutorialLivello(poi, inizio) {
+  if (inizio) { mostraTutorial(1, () => tutorialLivello(poi)); return; }
   if (!S.bugSpiegato && S.livello >= CONFIG.bugDalLivello) { S.bugSpiegato = true; mostraTutorial("bug", poi); return; }
   poi();
 }
-function mostraGioco(v) { [el.stato, el.processo, el.carte, el.tempo, el.msg, el.azioni].forEach(e => e.hidden = !v); }
+function mostraGioco(v) { [el.stato, el.processo, el.carte, el.tempo, el.msg, el.azioni].forEach(e => e.hidden = !v); if (v && CONFIG.senzaTempo) el.tempo.hidden = true; }
 function iniziaPartita() {
-  Object.assign(CONFIG, DIFFICOLTA[S.diff]);
-  S.livello = 1; S.punti = 0; S.vite = CONFIG.vite; S.serie = 0; S.firma = ""; S.bugSpiegato = false;
-  mostraGioco(true); tutorialLivello(() => { nuovoLavoro(); messaggio(t("porta"), ""); avviaLoop(); });
+  Object.assign(CONFIG, { senzaTempo: false }, DIFFICOLTA[S.diff]);
+  S.livello = Math.min(9, Math.max(1, +$("inLivello").value || 1)); S.punti = 0; S.base = S.livello > 1 ? sogliaLivello(S.livello - 1) : 0;   // partendo da un livello alto le soglie si contano da lì
+  S.vite = CONFIG.vite; S.serie = 0; S.firma = ""; S.bugSpiegato = false;
+  mostraGioco(true); el.tempo.classList.remove("urgente"); tutorialLivello(() => { nuovoLavoro(); messaggio(t("porta"), ""); avviaLoop(); }, true);
 }
 function classificaIniziale() {
   S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";

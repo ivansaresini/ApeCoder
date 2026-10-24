@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Per le maestre</title>
+<style>
+@font-face{font-family:'Fredoka';font-weight:500 700;font-display:swap;src:url(fonts/fredoka.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-weight:600 800;font-display:swap;src:url(fonts/nunito.woff2) format('woff2')}
+/* Layout: stessa testata della index (🏠 a sinistra, lingua a destra), poi una scheda per ogni gioco con 4 blocchi: concetto, prima, domande, dopo */
+:root{
+  --sky:#dcf1fb; --meadow:#9bd56a; --honey:#f6b73c; --honey-d:#c98610; --ink:#3b2a10; --ink-soft:#7a6240;
+  --paper:#fffaf0; --sky-d:#2d7fc1;
+  --display:'Fredoka',ui-rounded,'Arial Rounded MT Bold','Nunito',system-ui,sans-serif;
+  --body:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; color-scheme:light;
+}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--body);font-weight:600;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 24px}
+main{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.testa{position:relative;display:flex;justify-content:center;align-items:center;min-height:48px}
+.tondo{width:44px;height:44px;border-radius:50%;border:0;background:var(--paper);cursor:pointer;box-shadow:0 3px 0 #d9cdb3;font-size:22px;line-height:1;display:grid;place-items:center;text-decoration:none;color:var(--ink)}
+.tondo:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
+.casa{position:absolute;left:0;top:50%;transform:translateY(-50%)}
+.lingua{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,7vw,40px);margin:0;text-align:center;color:var(--honey-d);text-wrap:balance;line-height:1.1;padding:0 48px}
+.intro{margin:0;text-align:center;color:var(--ink-soft);font-size:15px;line-height:1.45}
+#schede{display:flex;flex-direction:column;gap:12px}
+.scheda{background:var(--paper);border-radius:22px;padding:18px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 5px 0 #d9cdb3}
+.scheda h2{font-family:var(--display);font-weight:700;font-size:clamp(20px,5.5vw,26px);margin:0;line-height:1.15;display:flex;align-items:center;gap:8px}
+.scheda h2 .em{font-size:1.3em;line-height:1}
+.scheda .cosa{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--sky-d);font-weight:800;margin-top:-6px}
+.blocco{background:var(--sky);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.45}
+.blocco b{font-family:var(--display);color:var(--sky-d);display:block;margin-bottom:4px;font-size:16px}
+.blocco.giallo{background:#fde9a8;border:2px solid var(--honey)}
+.blocco.giallo b{color:var(--honey-d)}
+.blocco ul{margin:4px 0 0;padding-left:20px}
+.blocco li{margin:2px 0}
+.blocco p{margin:0}
+.blocco p + p{margin-top:6px}
+.codice{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff;border-radius:8px;padding:2px 8px;display:inline-block;font-size:14px}
+footer{text-align:center;font-size:12px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<main>
+  <header class="testa">
+    <a class="tondo casa" href="index.html" aria-label="Menu">🏠</a>
+    <h1 data-t="titolo"></h1>
+    <button class="tondo lingua" id="bLingua" aria-label="Language / Lingua">🇬🇧</button>
+  </header>
+  <p class="intro" data-t="intro"></p>
+  <div id="schede"></div>
+  <section class="scheda">
+    <h2><span class="em">🏫</span><span data-t="modiTitolo"></span></h2>
+    <div class="blocco giallo"><b data-t="modi1t"></b><p data-t="modi1"></p></div>
+    <div class="blocco giallo"><b data-t="modi2t"></b><p data-t="modi2"></p></div>
+  </section>
+  <footer data-t="piede"></footer>
+</main>
+
+<script>
+// ===================== lingua (condivisa con i giochi tramite localStorage) =====================
+const CHIAVE_LINGUA = "scuolaApe.lingua";
+function leggiLingua() {
+  try { const s = localStorage.getItem(CHIAVE_LINGUA); if (s === "it" || s === "en") return s; } catch (e) {}
+  return (navigator.language || "it").toLowerCase().startsWith("en") ? "en" : "it";
+}
+function salvaLingua(l) { try { localStorage.setItem(CHIAVE_LINGUA, l); } catch (e) {} }
+let L = leggiLingua();
+
+const T = {
+  it: {
+    titolo: "🍎 Per le maestre",
+    intro: "Ogni gioco di Scuola Ape insegna un'idea del coding. Qui trovi, per ciascuno, il concetto, un'attività da fare in classe senza computer prima di giocare, le domande da porre e cosa fare dopo.",
+    piede: "App generata con l'intelligenza artificiale · Proprietà intellettuale di Xei S.r.l.",
+    concettoT: "Il concetto", primaT: "Prima del gioco (senza computer)", domandeT: "Domande da porre", dopoT: "Dopo il gioco",
+    modiTitolo: "Modalità consigliate in classe",
+    modi1t: "🐢 Senza fretta", modi1: "La quarta difficoltà toglie il tempo: perfetta sulla LIM, per giocare tutti insieme e discutere ogni scelta prima di premere ESEGUI.",
+    modi2t: "Parti dal livello", modi2: "Nella schermata iniziale si può scegliere il livello di partenza, per andare dritti al concetto che vuoi lavorare: in Guardiana il tasto E compare al livello 5 e il tasto O al 7; in Fabbrica il bug compare dal livello 4. I tutorial dei livelli precedenti vengono mostrati comunque, in sequenza.",
+    giochi: [
+      { em: "🍯", titolo: "Ape Coder", cosa: "Sequenze",
+        concetto: "Un programma è una lista di istruzioni eseguite una dopo l'altra, nell'ordine esatto in cui sono scritte. Il computer non indovina e non aggiusta: fa solo quello che gli dici.",
+        prima: ["Con il nastro adesivo disegna sul pavimento una scacchiera 5×5.", "Un bambino è \"l'ape-robot\": esegue SOLO le frecce che i compagni gli dicono, mostrandole con carte ▲ ▼ ◀ ▶. Se dicono una freccia sbagliata, il robot la esegue lo stesso.", "Obiettivo: portare l'ape da una casella all'altra (per esempio dall'alveare al fiore)."],
+        domande: ["Cosa succede se dico le frecce in ordine diverso?", "Qual è il percorso più corto? Ce n'è uno solo?", "Perché il robot non può indovinare?"],
+        dopo: ["Prima di premere i tasti, scrivere il codice su carta (per esempio: destra 3, su 2) e solo dopo eseguirlo nel gioco.", "Ragionare sul ciclo pianificare → eseguire → verificare: se l'ape non arriva, cosa correggo nel codice?"] },
+      { em: "💃", titolo: "Danza dell'ape", cosa: "Cicli",
+        concetto: "Quando un'azione si ripete, non la riscrivo dieci volte: la scrivo una volta e dico quante volte ripeterla. È il ciclo (RIPETI), il \"for\" dei linguaggi di programmazione.",
+        prima: ["In cerchio: \"batti le mani, salta\" per 4 volte. Scriverlo per esteso alla lavagna (batti, salta, batti, salta, …) e poi chiedere: \"come lo scriviamo più corto?\".", "Collana di perline: \"giallo giallo nero\" ripetuto 5 volte. Far scrivere la regola invece dell'elenco delle 15 perline."],
+        domande: ["Cosa c'è dentro al ripeti e cosa fuori?", "Quante volte? Come lo sai?"],
+        dopo: ["Dato un percorso scritto con 12 frecce, trovare il modo di scriverlo con meno mattoncini usando RIPETI.", "Confrontare le soluzioni: quella più corta è sempre la più facile da leggere?"] },
+      { em: "🛡️", titolo: "Guardiana dell'alveare", cosa: "Condizioni",
+        concetto: "Un programma può decidere: SE vale una condizione ALLORA fa una cosa, ALTRIMENTI un'altra. Le condizioni si possono unire con E (servono tutte e due) e con O (ne basta una), oppure negare con NON.",
+        prima: ["\"Il buttafuori\": la maestra fa entrare nel cerchio solo alcuni bambini (per esempio chi ha le scarpe con i lacci) senza dire la regola. Gli altri osservano chi entra e chi no e provano a indovinarla.", "Poi si gioca con due condizioni (per esempio: lacci E maglia rossa, oppure lacci O occhiali).", "Carte-insetto di carta con 4 attributi (strisce, ali chiare, grande, miele) per giocare a coppie: uno inventa la regola e separa le carte, l'altro la indovina."],
+        domande: ["Un solo esempio basta per essere sicuri?", "Cosa ti servirebbe vedere per essere sicuro?", "Dì la regola con SE… ALLORA… ALTRIMENTI…"],
+        dopo: ["Scrivere le regole della classe come SE / ALLORA / ALTRIMENTI (SE suona la campanella ALLORA … ALTRIMENTI …).", "Cercare i SE nascosti nella vita di tutti i giorni: il semaforo, la porta automatica, la password del tablet."] },
+      { em: "🏭", titolo: "Fabbrica del miele", cosa: "Ordine e debug",
+        concetto: "L'ordine delle istruzioni conta. Quando un programma non funziona, l'errore si chiama bug: può essere un passo nell'ordine sbagliato o un passo che non c'entra niente. Cercarlo e toglierlo si chiama debug.",
+        prima: ["\"La ricetta del panino\": cartoncini con le fasi (prendi il pane, apri il barattolo, spalma, chiudi il panino…) e uno intruso (\"mettere le scarpe\"). I bambini li ordinano in fila sul pavimento.", "La maestra esegue la ricetta alla lettera, nell'ordine dato, senza aggiustare niente: se il pane viene chiuso prima di spalmare, lo fa davvero. Si ride, e poi si corregge."],
+        domande: ["Quali fasi possono scambiarsi senza problemi e quali no?", "Come fai a essere sicuro che una fase è un bug?"],
+        dopo: ["Fumetto del miele in 5 vignette: ogni bambino disegna le fasi di \"Come nasce il miele\" nell'ordine giusto.", "Scambiarsi i fumetti e inserire di nascosto una vignetta intrusa: il compagno deve trovare il bug."] },
+    ],
+  },
+  en: {
+    titolo: "🍎 For teachers",
+    intro: "Every Bee School game teaches one coding idea. For each one you will find the concept, an unplugged activity to do in class before playing, questions to ask and what to do afterwards.",
+    piede: "App generated with artificial intelligence · Intellectual property of Xei S.r.l.",
+    concettoT: "The concept", primaT: "Before the game (unplugged)", domandeT: "Questions to ask", dopoT: "After the game",
+    modiTitolo: "Recommended classroom modes",
+    modi1t: "🐢 No rush", modi1: "The fourth difficulty removes the timer: perfect on the interactive whiteboard, to play all together and discuss every choice before pressing RUN.",
+    modi2t: "Start at level", modi2: "On the start screen you can pick the starting level, to go straight to the concept you want to work on: in Hive Guard the AND button appears at level 5 and OR at level 7; in Honey Factory the bug appears from level 4. The tutorials of the earlier levels are still shown, in sequence.",
+    giochi: [
+      { em: "🍯", titolo: "Bee Coder", cosa: "Sequences",
+        concetto: "A program is a list of instructions run one after another, in the exact order they are written. The computer never guesses and never fixes things: it does only what you tell it.",
+        prima: ["With masking tape draw a 5×5 grid on the floor.", "One child is the \"robot bee\": they perform ONLY the arrows their classmates call out, showing them with ▲ ▼ ◀ ▶ cards. If someone calls a wrong arrow, the robot does it anyway.", "Goal: move the bee from one square to another (for example from the hive to the flower)."],
+        domande: ["What happens if I say the arrows in a different order?", "What is the shortest path? Is there only one?", "Why can't the robot guess?"],
+        dopo: ["Before pressing the buttons, write the code on paper (for example: right 3, up 2) and only then run it in the game.", "Talk about the cycle plan → run → check: if the bee doesn't get there, what do I fix in the code?"] },
+      { em: "💃", titolo: "Bee Dance", cosa: "Loops",
+        concetto: "When an action repeats, I don't write it ten times: I write it once and say how many times to repeat it. That is a loop (REPEAT), the \"for\" of programming languages.",
+        prima: ["In a circle: \"clap your hands, jump\" 4 times. Write it out in full on the board (clap, jump, clap, jump, …) and then ask: \"how can we write it shorter?\".", "Bead necklace: \"yellow yellow black\" repeated 5 times. Have the children write the rule instead of listing all 15 beads."],
+        domande: ["What goes inside the repeat and what stays outside?", "How many times? How do you know?"],
+        dopo: ["Given a path written with 12 arrows, find a way to write it with fewer blocks using REPEAT.", "Compare the solutions: is the shortest one always the easiest to read?"] },
+      { em: "🛡️", titolo: "Hive Guard", cosa: "Conditions",
+        concetto: "A program can decide: IF a condition holds THEN do one thing, ELSE do another. Conditions can be joined with AND (you need both) and OR (one is enough), or negated with NOT.",
+        prima: ["\"The bouncer\": the teacher lets only some children into the circle (for example those with laced shoes) without saying the rule. The others watch who gets in and who doesn't and try to guess it.", "Then play with two conditions (for example: laces AND red shirt, or laces OR glasses).", "Paper insect cards with 4 attributes (stripes, clear wings, big, honey) to play in pairs: one invents the rule and sorts the cards, the other guesses it."],
+        domande: ["Is a single example enough to be sure?", "What would you need to see to be sure?", "Say the rule with IF… THEN… ELSE…"],
+        dopo: ["Write the class rules as IF / THEN / ELSE (IF the bell rings THEN … ELSE …).", "Look for hidden IFs in everyday life: the traffic light, the automatic door, the tablet password."] },
+      { em: "🏭", titolo: "Honey Factory", cosa: "Order & debugging",
+        concetto: "The order of instructions matters. When a program doesn't work, the mistake is called a bug: it can be a step in the wrong order or a step that doesn't belong at all. Hunting it down and removing it is called debugging.",
+        prima: ["\"The sandwich recipe\": cards with the steps (take the bread, open the jar, spread, close the sandwich…) and one intruder (\"put on your shoes\"). The children line them up on the floor.", "The teacher follows the recipe to the letter, in the given order, without fixing anything: if the bread is closed before spreading, she really does it. Everyone laughs, then they fix it."],
+        domande: ["Which steps can be swapped without problems and which can't?", "How can you be sure a step is a bug?"],
+        dopo: ["Honey comic strip in 5 panels: each child draws the steps of \"How honey is made\" in the right order.", "Swap comics and secretly slip in an intruder panel: the classmate has to find the bug."] },
+    ],
+  },
+};
+const $ = id => document.getElementById(id);
+const t = k => T[L][k];
+const lista = a => `<ul>${a.map(x => `<li>${x}</li>`).join("")}</ul>`;
+
+function disegna() {
+  document.documentElement.lang = L;
+  document.title = L === "en" ? "For teachers" : "Per le maestre";
+  $("bLingua").textContent = L === "en" ? "🇮🇹" : "🇬🇧";
+  document.querySelectorAll("[data-t]").forEach(e => e.textContent = t(e.dataset.t));
+  $("schede").innerHTML = t("giochi").map(g => `<section class="scheda">
+    <h2><span class="em">${g.em}</span><span>${g.titolo}</span></h2><div class="cosa">${g.cosa}</div>
+    <div class="blocco giallo"><b>${t("concettoT")}</b><p>${g.concetto}</p></div>
+    <div class="blocco"><b>${t("primaT")}</b>${lista(g.prima)}</div>
+    <div class="blocco"><b>${t("domandeT")}</b>${lista(g.domande)}</div>
+    <div class="blocco"><b>${t("dopoT")}</b>${lista(g.dopo)}</div>
+  </section>`).join("");
+}
+$("bLingua").addEventListener("click", () => { L = L === "en" ? "it" : "en"; salvaLingua(L); disegna(); });
+disegna();
+</script>
+</body>
+</html>
