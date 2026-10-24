@@ -10,15 +10,15 @@
 /* Layout: barra stato, pannello esempi (chi entra / chi no), fila all'ingresso, riga della regola, tastiera dei tasti SE */
 :root{
   --sky:#dcf1fb; --meadow:#9bd56a; --honey:#f6b73c; --honey-d:#c98610; --ink:#3b2a10; --ink-soft:#7a6240; --paper:#fffaf0;
-  --danger:#e14b3b; --ok:#3a9a37; --sky-d:#2d7fc1; --cond:#ffd27a; --neg:#f3a6a6; --op:#c8a0e8; --op-d:#8e5cc0;
+  --danger:#c0332a; --ok:#2a7527; --sky-d:#2d7fc1; --cond:#ffd27a; --neg:#f3a6a6; --op:#c8a0e8; --op-d:#8e5cc0;
   --display:'Fredoka',ui-rounded,'Arial Rounded MT Bold','Nunito',system-ui,sans-serif;
   --body:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; color-scheme:light;
 }
 *{box-sizing:border-box}
-html{height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%}
 body{height:100%;margin:0;background:var(--sky);color:var(--ink);font-family:var(--body);font-weight:600;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-block:8px;display:flex;flex-direction:column;align-items:center;gap:8px;overflow:hidden}
+  padding:calc(8px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  display:flex;flex-direction:column;align-items:center;gap:8px;overflow:hidden}
 h1,h2{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance}
 button{font-family:var(--display);font-weight:700;border:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
@@ -30,18 +30,22 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .stato .vite{letter-spacing:2px;font-size:18px}
 .stato .punti{font-family:var(--display);font-size:22px;color:var(--honey-d)}
 .stato small{color:var(--ink-soft);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.stato > div{white-space:nowrap;flex-shrink:0}
+.stato .nome{flex-shrink:1}
+@media (max-width:400px){.stato{padding:6px 8px;gap:6px}.stato small{display:none}.stato .vite{letter-spacing:0;font-size:16px}.stato .nome{max-width:28%;font-size:16px}.stato .punti{font-size:20px}}
 
 .esempi{width:100%;max-width:520px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .gruppo{background:var(--paper);border-radius:14px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;align-items:center}
 .gruppo b{font-family:var(--display);font-size:14px}
 .gruppo.si b{color:var(--ok)}.gruppo.no b{color:var(--danger)}
-.gruppo .fila{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.gruppo .fila{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:100%;justify-items:center}
+.gruppo .ins{width:100%;max-width:54px;height:auto;aspect-ratio:1}
 .ins{width:54px;height:54px;flex:0 0 auto}
 .ins svg{width:100%;height:100%}
 
 .ingresso{width:100%;max-width:520px;background:var(--meadow);border-radius:16px;height:96px;position:relative;overflow:hidden;box-shadow:0 5px 0 #6fae43}
 .ingresso .porta{position:absolute;right:0;top:0;bottom:0;width:72px;background:var(--honey);display:grid;place-items:center;font-size:34px;border-left:4px dashed var(--honey-d)}
-.ingresso .coda{position:absolute;left:0;top:0;bottom:0;right:72px}
+.ingresso .coda{position:absolute;left:0;top:0;bottom:0;right:72px;overflow:hidden}
 .ingresso .ins{position:absolute;top:50%;width:68px;height:68px;transform:translate(0,-50%);transition:left .45s ease,opacity .3s,transform .3s}
 .ingresso .ins.dentro{opacity:0;transform:translate(60px,-50%) scale(.6)}
 .ingresso .ins.via{opacity:0;transform:translate(0,-120%) scale(.6)}
@@ -50,7 +54,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .tempo{width:100%;max-width:520px;height:14px;background:var(--paper);border-radius:999px;overflow:hidden;position:relative}
 .tempo i{position:absolute;inset:0;background:var(--honey);transform-origin:left;transition:transform .1s linear,background .2s}
 .tempo.urgente i{background:var(--danger)}
-.msg{height:22px;font-size:15px;color:var(--ink-soft);text-align:center;width:100%;max-width:520px}
+.msg{height:22px;line-height:22px;font-size:clamp(13px,3.9vw,15px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-soft);text-align:center;width:100%;max-width:520px}
 .msg.bene{color:var(--ok)}.msg.male{color:var(--danger)}
 .regola{width:100%;max-width:520px;min-height:48px;background:var(--paper);border-radius:14px;padding:6px 10px;
   display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-family:var(--display);font-size:18px}
@@ -61,8 +65,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .chip.op{background:var(--op);color:#2a0f45}
 .chip.az{background:#cdebc4;color:var(--ok)}
 
-.pad{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,50px);gap:8px}
-.pad button{border-radius:14px;font-size:15px;color:var(--ink);background:var(--cond);box-shadow:0 4px 0 #d9b25f;padding:0 4px;line-height:1.1}
+.pad{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,54px);gap:8px}
+.pad button{border-radius:14px;font-size:clamp(11.5px,3.4vw,15px);color:var(--ink);background:var(--cond);box-shadow:0 4px 0 #d9b25f;padding:0 3px;line-height:1.1;overflow-wrap:anywhere}
 .pad button:active{transform:translateY(3px);box-shadow:0 1px 0 #d9b25f}
 .pad .canc{background:var(--paper);box-shadow:0 4px 0 #d9cdb3;font-size:22px}
 .pad .non{background:var(--neg);box-shadow:0 4px 0 #c97676}
@@ -70,6 +74,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .pad .invia{grid-column:3/5;grid-row:3;background:var(--honey);box-shadow:0 4px 0 var(--honey-d);font-size:22px;letter-spacing:.04em}
 .pad .invia:active{box-shadow:0 1px 0 var(--honey-d)}
 .pad button:disabled{opacity:.4;transform:none;box-shadow:none}
+.pad .aiuto{grid-column:1/3;background:transparent;box-shadow:none;font-family:var(--body);font-size:13px;color:var(--ink-soft);font-weight:600;line-height:1.2;padding:0 2px}
+.pad .aiuto:disabled{opacity:1}
+.pad .non[hidden],.pad .e[hidden],.pad .o[hidden]{display:block!important;visibility:hidden;pointer-events:none}
 
 .velo{position:fixed;inset:0;background:rgba(40,30,10,.55);display:flex;align-items:center;justify-content:center;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px;z-index:20}
@@ -79,7 +86,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .scheda h2{font-size:30px}
 .scheda p{margin:0;line-height:1.45}
 .scheda input{font:inherit;font-size:22px;padding:10px 14px;border-radius:12px;border:2px solid var(--honey);text-align:center;width:100%}
-.casa{position:absolute;top:10px;left:10px;font-size:24px;text-decoration:none;line-height:1;padding:6px;border-radius:10px}
+.casa{position:absolute;top:8px;left:8px;width:44px;height:44px;display:grid;place-items:center;font-size:24px;text-decoration:none;line-height:1;padding:0;border-radius:12px}
 .casa:hover{background:var(--sky)}
 .grande{background:var(--honey);color:var(--ink);border-radius:14px;padding:12px 18px;font-size:22px;box-shadow:0 4px 0 var(--honey-d)}
 .grande:active{transform:translateY(3px);box-shadow:0 1px 0 var(--honey-d)}
@@ -89,7 +96,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .livelli{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .livelli label{position:relative;display:block}
 .livelli input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
-.livelli span{display:block;padding:10px 4px;border-radius:12px;background:var(--sky);font-family:var(--display);font-size:17px;border:2px solid transparent}
+.livelli span{display:block;padding:12px 2px;border-radius:12px;background:var(--sky);font-family:var(--display);font-size:clamp(13px,3.8vw,17px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:2px solid transparent;min-height:44px}
 .livelli input:checked + span{background:var(--honey);border-color:var(--honey-d)}
 .livelli input:focus-visible + span{outline:3px solid var(--sky-d);outline-offset:2px}
 .curiosita{background:var(--sky);border-radius:14px;padding:12px;text-align:left}
@@ -104,6 +111,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .legenda{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:14px;text-align:left}
 .legenda div{display:flex;align-items:center;gap:6px}
 .legenda .ins{width:40px;height:40px}
+@media (max-height:720px){.scheda{padding:16px 16px;gap:10px}.scheda h1{font-size:30px}.scheda p{font-size:15px;line-height:1.35}.regole{gap:4px;font-size:14px}.regole .em{font-size:20px;flex-basis:36px}#classificaInizio .classifica li{padding:2px 8px;font-size:14px}}
 </style>
 </head>
 <body>
@@ -133,7 +141,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
   <button data-f="ali" data-t="fAli"></button>
   <button data-f="grande" data-t="fGrande"></button>
   <button data-f="miele" data-t="fMiele"></button>
-  <button class="aiuto" id="bAiuto" style="grid-column:1/3;background:transparent;box-shadow:none;font-family:var(--body);font-size:11px;color:var(--ink-soft)" data-t="aiuto"></button>
+  <button class="aiuto" id="bAiuto" data-t="aiuto" disabled></button>
   <button class="invia" id="bInvia" data-t="invia"></button>
 </div>
 
@@ -228,7 +236,7 @@ const T = {
     r3: "Premi INVIA: la fila passa davanti alla porta e la tua regola decide. Un errore costa una vita.",
     r4: "La barra gialla è il tempo per scrivere la regola.",
     entrano: "✅ Entrati", fermati: "⛔ Fermati",
-    fStrisce: "strisce", fAli: "ali trasparenti", fGrande: "grande", fMiele: "col miele",
+    fStrisce: "strisce", fAli: "ali chiare", fGrande: "grande", fMiele: "col miele",
     non: "NON", e: "E", o: "O", invia: "INVIA", aiuto: "Tocca una caratteristica per scrivere la regola",
     se: "SE", allora: "→ ENTRA", nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", gioca: "GIOCA",
     sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello", capito: "HO CAPITO!",
@@ -394,6 +402,7 @@ function perdiVita(testo) {
 function mostraSoluzione(testo) {
   fermaLoop(); S.fase = "pausa";
   $("solTesto").textContent = testo; $("solRegola").innerHTML = regolaHtml(S.segreta, false);
+  $("schermoSoluzione").querySelector(".scheda").scrollTop = 0;
   $("schermoSoluzione").hidden = false; $("bSoluzioneOk").focus({ preventScroll: true });
   $("bSoluzioneOk").onclick = () => { $("schermoSoluzione").hidden = true; S.fase = "fermo"; nuovoLivello(); avviaLoop(); };
 }
@@ -415,7 +424,8 @@ function salitaLivello() {
   $("lvTitolo").textContent = `${t("livello")} ${S.livello}!`;
   $("lvTesto").textContent = t("lvTesto")(S.punti, Math.round(tempoLivello(S.livello))) + extra;
   $("lvCuriosita").textContent = t("curiosita")[(S.livello - 2) % t("curiosita").length];
-  $("schermoLivello").hidden = false; $("bContinua").focus();
+  $("schermoLivello").querySelector(".scheda").scrollTop = 0;
+  $("schermoLivello").hidden = false; $("bContinua").focus({ preventScroll: true });
 }
 function fineGioco() {
   fermaLoop(); S.fase = "fine";
@@ -424,7 +434,8 @@ function fineGioco() {
   $("fnTesto").textContent = t("fnTesto")(S.nome, S.punti, t("diffNomi")[S.diff], S.livello) + (posizione > 0 ? t("posizione")(posizione) : "");
   $("fnRegola").innerHTML = `<span class="vuoto">${t("solTitolo")}</span>` + regolaHtml(S.segreta, false);
   mostraClassifica($("classificaFine"), classifica);
-  $("schermoFine").hidden = false; $("bRigioca").focus();
+  $("schermoFine").querySelector(".scheda").scrollTop = 0;
+  $("schermoFine").hidden = false; $("bRigioca").focus({ preventScroll: true });
 }
 
 // ===================== la fila =====================
@@ -517,7 +528,8 @@ function mostraTutorial(lv, poi) {
   const tu = t("tutorial")[lv]; if (!tu) { poi(); return; }
   $("tuEm").textContent = tu.em; $("tuTitolo").textContent = tu.titolo; $("tuTesto").textContent = tu.testo; $("tuNota").textContent = tu.nota;
   $("tuEsempio").innerHTML = regolaHtml(ESEMPI[lv], false);
-  $("schermoTutorial").hidden = false; $("bTutorialOk").focus();
+  $("schermoTutorial").querySelector(".scheda").scrollTop = 0;
+  $("schermoTutorial").hidden = false; $("bTutorialOk").focus({ preventScroll: true });
   $("bTutorialOk").onclick = () => { $("schermoTutorial").hidden = true; poi(); };
 }
 function mostraGioco(v) { [el.stato, el.esempi, el.ingresso, el.tempo, el.msg, el.regola, el.pad].forEach(e => e.hidden = !v); }
@@ -537,7 +549,7 @@ $("formInizio").addEventListener("submit", e => {
   $("schermoInizio").hidden = true; iniziaPartita();
 });
 $("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; mostraTutorial(S.livello, () => { nuovoLivello(); messaggio(t("nuovoLiv"), ""); avviaLoop(); }); });
-$("bRigioca").addEventListener("click", () => { $("schermoFine").hidden = true; $("inNome").value = S.nome; classificaIniziale(); $("schermoInizio").hidden = false; mostraGioco(false); });
+$("bRigioca").addEventListener("click", () => { $("schermoFine").hidden = true; $("inNome").value = S.nome; classificaIniziale(); $("formInizio").scrollTop = 0; $("schermoInizio").hidden = false; mostraGioco(false); });
 document.querySelectorAll('input[name="diff"]').forEach(r => r.addEventListener("change", classificaIniziale));
 document.documentElement.lang = L;
 document.title = L === "en" ? "Hive Guard" : "Guardiana dell'alveare";

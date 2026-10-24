@@ -10,15 +10,15 @@
 /* Layout: barra stato, titolo del processo, pila di carte da riordinare (tocca due carte per scambiarle), barra tempo, INVIA */
 :root{
   --sky:#dcf1fb; --meadow:#9bd56a; --honey:#f6b73c; --honey-d:#c98610; --ink:#3b2a10; --ink-soft:#7a6240; --paper:#fffaf0;
-  --danger:#e14b3b; --ok:#3a9a37; --sky-d:#2d7fc1; --sel:#ffe08a;
+  --danger:#c0332a; --ok:#2a7527; --sky-d:#2d7fc1; --sel:#ffe08a;
   --display:'Fredoka',ui-rounded,'Arial Rounded MT Bold','Nunito',system-ui,sans-serif;
   --body:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; color-scheme:light;
 }
 *{box-sizing:border-box}
-html{height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%}
 body{height:100%;margin:0;background:var(--sky);color:var(--ink);font-family:var(--body);font-weight:600;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-block:8px;display:flex;flex-direction:column;align-items:center;gap:8px;overflow:hidden}
+  padding:calc(8px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  display:flex;flex-direction:column;align-items:center;gap:8px;overflow:hidden}
 h1,h2{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance}
 button{font-family:var(--display);font-weight:700;border:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
@@ -30,10 +30,14 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .stato .vite{letter-spacing:2px;font-size:18px}
 .stato .punti{font-family:var(--display);font-size:22px;color:var(--honey-d)}
 .stato small{color:var(--ink-soft);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.stato > div{white-space:nowrap;flex-shrink:0}
+.stato .nome{flex-shrink:1}
+@media (max-width:400px){.stato{padding:6px 8px;gap:6px}.stato small{display:none}.stato .vite{letter-spacing:0;font-size:16px}.stato .nome{max-width:28%;font-size:16px}.stato .punti{font-size:20px}}
 
 .processo{width:100%;max-width:520px;text-align:center;font-family:var(--display);font-size:20px;color:var(--honey-d)}
-.carte{width:100%;max-width:520px;display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;overflow:auto;justify-content:center}
-.carta{display:grid;grid-template-columns:34px 44px 1fr 40px;align-items:center;gap:8px;background:var(--paper);border-radius:14px;padding:6px 6px 6px 8px;
+.carte{width:100%;max-width:520px;display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;overflow:auto;justify-content:flex-start}
+.carte > :first-child{margin-top:auto} .carte > :last-child{margin-bottom:auto}
+.carta{display:grid;grid-template-columns:30px 40px 1fr auto;align-items:center;gap:6px;background:var(--paper);border-radius:14px;padding:4px 4px 4px 8px;
   border:3px solid transparent;box-shadow:0 4px 0 #d9cdb3;font-size:16px;line-height:1.2;cursor:pointer;transition:transform .15s,border-color .15s}
 .carta .num{font-family:var(--display);font-size:20px;color:var(--ink-soft);text-align:center}
 .carta .em{font-size:30px;text-align:center;line-height:1}
@@ -41,15 +45,16 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .carta.sel{border-color:var(--honey-d);background:var(--sel);transform:scale(1.02)}
 .carta.ok{border-color:var(--ok);background:#e2f3dc}
 .carta.male{border-color:var(--danger);background:#fbe1dd}
-.carta .x{width:34px;height:34px;border-radius:10px;background:#f3e6cf;color:var(--ink-soft);font-size:18px}
+.carta .x{min-width:44px;height:44px;border-radius:10px;background:#fbe1dd;color:var(--danger);font-size:16px;padding:0 6px;white-space:nowrap}
 .carta .x:hover{background:var(--danger);color:#fff}
 
 .tempo{width:100%;max-width:520px;height:14px;background:var(--paper);border-radius:999px;overflow:hidden;position:relative}
 .tempo i{position:absolute;inset:0;background:var(--honey);transform-origin:left;transition:transform .1s linear,background .2s}
 .tempo.urgente i{background:var(--danger)}
-.msg{height:22px;font-size:15px;color:var(--ink-soft);text-align:center;width:100%;max-width:520px}
+.msg{height:22px;line-height:22px;font-size:clamp(13px,3.9vw,15px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-soft);text-align:center;width:100%;max-width:520px}
 .msg.bene{color:var(--ok)}.msg.male{color:var(--danger)}
-.azioni{width:100%;max-width:520px;display:grid;grid-template-columns:1fr 2fr;gap:8px}
+.azioni{width:100%;max-width:520px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:8px}
+#bMescola{font-size:clamp(15px,4.6vw,20px);white-space:nowrap;padding:0 6px;overflow:hidden;text-overflow:ellipsis}
 .azioni button{border-radius:14px;height:54px;font-size:22px;color:var(--ink);background:var(--paper);box-shadow:0 4px 0 #d9cdb3}
 .azioni button:active{transform:translateY(3px);box-shadow:0 1px 0 #d9cdb3}
 .azioni .invia{background:var(--honey);box-shadow:0 4px 0 var(--honey-d);letter-spacing:.04em}
@@ -63,7 +68,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .scheda h2{font-size:30px}
 .scheda p{margin:0;line-height:1.45}
 .scheda input{font:inherit;font-size:22px;padding:10px 14px;border-radius:12px;border:2px solid var(--honey);text-align:center;width:100%}
-.casa{position:absolute;top:10px;left:10px;font-size:24px;text-decoration:none;line-height:1;padding:6px;border-radius:10px}
+.casa{position:absolute;top:8px;left:8px;width:44px;height:44px;display:grid;place-items:center;font-size:24px;text-decoration:none;line-height:1;padding:0;border-radius:12px}
 .casa:hover{background:var(--sky)}
 .grande{background:var(--honey);color:var(--ink);border-radius:14px;padding:12px 18px;font-size:22px;box-shadow:0 4px 0 var(--honey-d)}
 .grande:active{transform:translateY(3px);box-shadow:0 1px 0 var(--honey-d)}
@@ -73,7 +78,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .livelli{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .livelli label{position:relative;display:block}
 .livelli input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
-.livelli span{display:block;padding:10px 4px;border-radius:12px;background:var(--sky);font-family:var(--display);font-size:17px;border:2px solid transparent}
+.livelli span{display:block;padding:12px 2px;border-radius:12px;background:var(--sky);font-family:var(--display);font-size:clamp(13px,3.8vw,17px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:2px solid transparent;min-height:44px}
 .livelli input:checked + span{background:var(--honey);border-color:var(--honey-d)}
 .livelli input:focus-visible + span{outline:3px solid var(--sky-d);outline-offset:2px}
 .curiosita{background:var(--sky);border-radius:14px;padding:12px;text-align:left}
@@ -87,6 +92,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .classifica li span:last-child{color:var(--ink-soft);font-size:13px}
 .classifica .pt{font-family:var(--display);font-size:18px}
 .esito-grande{font-family:var(--display);font-size:52px;color:var(--honey-d);line-height:1}
+@media (max-height:720px){.scheda{padding:16px 16px;gap:10px}.scheda h1{font-size:30px}.scheda p{font-size:15px;line-height:1.35}.regole{gap:4px;font-size:14px}.regole .em{font-size:20px;flex-basis:36px}#classificaInizio .classifica li{padding:2px 8px;font-size:14px}}
 </style>
 </head>
 <body>
@@ -194,7 +200,7 @@ const T = {
     nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", gioca: "GIOCA", invia: "INVIA", annulla: "🔀 Rimescola",
     sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello", capito: "HO CAPITO!",
     porta: "Tocca due carte per scambiarle.", nuovoLiv: "Nuovo livello!", tardi: "Tempo scaduto! −1 vita",
-    sbagliato: "Non ancora: le carte rosse sono fuori posto. −1 vita", bugResta: "C'è una fase che non c'entra! Toglila con ✕. −1 vita",
+    sbagliato: "Le carte rosse sono fuori posto. −1 vita", bugResta: "C'è una fase che non c'entra! Toglila con ✕. −1 vita",
     serviva: "Quella fase serve! L'ho rimessa.", bravo: "Ordine perfetto!", primo: " (al primo colpo!)", serie: " · serie ×",
     solTitolo: "L'ordine giusto era:", solNota: "",
     lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per ogni lavoro.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
@@ -222,7 +228,7 @@ const T = {
     nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", gioca: "PLAY", invia: "GO", annulla: "🔀 Shuffle",
     sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level", capito: "GOT IT!",
     porta: "Tap two cards to swap them.", nuovoLiv: "New level!", tardi: "Time's up! −1 life",
-    sbagliato: "Not yet: the red cards are out of place. −1 life", bugResta: "There's a step that doesn't belong! Remove it with ✕. −1 life",
+    sbagliato: "The red cards are out of place. −1 life", bugResta: "There's a step that doesn't belong! Remove it with ✕. −1 life",
     serviva: "That step is needed! I put it back.", bravo: "Perfect order!", primo: " (first try!)", serie: " · streak ×",
     solTitolo: "The right order was:", solNota: "",
     lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds per job.`, vitaExtra: " You earned an extra life! ❤️",
@@ -266,7 +272,7 @@ function nuovoLavoro() {
   const bugs = mescola([...t("bug")]).slice(0, nBug).map(b => ({ em: b[0], testo: b[1], ordine: -1, bug: true }));
   let carte;
   do { carte = mescola([...fasi, ...bugs]); } while (carte.filter(c => !c.bug).every((c, i, a) => i === 0 || a[i - 1].ordine < c.ordine));
-  S.carte = carte; S.sel = -1; S.tentativi = 0; S.fase = "fermo";
+  S.carte = carte; S.sel = -1; S.tentativi = 0; S.fase = "fermo"; S.conBug = nBug > 0;
   S.totale = tempoLivello(S.livello) * 1000; S.scade = Date.now() + S.totale;
   el.processo.textContent = proc.titolo;
   aggiornaStato(); disegna();
@@ -279,7 +285,7 @@ function disegna(esito) {
   el.carte.innerHTML = S.carte.map((c, i) => {
     let cls = i === S.sel ? " sel" : "";
     if (esito) cls += esito[i] ? " ok" : " male";
-    return `<div class="carta${cls}" data-i="${i}" role="button" tabindex="0"><span class="num">${i + 1}</span><span class="em">${c.em}</span><span class="testo">${c.testo}</span><button class="x" data-x="${i}" aria-label="✕">✕</button></div>`;
+    return `<div class="carta${cls}" data-i="${i}" role="button" tabindex="0"><span class="num">${i + 1}</span><span class="em">${c.em}</span><span class="testo">${c.testo}</span>${S.conBug ? `<button class="x" data-x="${i}" aria-label="✕">🐛✕</button>` : ""}</div>`;
   }).join("");
 }
 function messaggio(m, tipo) { el.msg.textContent = m; el.msg.className = "msg " + (tipo || ""); }
@@ -414,7 +420,7 @@ $("formInizio").addEventListener("submit", e => {
   $("schermoInizio").hidden = true; iniziaPartita();
 });
 $("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; tutorialLivello(() => { nuovoLavoro(); messaggio(t("nuovoLiv"), ""); avviaLoop(); }); });
-$("bRigioca").addEventListener("click", () => { $("schermoFine").hidden = true; $("inNome").value = S.nome; classificaIniziale(); $("schermoInizio").hidden = false; mostraGioco(false); });
+$("bRigioca").addEventListener("click", () => { $("schermoFine").hidden = true; $("inNome").value = S.nome; classificaIniziale(); $("formInizio").scrollTop = 0; $("schermoInizio").hidden = false; mostraGioco(false); });
 document.querySelectorAll('input[name="diff"]').forEach(r => r.addEventListener("change", classificaIniziale));
 document.documentElement.lang = L;
 document.title = L === "en" ? "Honey Factory" : "Fabbrica del miele";
