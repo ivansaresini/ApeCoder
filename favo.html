@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Celle esagonali</title>
+<style>
+@font-face{font-family:'Fredoka';font-weight:500 700;font-display:swap;src:url(fonts/fredoka.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-weight:600 800;font-display:swap;src:url(fonts/nunito.woff2) format('woff2')}
+/* Layout: barra stato, favo (SVG di esagoni), barra tempo, messaggio, tavolozza dei colori + ESEGUI */
+:root{
+  --sky:#dcf1fb; --meadow:#9bd56a; --honey:#f6b73c; --honey-d:#c98610; --ink:#3b2a10; --ink-soft:#7a6240; --paper:#fffaf0;
+  --danger:#c0332a; --ok:#2a7527; --sky-d:#2d7fc1; --favo:#e9c46a;
+  --c-miele:#f6b73c; --c-polline:#e8702a; --c-cera:#fff6d6; --c-propoli:#7a4a1e; --c-vuoto:#fbf3dc;
+  --display:'Fredoka',ui-rounded,'Arial Rounded MT Bold','Nunito',system-ui,sans-serif;
+  --body:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; color-scheme:light;
+}
+*{box-sizing:border-box}
+html{height:100%}
+body{height:100%;margin:0;background:var(--sky);color:var(--ink);font-family:var(--body);font-weight:600;
+  padding:calc(8px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  display:flex;flex-direction:column;align-items:center;gap:8px;overflow:hidden}
+h1,h2{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance}
+button{font-family:var(--display);font-weight:700;border:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
+[hidden]{display:none!important}
+
+.stato{width:100%;max-width:520px;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  background:var(--paper);border-radius:14px;padding:6px 12px;font-variant-numeric:tabular-nums;font-size:15px}
+.stato > div{white-space:nowrap;flex-shrink:0}
+.stato .nome{font-family:var(--display);font-size:18px;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1}
+.stato .vite{letter-spacing:2px;font-size:18px}
+.stato .punti{font-family:var(--display);font-size:22px;color:var(--honey-d)}
+.stato small{color:var(--ink-soft);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+@media (max-width:400px){.stato{padding:6px 8px;gap:6px}.stato small{display:none}.stato .vite{letter-spacing:0;font-size:16px}.stato .nome{max-width:28%;font-size:16px}.stato .punti{font-size:20px}}
+
+.favo{width:100%;max-width:520px;flex:1;min-height:120px;background:var(--favo);border-radius:16px;box-shadow:0 6px 0 #c9a040;display:flex;align-items:center;justify-content:center;padding:8px}
+.favo svg{width:100%;height:100%;max-height:100%}
+.favo .cella{cursor:pointer}
+.favo .cella.vuota polygon{stroke-dasharray:6 4}
+.favo .cella.sel polygon{stroke:var(--sky-d);stroke-width:5}
+.favo .cella.ok polygon{stroke:var(--ok);stroke-width:5}
+.favo .cella.male polygon{stroke:var(--danger);stroke-width:5}
+.favo text{font-size:34px;pointer-events:none}
+
+.tempo{width:100%;max-width:520px;height:14px;background:var(--paper);border-radius:999px;overflow:hidden;position:relative}
+.tempo i{position:absolute;inset:0;background:var(--honey);transform-origin:left;transition:transform .1s linear,background .2s}
+.tempo.urgente i{background:var(--danger)}
+.msg{height:22px;line-height:22px;font-size:clamp(13px,3.9vw,15px);color:var(--ink-soft);text-align:center;width:100%;max-width:520px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg.bene{color:var(--ok)}.msg.male{color:var(--danger)}
+.regola{width:100%;max-width:520px;min-height:40px;background:var(--paper);border-radius:14px;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;font-family:var(--display);font-size:17px}
+.regola .vuoto{color:var(--ink-soft);font-size:14px;font-family:var(--body)}
+.chip{border-radius:10px;padding:2px 10px;line-height:1.3;background:var(--honey);color:var(--ink)}
+.chip.rip{background:#c8a0e8;color:#2a0f45}
+.chip .pallino{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:4px;border:1px solid rgba(0,0,0,.25)}
+
+.pad{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:54px 54px;gap:8px}
+.pad button{border-radius:14px;font-size:15px;color:var(--ink);background:var(--paper);box-shadow:0 4px 0 #d9cdb3;padding:0 4px;line-height:1.1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.pad button:active{transform:translateY(3px);box-shadow:0 1px 0 #d9cdb3}
+.pad button .pallino{width:22px;height:22px;border-radius:50%;border:2px solid rgba(0,0,0,.25)}
+.pad button.sel{outline:3px solid var(--sky-d);outline-offset:-3px}
+.pad .canc{grid-column:1;grid-row:2;font-size:22px}
+.pad .invia{grid-column:2/5;grid-row:2;background:var(--honey);box-shadow:0 4px 0 var(--honey-d);font-size:22px;letter-spacing:.04em}
+.pad .invia:active{box-shadow:0 1px 0 var(--honey-d)}
+.pad button:disabled{opacity:.4;transform:none;box-shadow:none}
+
+.velo{position:fixed;inset:0;background:rgba(40,30,10,.55);display:flex;align-items:center;justify-content:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px;z-index:20}
+.scheda{position:relative;background:var(--paper);border-radius:22px;padding:22px 20px;width:100%;max-width:420px;max-height:100%;overflow:auto;
+  display:flex;flex-direction:column;gap:14px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.scheda h1{font-size:34px;color:var(--honey-d)}
+.scheda h2{font-size:30px}
+.scheda p{margin:0;line-height:1.45}
+.scheda input,.scheda select{font:inherit;font-size:22px;padding:10px 14px;border-radius:12px;border:2px solid var(--honey);text-align:center;width:100%;background:#fff;color:var(--ink)}
+.casa{position:absolute;top:8px;left:8px;width:44px;height:44px;display:grid;place-items:center;font-size:24px;text-decoration:none;line-height:1;padding:0;border-radius:12px}
+.casa:hover{background:var(--sky)}
+.grande{background:var(--honey);color:var(--ink);border-radius:14px;padding:12px 18px;font-size:22px;box-shadow:0 4px 0 var(--honey-d)}
+.grande:active{transform:translateY(3px);box-shadow:0 1px 0 var(--honey-d)}
+.regole{text-align:left;font-size:15px;display:grid;gap:6px;padding:0;margin:0;list-style:none}
+.regole li{display:flex;gap:10px;align-items:center}
+.regole .em{font-size:24px;flex:0 0 46px;text-align:center}
+.livelli{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.livelli label{position:relative;display:block}
+.livelli input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.livelli span{display:block;padding:12px 2px;border-radius:12px;background:var(--sky);font-family:var(--display);font-size:clamp(13px,3.8vw,17px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:2px solid transparent;min-height:44px}
+.livelli input:checked + span{background:var(--honey);border-color:var(--honey-d)}
+.livelli input:focus-visible + span{outline:3px solid var(--sky-d);outline-offset:2px}
+.partenza{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--display);font-size:17px}
+.partenza select{width:auto;font-size:18px;padding:6px 10px}
+.curiosita{background:var(--sky);border-radius:14px;padding:12px;text-align:left}
+.curiosita b{font-family:var(--display);color:var(--sky-d)}
+.regola.esempio{background:var(--sky);min-height:0;padding:10px}
+.classifica{list-style:none;margin:0;padding:0;text-align:left;display:grid;gap:4px;font-variant-numeric:tabular-nums}
+.classifica li{display:grid;grid-template-columns:28px 1fr auto auto;gap:8px;padding:4px 8px;border-radius:8px;font-size:16px}
+.classifica li.io{background:var(--honey)}
+.classifica li span:last-child{color:var(--ink-soft);font-size:13px}
+.classifica .pt{font-family:var(--display);font-size:18px}
+.esito{font-family:var(--display);font-size:52px;color:var(--honey-d);line-height:1}
+@media (max-height:720px){.scheda{padding:16px 16px;gap:10px}.scheda h1{font-size:30px}.scheda p{font-size:15px;line-height:1.35}.regole{gap:4px;font-size:14px}.regole .em{font-size:20px;flex-basis:36px}#classificaInizio .classifica li{padding:2px 8px;font-size:14px}}
+</style>
+</head>
+<body>
+
+<div class="stato" id="stato" hidden>
+  <div class="nome" id="sNome">—</div>
+  <div><small id="sDiff"></small> <b id="sLivello">1</b></div>
+  <div class="vite" id="sVite"></div>
+  <div class="punti" id="sPunti">0</div>
+</div>
+<div class="favo" id="favo" hidden></div>
+<div class="tempo" id="tempo" hidden><i id="tempoBarra"></i></div>
+<div class="msg" id="msg" hidden></div>
+<div class="regola" id="regola" hidden></div>
+<div class="pad" id="pad" hidden>
+  <button data-c="miele"><span class="pallino" style="background:var(--c-miele)"></span><span data-t="miele"></span></button>
+  <button data-c="polline"><span class="pallino" style="background:var(--c-polline)"></span><span data-t="polline"></span></button>
+  <button data-c="cera"><span class="pallino" style="background:var(--c-cera)"></span><span data-t="cera"></span></button>
+  <button data-c="propoli"><span class="pallino" style="background:var(--c-propoli)"></span><span data-t="propoli"></span></button>
+  <button class="canc" id="bCanc" aria-label="Cancella">✕</button>
+  <button class="invia" id="bInvia" data-t="invia"></button>
+</div>
+
+<div class="velo" id="schermoInizio">
+  <form class="scheda" id="formInizio">
+    <a class="casa" href="index.html" aria-label="Menu">🏠</a>
+    <h1 data-t="titolo"></h1>
+    <p data-t="intro"></p>
+    <ul class="regole">
+      <li><span class="em">🔶</span><span data-t="r1"></span></li>
+      <li><span class="em">🎨</span><span data-t="r2"></span></li>
+      <li><span class="em">🔁</span><span data-t="r3"></span></li>
+      <li><span class="em">⏳</span><span data-t="r4"></span></li>
+    </ul>
+    <input id="inNome" maxlength="10" data-ph="nome" autocomplete="off" required>
+    <div class="livelli" role="radiogroup">
+      <label><input type="radio" name="diff" value="facile" checked><span data-t="facile"></span></label>
+      <label><input type="radio" name="diff" value="medio"><span data-t="medio"></span></label>
+      <label><input type="radio" name="diff" value="difficile"><span data-t="difficile"></span></label>
+      <label><input type="radio" name="diff" value="senzafretta"><span data-t="senzafretta"></span></label>
+    </div>
+    <label class="partenza"><span data-t="partiDa"></span> <select id="inLivello"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
+    <button class="grande" type="submit" data-t="gioca"></button>
+    <div id="classificaInizio"></div>
+  </form>
+</div>
+
+<div class="velo" id="schermoLivello" hidden>
+  <div class="scheda">
+    <div class="esito">🎉</div>
+    <h2 id="lvTitolo"></h2>
+    <p id="lvTesto"></p>
+    <div class="curiosita"><b data-t="sapevi"></b><br><span id="lvCuriosita"></span></div>
+    <button class="grande" id="bContinua" data-t="continua"></button>
+  </div>
+</div>
+
+<div class="velo" id="schermoTutorial" hidden>
+  <div class="scheda">
+    <div class="esito" id="tuEm"></div>
+    <h2 id="tuTitolo"></h2>
+    <p id="tuTesto"></p>
+    <div class="regola esempio" id="tuEsempio"></div>
+    <p id="tuNota"></p>
+    <button class="grande" id="bTutorialOk" data-t="capito"></button>
+  </div>
+</div>
+
+<div class="velo" id="schermoSoluzione" hidden>
+  <div class="scheda">
+    <div class="esito">💡</div>
+    <h2 data-t="solTitolo"></h2>
+    <p id="solTesto"></p>
+    <div class="regola esempio" id="solRegola"></div>
+    <button class="grande" id="bSoluzioneOk" data-t="continua"></button>
+  </div>
+</div>
+
+<div class="velo" id="schermoFine" hidden>
+  <div class="scheda">
+    <div class="esito">🔶</div>
+    <h2 data-t="fine"></h2>
+    <p id="fnTesto"></p>
+    <ol class="classifica" id="classificaFine"></ol>
+    <button class="grande" id="bRigioca" data-t="rigioca"></button>
+  </div>
+</div>
+
+<script>
+// ===================== CONFIG =====================
+const CONFIG = {
+  vite: 3, viteMax: 5, vitaOgniLivelli: 3,
+  tempoLivello: 40, riduzionePerLivello: 0.06, tempoMin: 12,
+  punti: { base: 100, perCella: 25, bonusVelocita: 150, bonusPrimoColpo: 60, serieStep: 0.10, serieMax: 0.5 },
+  soglie: [500, 1200, 2100, 3200, 4500, 6000, 7700, 9600, 11700, 14000],
+  classificaMax: 10,
+};
+const DIFFICOLTA = {
+  facile:      { tempoLivello: 60, riduzionePerLivello: 0.04, tempoMin: 20, vite: 5 },
+  medio:       { tempoLivello: 45, riduzionePerLivello: 0.06, tempoMin: 14, vite: 4 },
+  difficile:   { tempoLivello: 30, riduzionePerLivello: 0.08, tempoMin: 9,  vite: 3 },
+  senzafretta: { tempoLivello: 60, riduzionePerLivello: 0.04, tempoMin: 20, vite: 5, senzaTempo: true },
+};
+// ===================== lingua =====================
+function leggiLingua() { try { const l = localStorage.getItem("scuolaApe.lingua"); if (l === "it" || l === "en") return l; } catch (e) {} return (navigator.language || "it").toLowerCase().startsWith("en") ? "en" : "it"; }
+const L = leggiLingua();
+const T = {
+  it: { titolo: "🔶 Celle esagonali", intro: "Le celle del favo sono colorate seguendo una regola. Scoprila e colora le celle vuote!",
+    r1: "Il favo ha celle piene e celle vuote (tratteggiate).",
+    r2: "Tocca un colore, poi tocca le celle vuote per colorarle. ✕ svuota una cella.",
+    r3: "Il trucco: trova il pezzo che si ripete. Quando premi ESEGUI, se è tutto giusto ti mostro la regola.",
+    r4: "La barra gialla è il tempo. Un ESEGUI sbagliato o il tempo finito costano una vita.",
+    miele: "miele", polline: "polline", cera: "cera", propoli: "propoli",
+    nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", senzafretta: "🐢 Senza fretta", partiDa: "Parti dal livello", gioca: "GIOCA", invia: "ESEGUI",
+    sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello", capito: "HO CAPITO!",
+    porta: "Scegli un colore e riempi le celle vuote.", nuovoLiv: "Nuovo livello: regola nuova!", tardi: "Tempo scaduto! −1 vita",
+    sceltaColore: "Prima tocca un colore!", mancano: n => `Mancano ${n} celle da colorare.`,
+    sbagliato: "Le celle rosse sono sbagliate. Correggile e riprova. −1 vita", bravo: "Favo perfetto!", primo: " (al primo colpo!)", serie: " · serie ×",
+    regolaT: "La regola:", ripeti: "ripeti", vuoto: "Qui comparirà la regola…",
+    solTitolo: "La regola era:", solNota: "",
+    lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per ogni favo.`, lvTestoSenzaTempo: p => `Hai ${p} punti. Niente fretta: il favo nuovo ti aspetta.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
+    fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
+    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" },
+    tutorial: {
+      1: { em: "👀", titolo: "Come si gioca", testo: "Guarda le celle colorate: i colori si ripetono sempre nello stesso ordine. Scopri l'ordine e colora le celle vuote nello stesso modo. Tocca un colore, poi la cella.", nota: "Qui la regola è: miele, polline, e poi si ricomincia." },
+      3: { em: "🔁", titolo: "Trova il pezzo che si ripete", testo: "Ora il pezzo che si ripete è più lungo: possono essere tre colori, oppure due uguali e uno diverso. Leggi le celle dall'inizio e trova dove la sequenza ricomincia.", nota: "Qui il pezzo che si ripete è: miele, miele, propoli." },
+      5: { em: "↩️", titolo: "La regola va a capo", testo: "Adesso il favo ha due righe. La regola continua da una riga all'altra, come quando leggi: finita la prima riga, si prosegue sulla seconda senza ricominciare.", nota: "" },
+    },
+    curiosita: ["Le api costruiscono celle a sei lati perché l'esagono riempie lo spazio senza buchi e usa pochissima cera.", "Le pareti delle celle sono spesse meno di un decimo di millimetro, eppure reggono chili di miele.",
+      "Un favo nuovo è bianco: diventa giallo e poi scuro con il tempo e con il polline.", "Le celle delle larve di fuco (i maschi) sono più grandi di quelle delle operaie.",
+      "Le api misurano le celle con le antenne, come con un righello.", "In un favo le celle sono leggermente inclinate verso l'alto: così il miele non cola fuori."] },
+  en: { titolo: "🔶 Honeycomb Cells", intro: "The honeycomb cells are coloured following a rule. Work it out and colour the empty cells!",
+    r1: "The comb has filled cells and empty cells (dashed).",
+    r2: "Tap a colour, then tap the empty cells to colour them. ✕ clears a cell.",
+    r3: "The trick: find the piece that repeats. When you press RUN, if everything is right I show you the rule.",
+    r4: "The yellow bar is the time. A wrong RUN or running out of time costs a life.",
+    miele: "honey", polline: "pollen", cera: "wax", propoli: "propolis",
+    nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", senzafretta: "🐢 No rush", partiDa: "Start at level", gioca: "PLAY", invia: "RUN",
+    sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level", capito: "GOT IT!",
+    porta: "Pick a colour and fill the empty cells.", nuovoLiv: "New level: new rule!", tardi: "Time's up! −1 life",
+    sceltaColore: "Tap a colour first!", mancano: n => `${n} cells still to colour.`,
+    sbagliato: "The red cells are wrong. Fix them and try again. −1 life", bravo: "Perfect comb!", primo: " (first try!)", serie: " · streak ×",
+    regolaT: "The rule:", ripeti: "repeat", vuoto: "The rule will appear here…",
+    solTitolo: "The rule was:", solNota: "",
+    lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds per comb.`, lvTestoSenzaTempo: p => `You have ${p} points. No rush: the new comb is waiting.`, vitaExtra: " You earned an extra life! ❤️",
+    fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
+    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" },
+    tutorial: {
+      1: { em: "👀", titolo: "How to play", testo: "Look at the coloured cells: the colours always repeat in the same order. Find the order and colour the empty cells the same way. Tap a colour, then the cell.", nota: "Here the rule is: honey, pollen, then start again." },
+      3: { em: "🔁", titolo: "Find the piece that repeats", testo: "Now the repeating piece is longer: it can be three colours, or two the same and one different. Read the cells from the start and find where the sequence starts over.", nota: "Here the repeating piece is: honey, honey, propolis." },
+      5: { em: "↩️", titolo: "The rule wraps around", testo: "Now the comb has two rows. The rule continues from one row to the next, like reading: when the first row ends, carry on in the second without starting over.", nota: "" },
+    },
+    curiosita: ["Bees build six-sided cells because hexagons fill space with no gaps and use very little wax.", "Cell walls are thinner than a tenth of a millimetre, yet they hold kilos of honey.",
+      "A new comb is white: it turns yellow and then dark with time and pollen.", "Drone (male) larva cells are bigger than worker cells.",
+      "Bees measure the cells with their antennae, like a ruler.", "Comb cells tilt slightly upwards so the honey doesn't run out."] },
+};
+const t = k => T[L][k];
+const COLORI = { miele: "var(--c-miele)", polline: "var(--c-polline)", cera: "var(--c-cera)", propoli: "var(--c-propoli)" };
+
+// ===================== livelli: regola (unità che si ripete), celle totali, righe, quante vuote =====================
+function generaLivello(lv) {
+  const col = Object.keys(COLORI);
+  const sc = () => col.splice(Math.floor(Math.random() * col.length), 1)[0];
+  let unita, righe = 1, totale;
+  if (lv <= 2) { const a = sc(), b = sc(); unita = [a, b]; totale = 7; }
+  else if (lv <= 4) { const a = sc(), b = sc(), c = sc(); unita = Math.random() < .5 ? [a, b, c] : [a, a, b]; totale = 8; }
+  else if (lv <= 6) { const a = sc(), b = sc(), c = sc(); unita = [[a, b, c], [a, a, b], [a, b, b], [a, b, a, c]][Math.floor(Math.random() * 4)]; righe = 2; totale = 12; }
+  else { const a = sc(), b = sc(), c = sc(), d = sc(); unita = [[a, b, c, d], [a, a, b, c], [a, b, b, c], [a, b, a, c]][Math.floor(Math.random() * 4)]; righe = lv >= 9 ? 3 : 2; totale = righe === 3 ? 18 : 14; }
+  const celle = []; for (let i = 0; i < totale; i++) celle.push(unita[i % unita.length]);
+  // celle vuote: all'inizio solo in fondo, poi anche in mezzo (mai le prime unita.length celle)
+  const nVuote = Math.min(totale - unita.length, lv <= 2 ? 2 : lv <= 4 ? 3 : lv <= 6 ? 4 : 5);
+  const vuote = new Set();
+  if (lv <= 2) { for (let i = totale - nVuote; i < totale; i++) vuote.add(i); }
+  else { while (vuote.size < nVuote) vuote.add(unita.length + Math.floor(Math.random() * (totale - unita.length))); }
+  return { unita, celle, righe, vuote };
+}
+
+// ===================== stato =====================
+const S = { nome: "", diff: "facile", livello: 1, punti: 0, vite: 3, serie: 0, base: 0, liv: null, risposta: [], colore: null, tentativi: 0,
+  fase: "fermo", loop: null, scade: 0, totale: 0, firma: "" };
+const $ = id => document.getElementById(id);
+const el = { stato: $("stato"), favo: $("favo"), tempo: $("tempo"), msg: $("msg"), regola: $("regola"), pad: $("pad") };
+const tempoLivello = lv => Math.max(CONFIG.tempoMin, CONFIG.tempoLivello * Math.pow(1 - CONFIG.riduzionePerLivello, lv - 1));
+const sogliaLivello = lv => CONFIG.soglie[Math.min(lv, CONFIG.soglie.length) - 1] + Math.max(0, lv - CONFIG.soglie.length) * 3000;
+
+function nuovoFavo() {
+  let liv, firma, tent = 0;
+  do { liv = generaLivello(S.livello); firma = liv.celle.join(); } while (firma === S.firma && ++tent < 20);
+  S.firma = firma; S.liv = liv; S.risposta = liv.celle.map((c, i) => liv.vuote.has(i) ? null : c);
+  S.colore = null; S.tentativi = 0; S.fase = "fermo";
+  S.totale = tempoLivello(S.livello) * 1000; S.scade = Date.now() + S.totale;
+  el.tempo.hidden = !!CONFIG.senzaTempo;
+  aggiornaStato(); disegna(); disegnaRegola(null);
+}
+function aggiornaStato() {
+  $("sNome").textContent = S.nome; $("sLivello").textContent = t("liv") + " " + S.livello; $("sDiff").textContent = t("diffNomi")[S.diff]; $("sPunti").textContent = S.punti;
+  $("sVite").textContent = "❤️".repeat(S.vite) + "🤍".repeat(Math.max(0, CONFIG.viteMax - S.vite));
+}
+// disegno del favo: esagoni a punta in alto, righe sfalsate
+function disegna(esito) {
+  const liv = S.liv, perRiga = Math.ceil(liv.celle.length / liv.righe), r = 30, w = Math.sqrt(3) * r, h = 1.5 * r;
+  const W = w * (perRiga + 0.5) + 8, H = h * (liv.righe - 1) + 2 * r + 8;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  liv.celle.forEach((c, i) => {
+    const riga = Math.floor(i / perRiga), colIdx = i % perRiga;
+    const cx = 4 + w / 2 + colIdx * w + (riga % 2 ? w / 2 : 0), cy = 4 + r + riga * h;
+    const pts = []; for (let k = 0; k < 6; k++) { const a = Math.PI / 180 * (60 * k - 30); pts.push((cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1)); }
+    const val = S.risposta[i], vuota = liv.vuote.has(i);
+    let cls = "cella" + (vuota && val === null ? " vuota" : "") + (esito && vuota ? (esito[i] ? " ok" : " male") : "");
+    const fill = val ? COLORI[val] : "var(--c-vuoto)";
+    svg += `<g class="${cls}" data-i="${i}" ${vuota ? "" : 'style="cursor:default"'}><polygon points="${pts.join(" ")}" fill="${fill}" stroke="#a0741a" stroke-width="3"/>${vuota && val === null ? `<text x="${cx}" y="${cy + 12}" text-anchor="middle" fill="#a0741a">?</text>` : ""}</g>`;
+  });
+  el.favo.innerHTML = svg + "</svg>";
+}
+function chipColore(c) { return `<span class="chip"><span class="pallino" style="background:${COLORI[c]}"></span>${t(c)}</span>`; }
+function disegnaRegola(unita) {
+  el.regola.innerHTML = unita ? `<span class="vuoto">${t("regolaT")}</span>` + unita.map(chipColore).join("") + `<span class="chip rip">🔁 ${t("ripeti")}</span>` : `<span class="vuoto">${t("vuoto")}</span>`;
+}
+function messaggio(m, tipo) { el.msg.textContent = m; el.msg.className = "msg " + (tipo || ""); }
+
+// ===================== interazione =====================
+el.pad.querySelectorAll("[data-c]").forEach(b => b.addEventListener("click", () => {
+  if (S.fase !== "fermo") return;
+  S.colore = b.dataset.c; el.pad.querySelectorAll("[data-c]").forEach(x => x.classList.toggle("sel", x === b));
+}));
+el.favo.addEventListener("click", e => {
+  if (S.fase !== "fermo") return;
+  const g = e.target.closest(".cella"); if (!g) return;
+  const i = +g.dataset.i; if (!S.liv.vuote.has(i)) return;
+  if (!S.colore) { messaggio(t("sceltaColore"), "male"); return; }
+  S.risposta[i] = S.colore; disegna();
+});
+$("bCanc").addEventListener("click", () => {
+  if (S.fase !== "fermo") return;
+  const idx = [...S.liv.vuote].filter(i => S.risposta[i] !== null).pop();
+  if (idx !== undefined) { S.risposta[idx] = null; disegna(); }
+});
+$("bInvia").addEventListener("click", invia);
+document.addEventListener("keydown", e => { if (el.pad.hidden || e.target.tagName === "INPUT") return; if (e.key === "Enter") { e.preventDefault(); invia(); } });
+
+function invia() {
+  if (S.fase !== "fermo") return;
+  const mancanti = [...S.liv.vuote].filter(i => S.risposta[i] === null).length;
+  if (mancanti) { messaggio(t("mancano")(mancanti), "male"); return; }
+  S.tentativi++;
+  const esito = S.risposta.map((v, i) => v === S.liv.celle[i]);
+  if (esito.every(Boolean)) { successo(); return; }
+  disegna(esito);
+  if (!perdiVita(t("sbagliato"))) return;
+}
+function perdiVita(testo) {
+  S.vite--; S.serie = 0; aggiornaStato(); messaggio(testo, "male");
+  if (S.vite <= 0) { fineGioco(); return false; }
+  return true;
+}
+function successo() {
+  S.fase = "ok";
+  const rimasto = CONFIG.senzaTempo ? S.totale : Math.max(0, S.scade - Date.now());
+  const bonus = Math.round(CONFIG.punti.bonusVelocita * rimasto / S.totale);
+  const primo = S.tentativi === 1 ? CONFIG.punti.bonusPrimoColpo : 0;
+  const molt = 1 + Math.min(CONFIG.punti.serieMax, S.serie * CONFIG.punti.serieStep);
+  const guadagno = Math.round((CONFIG.punti.base + CONFIG.punti.perCella * S.liv.vuote.size + bonus + primo) * molt);
+  S.punti += guadagno; S.serie++; aggiornaStato();
+  disegna(S.risposta.map(() => true)); disegnaRegola(S.liv.unita);
+  messaggio(`${t("bravo")} +${guadagno}` + (primo ? t("primo") : "") + (S.serie > 1 ? `${t("serie")}${S.serie}` : ""), "bene");
+  if (S.base + S.punti >= sogliaLivello(S.livello)) { setTimeout(salitaLivello, 1200); return; }
+  setTimeout(nuovoFavo, 1600);
+}
+function mostraSoluzione(testo) {
+  fermaLoop(); S.fase = "pausa";
+  $("solTesto").textContent = testo; $("solRegola").innerHTML = S.liv.unita.map(chipColore).join("") + `<span class="chip rip">🔁 ${t("ripeti")}</span>`;
+  $("schermoSoluzione").hidden = false; $("bSoluzioneOk").focus({ preventScroll: true });
+  $("bSoluzioneOk").onclick = () => { $("schermoSoluzione").hidden = true; nuovoFavo(); avviaLoop(); };
+}
+
+// ===================== tempo =====================
+function tick() {
+  if (S.fase !== "fermo" || CONFIG.senzaTempo) return;
+  const resto = S.scade - Date.now();
+  $("tempoBarra").style.transform = `scaleX(${Math.max(0, resto / S.totale)})`;
+  el.tempo.classList.toggle("urgente", resto < 5000);
+  if (resto <= 0) { if (!perdiVita(t("tardi"))) return; mostraSoluzione(t("tardi")); }
+}
+function avviaLoop() { fermaLoop(); S.loop = setInterval(tick, 100); }
+function fermaLoop() { if (S.loop) clearInterval(S.loop); S.loop = null; }
+
+// ===================== livelli, fine, classifica =====================
+function salitaLivello() {
+  fermaLoop(); S.livello++;
+  let extra = "";
+  if ((S.livello - 1) % CONFIG.vitaOgniLivelli === 0 && S.vite < CONFIG.viteMax) { S.vite++; extra = t("vitaExtra"); }
+  $("lvTitolo").textContent = `${t("livello")} ${S.livello}!`;
+  $("lvTesto").textContent = (CONFIG.senzaTempo ? t("lvTestoSenzaTempo")(S.punti) : t("lvTesto")(S.punti, Math.round(tempoLivello(S.livello)))) + extra;
+  $("lvCuriosita").textContent = t("curiosita")[(S.livello - 2) % t("curiosita").length];
+  $("schermoLivello").querySelector(".scheda").scrollTop = 0; $("schermoLivello").hidden = false; $("bContinua").focus({ preventScroll: true });
+}
+function fineGioco() {
+  fermaLoop(); S.fase = "fine";
+  const classifica = salvaPunteggio(S.nome, S.punti, S.livello);
+  const posizione = classifica.findIndex(r => r.io) + 1;
+  $("fnTesto").textContent = t("fnTesto")(S.nome, S.punti, t("diffNomi")[S.diff], S.livello) + (posizione > 0 ? t("posizione")(posizione) : "");
+  mostraClassifica($("classificaFine"), classifica);
+  $("schermoFine").querySelector(".scheda").scrollTop = 0; $("schermoFine").hidden = false; $("bRigioca").focus({ preventScroll: true });
+}
+const chiave = () => "favo.classifica." + S.diff;
+function leggiClassifica() { try { return JSON.parse(localStorage.getItem(chiave())) || []; } catch (e) { return []; } }
+function salvaPunteggio(nome, punti, livello) {
+  const lista = leggiClassifica().map(r => ({ ...r, io: false }));
+  lista.push({ nome, punti, livello, io: true });
+  lista.sort((a, b) => b.punti - a.punti);
+  const top = lista.slice(0, CONFIG.classificaMax);
+  try { localStorage.setItem(chiave(), JSON.stringify(top.map(({ nome, punti, livello }) => ({ nome, punti, livello })))); } catch (e) {}
+  return top;
+}
+function mostraClassifica(ol, lista) {
+  ol.innerHTML = lista.length ? lista.map((r, i) => `<li class="${r.io ? "io" : ""}"><b>${i + 1}.</b><span>${r.nome.replace(/[<>&]/g, "")}</span><span class="pt">${r.punti}</span><span>${t("liv").toLowerCase()} ${r.livello}</span></li>`).join("")
+    : `<li><span></span><span>${t("nessuno")}</span></li>`;
+}
+
+// ===================== tutorial e avvio =====================
+const ESEMPI = { 1: ["miele", "polline"], 3: ["miele", "miele", "propoli"], 5: null };
+function mostraTutorial(lv, poi) {
+  const tu = t("tutorial")[lv]; if (!tu) { poi(); return; }
+  $("tuEm").textContent = tu.em; $("tuTitolo").textContent = tu.titolo; $("tuTesto").textContent = tu.testo; $("tuNota").textContent = tu.nota;
+  $("tuEsempio").innerHTML = ESEMPI[lv] ? ESEMPI[lv].map(chipColore).join("") + `<span class="chip rip">🔁 ${t("ripeti")}</span>` : "";
+  $("tuEsempio").hidden = !ESEMPI[lv];
+  $("schermoTutorial").querySelector(".scheda").scrollTop = 0; $("schermoTutorial").hidden = false; $("bTutorialOk").focus({ preventScroll: true });
+  $("bTutorialOk").onclick = () => { $("schermoTutorial").hidden = true; poi(); };
+}
+function tutorialFinoA(lv, poi) {
+  const lista = [1, 3, 5].filter(x => x <= lv && !S.visti.has(x));
+  const next = () => { const x = lista.shift(); if (x === undefined) { poi(); return; } S.visti.add(x); mostraTutorial(x, next); };
+  next();
+}
+function mostraGioco(v) { [el.stato, el.favo, el.tempo, el.msg, el.regola, el.pad].forEach(e => e.hidden = !v); if (v && CONFIG.senzaTempo) el.tempo.hidden = true; }
+function iniziaPartita() {
+  Object.assign(CONFIG, { senzaTempo: false }, DIFFICOLTA[S.diff]);
+  S.livello = +$("inLivello").value || 1; S.base = S.livello > 1 ? sogliaLivello(S.livello - 1) : 0;
+  S.punti = 0; S.vite = CONFIG.vite; S.serie = 0; S.firma = ""; S.visti = new Set();
+  mostraGioco(true); tutorialFinoA(S.livello, () => { nuovoFavo(); messaggio(t("porta"), ""); avviaLoop(); });
+}
+function classificaIniziale() {
+  S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
+  const lista = leggiClassifica(); $("classificaInizio").innerHTML = "";
+  if (lista.length) { const ol = document.createElement("ol"); ol.className = "classifica"; mostraClassifica(ol, lista.slice(0, 5)); $("classificaInizio").appendChild(ol); }
+}
+$("formInizio").addEventListener("submit", e => {
+  e.preventDefault(); S.nome = $("inNome").value.trim().slice(0, 10) || "Ape";
+  S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
+  $("schermoInizio").hidden = true; iniziaPartita();
+});
+$("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; tutorialFinoA(S.livello, () => { nuovoFavo(); messaggio(t("nuovoLiv"), ""); avviaLoop(); }); });
+$("bRigioca").addEventListener("click", () => { $("schermoFine").hidden = true; $("inNome").value = S.nome; classificaIniziale(); $("formInizio").scrollTop = 0; $("schermoInizio").hidden = false; mostraGioco(false); });
+document.querySelectorAll('input[name="diff"]').forEach(r => r.addEventListener("change", classificaIniziale));
+document.documentElement.lang = L;
+document.title = L === "en" ? "Honeycomb Cells" : "Celle esagonali";
+document.querySelectorAll("[data-t]").forEach(e => e.textContent = t(e.dataset.t));
+document.querySelectorAll("[data-ph]").forEach(e => e.placeholder = t(e.dataset.ph));
+classificaIniziale();
+</script>
+</body>
+</html>
