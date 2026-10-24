@@ -98,7 +98,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .regole .mini{display:inline-flex;justify-content:center;gap:3px;line-height:1}
 .regole .mini i{font-style:normal;font-size:12px;height:20px;padding:0 5px;display:grid;place-items:center;background:var(--honey);border-radius:6px;color:var(--ink)}
 .regole .mini i.l{background:var(--loop);color:#2a0f45}
-.livelli{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.livelli{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.partenza{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-size:17px}
+.partenza select{font:inherit;font-size:18px;padding:6px 10px;border-radius:12px;border:2px solid var(--honey);background:var(--sky);color:var(--ink)}
 .livelli label{position:relative;display:block}
 .livelli input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
 .livelli span{display:block;padding:12px 2px;border-radius:12px;background:var(--sky);font-family:var(--display);font-size:clamp(13px,3.8vw,17px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:2px solid transparent;min-height:44px}
@@ -137,7 +139,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
   <button class="sx" data-d="L" aria-label="Sinistra">◀</button>
   <button class="giu" data-d="D" aria-label="Giù">▼</button>
   <button class="dx" data-d="R" aria-label="Destra">▶</button>
-  <button class="volte" id="bVolte" data-t="volte"></button>
+  <button class="volte" id="bVolte"></button>
   <button class="chiudi" id="bChiudi" data-t="chiudi"></button>
   <button class="aiuto" id="bAiuto" data-t="aiuto" disabled></button>
   <button class="invia" id="bInvia" data-t="invia"></button>
@@ -159,7 +161,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
       <label><input type="radio" name="diff" value="facile" checked><span data-t="facile"></span></label>
       <label><input type="radio" name="diff" value="medio"><span data-t="medio"></span></label>
       <label><input type="radio" name="diff" value="difficile"><span data-t="difficile"></span></label>
+      <label><input type="radio" name="diff" value="senzafretta"><span data-t="senzafretta"></span></label>
     </div>
+    <label class="partenza"><span data-t="partiDa"></span> <select id="inLivello"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
     <button class="grande" type="submit" data-t="gioca"></button>
     <div id="classificaInizio"></div>
   </form>
@@ -208,55 +212,58 @@ const CONFIG = {
   classificaMax: 10,
 };
 const DIFFICOLTA = {
-  facile:    { tempoLivello: 45, riduzionePerLivello: 0.04, tempoMin: 18, msPerCella: 350, vite: 5, slack: 2 },
-  medio:     { tempoLivello: 35, riduzionePerLivello: 0.06, tempoMin: 12, msPerCella: 300, vite: 4, slack: 1 },
-  difficile: { tempoLivello: 25, riduzionePerLivello: 0.08, tempoMin: 8,  msPerCella: 280, vite: 3, slack: 1 },
+  facile:      { tempoLivello: 45, riduzionePerLivello: 0.04, tempoMin: 18, msPerCella: 350, vite: 5, slack: 2, senzaTempo: false },
+  medio:       { tempoLivello: 35, riduzionePerLivello: 0.06, tempoMin: 12, msPerCella: 300, vite: 4, slack: 1, senzaTempo: false },
+  difficile:   { tempoLivello: 25, riduzionePerLivello: 0.08, tempoMin: 8,  msPerCella: 280, vite: 3, slack: 1, senzaTempo: false },
+  senzafretta: { tempoLivello: 45, riduzionePerLivello: 0.04, tempoMin: 18, msPerCella: 350, vite: 5, slack: 2, senzaTempo: true },  // come Facile, ma il tempo non scade mai
 };
 // ===================== lingua =====================
 function leggiLingua() { try { const l = localStorage.getItem("scuolaApe.lingua"); if (l === "it" || l === "en") return l; } catch (e) {} return (navigator.language || "it").toLowerCase().startsWith("en") ? "en" : "it"; }
 const L = leggiLingua();
 const T = {
-  it: { titolo: "💃 Danza dell'ape", intro: "I fiori formano una figura che si ripete. Scrivi il programma più corto che li visita tutti!",
+  it: { titolo: "💃 Danza dell'ape", intro: "I fiori formano una figura che si ripete. Scrivi il programma più corto che li visita tutti! L'ape nella danza ripete sempre la stessa mossa: anche tu ripeti le mosse col RIPETI.",
     r1: "L'ape deve passare su tutti i fiori. Il programma parte dall'alveare.",
-    r2: "Dal livello 2 arriva RIPETI: quello che c'è nel blocco viene rifatto tante volte.",
+    r2: "Dal livello 2 hai il tasto RIPETI: le frecce dentro al RIPETI vengono eseguite tante volte quante dici tu.",
     r3: "Hai pochi mattoncini: ogni freccia e ogni RIPETI ne usa uno. I tasti nuovi arrivano un livello alla volta.",
     r4: "La barra gialla è il tempo. Se finisce, perdi una vita.",
-    nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", gioca: "GIOCA", invia: "INVIA",
-    ripeti: "🔁 RIPETI", volte: "×+", chiudi: "]", aiuto: "Dentro al blocco aperto le frecce vanno nel RIPETI",
+    nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", senzafretta: "🐢 Senza fretta", partiDa: "Parti dal livello", gioca: "GIOCA", invia: "ESEGUI",
+    ripeti: "🔁 RIPETI", volte: n => `×${n} volte`, chiudi: "] fine", aiuto: "Il RIPETI è aperto: le frecce che tocchi adesso vanno dentro.",
     sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello",
     vuoto: "Scrivi il programma…", mattoncini: n => `${n} mattoncini`, porta: "Visita tutti i fiori 🌼 con il programma più corto!",
     nuovoLiv: "Nuovo livello: figura nuova!", tardi: "Tempo scaduto! −1 vita", parziale: (a, b) => `Hai visitato ${a} fiori su ${b}. Correggi il programma!`,
+    suggScala: "Prova a mettere due frecce dentro al RIPETI: ▶ e poi ▲.",
     bravo: "Tutti i fiori!", corto: " (corto!)", serie: " · serie ×", tropp: "Hai finito i mattoncini: usa RIPETI!",
     lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per ogni figura.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
     fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
-    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile" }, capito: "HO CAPITO!",
+    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" }, capito: "HO CAPITO!",
     tutorial: {
-      2: { em: "🔁", titolo: "Nuovo tasto: RIPETI", testo: "Tocca 🔁 RIPETI e poi una freccia: la freccia entra nel blocco viola. Con ×+ scegli quante volte ripetere. Quando premi INVIA il blocco si chiude da solo.",
-           nota: "Questo programma fa andare l'ape a destra 3 volte, come ▶ ▶ ▶, ma usa 2 mattoncini invece di 3. Con pochi mattoncini, RIPETI è l'unico modo!" },
-      3: { em: "]", titolo: "Nuovo tasto: ]", testo: "La parentesi ] chiude il blocco. Dopo averla premuta, le frecce o un nuovo RIPETI vengono DOPO il blocco, non dentro.",
+      2: { em: "🔁", titolo: "Nuovo tasto: RIPETI", testo: "Tocca RIPETI. Poi tocca una freccia: entra nel riquadro viola. Conta i fiori: tante volte quanti sono i fiori da visitare. Poi premi ESEGUI.",
+           nota: "🔁3 [▶] fa la stessa cosa di ▶ ▶ ▶ ma usa 2 mattoncini invece di 3." },
+      3: { em: "]", titolo: "Nuovo tasto: ] fine", testo: "Con ] dici: il RIPETI finisce qui. Le frecce dopo la ] non vengono ripetute. Serve quando la figura gira, come in un angolo.",
            nota: "Prima 3 passi a destra, poi 2 passi in su. Serve quando la figura cambia direzione: come un angolo." },
     },
     curiosita: ["La danza dell'ape: se balla in cerchio, i fiori sono vicini; se fa un otto, sono lontani.", "Nella danza a otto, l'angolo rispetto al sole dice in che direzione sono i fiori.",
       "Più a lungo l'ape scodinzola durante la danza, più i fiori sono lontani.", "Le api danzano al buio, dentro l'alveare: le compagne la 'leggono' toccandola.",
       "Karl von Frisch ha vinto il premio Nobel nel 1973 per aver decifrato la danza delle api.", "Un'ape può ricordare la posizione di un campo di fiori per giorni."] },
-  en: { titolo: "💃 Bee Dance", intro: "The flowers form a repeating shape. Write the shortest program that visits them all!",
+  en: { titolo: "💃 Bee Dance", intro: "The flowers form a repeating shape. Write the shortest program that visits them all! In her dance the bee repeats the same move again and again: you repeat moves with REPEAT.",
     r1: "The bee must fly over every flower. The program starts at the hive.",
-    r2: "From level 2 you get REPEAT: what is in the block is done again and again.",
+    r2: "From level 2 you get REPEAT: the arrows inside the REPEAT run as many times as you say.",
     r3: "You have few blocks: every arrow and every REPEAT uses one. New buttons arrive one level at a time.",
     r4: "The yellow bar is the time. When it runs out, you lose a life.",
-    nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", gioca: "PLAY", invia: "GO",
-    ripeti: "🔁 REPEAT", volte: "×+", chiudi: "]", aiuto: "While a block is open, arrows go inside the REPEAT",
+    nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", senzafretta: "🐢 No rush", partiDa: "Start at level", gioca: "PLAY", invia: "RUN",
+    ripeti: "🔁 REPEAT", volte: n => `×${n} times`, chiudi: "] end", aiuto: "REPEAT is open: the arrows you tap now go inside.",
     sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level",
     vuoto: "Write your program…", mattoncini: n => `${n} blocks`, porta: "Visit every flower 🌼 with the shortest program!",
     nuovoLiv: "New level: new shape!", tardi: "Time's up! −1 life", parziale: (a, b) => `You visited ${a} of ${b} flowers. Fix your program!`,
+    suggScala: "Try putting two arrows inside the REPEAT: ▶ then ▲.",
     bravo: "All the flowers!", corto: " (short!)", serie: " · streak ×", tropp: "No blocks left: use REPEAT!",
     lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds per shape.`, vitaExtra: " You earned an extra life! ❤️",
     fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
-    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard" }, capito: "GOT IT!",
+    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" }, capito: "GOT IT!",
     tutorial: {
-      2: { em: "🔁", titolo: "New button: REPEAT", testo: "Tap 🔁 REPEAT and then an arrow: the arrow goes inside the purple block. With ×+ you choose how many times to repeat. When you press GO the block closes by itself.",
-           nota: "This program moves the bee right 3 times, like ▶ ▶ ▶, but uses 2 blocks instead of 3. With few blocks, REPEAT is the only way!" },
-      3: { em: "]", titolo: "New button: ]", testo: "The bracket ] closes the block. After pressing it, arrows or a new REPEAT come AFTER the block, not inside.",
+      2: { em: "🔁", titolo: "New button: REPEAT", testo: "Tap REPEAT. Then tap an arrow: it goes inside the purple box. Count the flowers: as many times as there are flowers to visit. Then press RUN.",
+           nota: "🔁3 [▶] does the same as ▶ ▶ ▶ but uses 2 blocks instead of 3." },
+      3: { em: "]", titolo: "New button: ] end", testo: "With ] you say: the REPEAT ends here. The arrows after the ] are not repeated. You need it when the shape turns, like at a corner.",
            nota: "First 3 steps right, then 2 steps up. You need it when the shape changes direction, like a corner." },
     },
     curiosita: ["The bee dance: a round dance means flowers are near; a figure-eight means they are far.", "In the figure-eight dance, the angle to the sun tells the direction of the flowers.",
@@ -275,7 +282,7 @@ const FIGURE = [
   { nome: "fila corta", min: 1, max: 1, gen: (N, h) => { const n = 3 + Math.floor(Math.random() * Math.min(3, N - 3)), v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - i - 1 } : { x: h.x + i + 1, y: h.y }), ottimo: n, extra: 2 }; } },
   // livello 2: arriva RIPETI (senza chiusura)
   { nome: "riga", min: 2, max: 3, gen: (N, h) => { const n = N - 1, v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - i - 1 } : { x: h.x + i + 1, y: h.y }), ottimo: 2 }; } },
-  { nome: "riga a salti", min: 2, max: 4, gen: (N, h) => { const n = Math.floor((N - 1) / 2), v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - 2 * (i + 1) } : { x: h.x + 2 * (i + 1), y: h.y }), ottimo: 3 }; } },
+  { nome: "riga a salti", min: 2, max: 4, slackMax: 1, gen: (N, h) => { const n = Math.floor((N - 1) / 2), v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - 2 * (i + 1) } : { x: h.x + 2 * (i + 1), y: h.y }), ottimo: 3 }; } },  // slackMax: budget sempre ottimo+1, così il RIPETI serve anche in Facile
   { nome: "scala", min: 4, gen: (N, h) => ({ fiori: seq(N - 1, i => ({ x: h.x + i + 1, y: h.y - i - 1 })), ottimo: 3 }) },
   { nome: "scala larga", min: 5, gen: (N, h) => { const n = Math.floor((N - 1) / 2); return { fiori: seq(n, i => ({ x: h.x + 2 * (i + 1), y: h.y - i - 1 })), ottimo: 4 }; } },
   { nome: "angolo", min: 3, gen: (N, h) => { const a = N - 1; return { fiori: seq(a, i => ({ x: h.x + i + 1, y: h.y })).concat(seq(a, i => ({ x: h.x + a, y: h.y - i - 1 }))), ottimo: 4 }; } },
@@ -289,7 +296,7 @@ function seq(n, f) { const r = []; for (let i = 0; i < n; i++) r.push(f(i)); ret
 
 // ===================== stato =====================
 const S = { nome: "", diff: "facile", livello: 1, punti: 0, vite: 3, serie: 0, N: 6, alveare: { x: 0, y: 5 }, ape: { x: 0, y: 5 },
-  fiori: [], ottimo: 0, budget: 0, prog: [], aperto: null, fase: "fermo", loop: null, scade: 0, totale: 0 };
+  fiori: [], ottimo: 0, budget: 0, prog: [], aperto: null, fase: "fermo", loop: null, scade: 0, totale: 0, figura: "", tentativi: 0 };
 const $ = id => document.getElementById(id);
 const el = { stato: $("stato"), campo: $("campo"), griglia: $("griglia"), tempo: $("tempo"), msg: $("msg"), codice: $("codice"), pad: $("pad") };
 const tempoLivello = lv => Math.max(CONFIG.tempoMin, CONFIG.tempoLivello * Math.pow(1 - CONFIG.riduzionePerLivello, lv - 1));
@@ -301,15 +308,15 @@ function nuovaFigura() {
   const possibili = FIGURE.filter(f => f.min <= S.livello && (!f.max || S.livello <= f.max));
   const scelte = possibili.slice(-3);                       // le figure più recenti sbloccate
   // mai la stessa figura due volte di fila: cambia tipo, direzione o lunghezza
-  let r, firma, tentativi = 0;
+  let fig, r, firma, tentativi = 0;
   do {
-    const fig = scelte[Math.floor(Math.random() * scelte.length)];
+    fig = scelte[Math.floor(Math.random() * scelte.length)];
     r = fig.gen(N, S.alveare);
     firma = r.fiori.map(f => f.x + "," + f.y).sort().join(";");
   } while (firma === S.firmaPrecedente && ++tentativi < 20);
-  S.firmaPrecedente = firma;
+  S.firmaPrecedente = firma; S.figura = fig.nome; S.tentativi = 0;
   S.fiori = r.fiori.filter(f => f.x >= 0 && f.x < N && f.y >= 0 && f.y < N).map(f => ({ ...f, preso: false }));
-  S.ottimo = r.ottimo; S.budget = r.ottimo + (r.extra || 0) + CONFIG.slack;
+  S.ottimo = r.ottimo; S.budget = r.ottimo + (r.extra || 0) + Math.min(CONFIG.slack, fig.slackMax ?? 99);
   S.prog = []; S.aperto = null; S.fase = "fermo";
   S.totale = tempoLivello(S.livello) * 1000; S.scade = Date.now() + S.totale;
   el.griglia.style.gridTemplateColumns = `repeat(${N},1fr)`; el.griglia.style.gridTemplateRows = `repeat(${N},1fr)`;
@@ -346,7 +353,9 @@ function disegnaCodice() {
     + `<span class="resto${resto <= 0 ? " zero" : ""}">🧱 ${t("mattoncini")(resto)}</span>`;
   $("bRip").disabled = S.fase !== "fermo" || !!S.aperto || resto <= 0;
   $("bChiudi").disabled = S.fase !== "fermo" || !S.aperto;
-  $("bVolte").disabled = S.fase !== "fermo" || !S.prog.some(c => c.rep);
+  const b = S.aperto || [...S.prog].reverse().find(c => c.rep);   // blocco aperto, o l'ultimo RIPETI
+  $("bVolte").disabled = S.fase !== "fermo" || !b;
+  $("bVolte").textContent = t("volte")(b ? b.n : 2);
   el.codice.scrollTop = el.codice.scrollHeight;
 }
 const sbloccato = () => ({ rip: S.livello >= 2, chiudi: S.livello >= 3 });
@@ -355,6 +364,7 @@ function messaggio(m, tipo) { el.msg.textContent = m; el.msg.className = "msg " 
 
 // ===================== tempo =====================
 function tick() {
+  if (CONFIG.senzaTempo) { $("tempoBarra").style.transform = "scaleX(1)"; el.tempo.classList.remove("urgente"); return; }   // Senza fretta: barra sempre piena
   const ora = Date.now(), resto = S.scade - ora;
   $("tempoBarra").style.transform = `scaleX(${Math.max(0, resto / S.totale)})`;
   el.tempo.classList.toggle("urgente", resto < 5000);
@@ -372,7 +382,7 @@ function perdiVita(testo) {
 function scaduto() { S.fase = "fermo"; if (!perdiVita(t("tardi"))) return; nuovaFigura(); }
 function successo() {
   const rimasto = Math.max(0, S.scade - Date.now());
-  const bonus = Math.round(CONFIG.punti.bonusVelocita * rimasto / S.totale);
+  const bonus = CONFIG.senzaTempo ? CONFIG.punti.bonusVelocita : Math.round(CONFIG.punti.bonusVelocita * rimasto / S.totale);
   const corto = costo(S.prog) <= S.ottimo ? CONFIG.punti.bonusCorto : 0;
   const molt = 1 + Math.min(CONFIG.punti.serieMax, S.serie * CONFIG.punti.serieStep);
   const guadagno = Math.round((CONFIG.punti.perFiore * S.fiori.length + bonus + corto) * molt);
@@ -427,7 +437,10 @@ function atterra() {
   if (S.fase !== "volo") return;
   const presi = S.fiori.filter(f => f.preso).length;
   if (presi === S.fiori.length) { successo(); return; }
-  S.fase = "fermo"; messaggio(t("parziale")(presi, S.fiori.length), "male");
+  S.fase = "fermo"; S.tentativi++;
+  S.scade += 10000; S.totale += 10000;          // 10 secondi in più per correggere (e la barra non salta)
+  const scala = (S.figura === "scala" || S.figura === "scala larga") && S.tentativi === 1;   // primo tentativo parziale su una scala: suggerisci il RIPETI a due frecce
+  messaggio(scala ? t("suggScala") : t("parziale")(presi, S.fiori.length), "male");
   setTimeout(() => { if (S.fase !== "fermo") return; S.ape = { ...S.alveare }; S.fiori.forEach(f => f.preso = false); disegna(); }, 700);
 }
 
@@ -488,8 +501,12 @@ function mostraClassifica(ol, lista) {
 function mostraGioco(v) { [el.stato, el.campo, el.tempo, el.msg, el.codice, el.pad].forEach(e => e.hidden = !v); }
 function iniziaPartita() {
   Object.assign(CONFIG, DIFFICOLTA[S.diff]);
-  S.livello = 1; S.punti = 0; S.vite = CONFIG.vite; S.serie = 0;
-  mostraGioco(true); nuovaFigura(); messaggio(t("porta"), ""); avviaLoop();
+  S.livello = Math.max(1, parseInt($("inLivello").value, 10) || 1); S.punti = 0; S.vite = CONFIG.vite; S.serie = 0;
+  // partendo da un livello alto, prima mostra in fila i tutorial dei livelli già superati
+  const daMostrare = Object.keys(t("tutorial")).map(Number).filter(lv => lv <= S.livello).sort((a, b) => a - b);
+  const avvia = () => { mostraGioco(true); nuovaFigura(); messaggio(t("porta"), ""); avviaLoop(); };
+  const prossimo = () => { const lv = daMostrare.shift(); if (lv === undefined) avvia(); else mostraTutorial(lv, prossimo); };
+  prossimo();
 }
 function classificaIniziale() {
   S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
