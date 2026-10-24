@@ -1,5 +1,18 @@
-# Ape Coder
+# Scuola Ape
 
-Gioco arcade per il progetto scuola sulle api: guida l'ape con le frecce dall'alveare all'albero col miele prima che il tempo scada.
+Sei giochi di coding sulle api per la scuola primaria, in italiano e inglese. Sito statico su GitHub Pages: tutto gira nel browser, nessun server, nessun dato raccolto.
 
-Tutto il gioco è nel file `index.html` (nessuna dipendenza, nessun server). I parametri di gioco (tempi, vite, soglie dei livelli, probabilità del fiore) sono nel blocco `CONFIG` in cima allo script.
+| Gioco | Concetto | File |
+|---|---|---|
+| Ape Coder | Sequenze | `ape-coder.html` |
+| Danza dell'ape | Cicli (RIPETI) | `danza.html` |
+| Guardiana dell'alveare | Condizioni (SE, NON, E, O) | `guardiana.html` |
+| Fabbrica del miele | Ordine e debug | `fabbrica.html` |
+| Celle esagonali | Pattern | `favo.html` |
+| Impollinatrice | Funzioni | `impollinatrice.html` |
+
+`index.html` è il menu con le schede "Come si gioca / Cosa impari", la finestra info (coding, riconoscimenti, privacy, per le maestre); `maestre.html` raccoglie le attività unplugged per la classe.
+
+Ogni gioco ha quattro difficoltà (Facile, Medio, Difficile, Senza fretta), la scelta del livello di partenza e la classifica salvata sul dispositivo. I parametri sono nel blocco `CONFIG` in cima a ogni script.
+
+Rami: `main` è online, `sviluppo` è il lavoro in corso.
