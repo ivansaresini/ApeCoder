@@ -181,11 +181,23 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
   </div>
 </div>
 
+<div class="velo" id="schermoSoluzione" hidden>
+  <div class="scheda">
+    <div class="esito-grande">💡</div>
+    <h2 data-t="solTitolo"></h2>
+    <p id="solTesto"></p>
+    <div class="regola esempio" id="solRegola"></div>
+    <p data-t="solNota"></p>
+    <button class="grande" id="bSoluzioneOk" data-t="continua"></button>
+  </div>
+</div>
+
 <div class="velo" id="schermoFine" hidden>
   <div class="scheda">
     <div class="esito-grande">🛡️</div>
     <h2 data-t="fine"></h2>
     <p id="fnTesto"></p>
+    <div class="regola esempio" id="fnRegola"></div>
     <ol class="classifica" id="classificaFine"></ol>
     <button class="grande" id="bRigioca" data-t="rigioca"></button>
   </div>
@@ -221,6 +233,7 @@ const T = {
     se: "SE", allora: "→ ENTRA", nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", gioca: "GIOCA",
     sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello", capito: "HO CAPITO!",
     vuoto: "Scrivi la regola…", porta: "Scopri la regola e scrivila!", nuovoLiv: "Nuovo livello: regola nuova!",
+    solTitolo: "La regola era:", solNota: "Guarda di nuovo gli entrati e i fermati: ora si vede? Adesso arriva una regola nuova.",
     tardi: "Tempo scaduto! −1 vita", erroreEntrato: "Ops! Questo non doveva entrare. −1 vita", erroreFermato: "Ops! Questa era un'amica. −1 vita",
     bravo: "Fila superata!", corto: " (regola perfetta!)", serie: " · serie ×", incompleta: "La regola non è completa.",
     lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per scrivere la regola.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
@@ -247,6 +260,7 @@ const T = {
     se: "IF", allora: "→ ENTER", nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", gioca: "PLAY",
     sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level", capito: "GOT IT!",
     vuoto: "Write the rule…", porta: "Work out the rule and write it!", nuovoLiv: "New level: new rule!",
+    solTitolo: "The rule was:", solNota: "Look again at who got in and who was stopped: can you see it now? A new rule is coming.",
     tardi: "Time's up! −1 life", erroreEntrato: "Oops! That one should not get in. −1 life", erroreFermato: "Oops! That was a friend. −1 life",
     bravo: "Line cleared!", corto: " (perfect rule!)", serie: " · streak ×", incompleta: "The rule is not complete.",
     lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds to write the rule.`, vitaExtra: " You earned an extra life! ❤️",
@@ -268,15 +282,23 @@ const CARATT = ["strisce", "ali", "grande", "antenne"];
 
 // ===================== disegno dell'insetto (SVG procedurale) =====================
 function insettoSvg(f) {
-  const sc = f.grande ? 1.25 : 0.9, corpo = f.strisce ? "#f6b73c" : "#8a5a2b";
-  const ali = f.ali ? 'fill="#ffffff" fill-opacity=".55" stroke="#9fc9e8"' : 'fill="#5aa0e0" stroke="#2d7fc1"';
-  const ant = f.antenne ? 'M26 24 C 18 10, 8 8, 4 4 M34 24 C 42 10, 52 8, 56 4' : 'M26 24 C 22 18, 18 16, 16 14 M34 24 C 38 18, 42 16, 44 14';
-  const strisce = f.strisce ? '<rect x="18" y="34" width="24" height="4" rx="2" fill="#2b1d0e"/><rect x="18" y="42" width="24" height="4" rx="2" fill="#2b1d0e"/>' : '';
-  return `<svg viewBox="0 0 60 60" aria-hidden="true"><g transform="translate(30 32) scale(${sc}) translate(-30 -32)">
-    <ellipse cx="14" cy="30" rx="12" ry="7" ${ali} stroke-width="1.5" transform="rotate(-25 14 30)"/><ellipse cx="46" cy="30" rx="12" ry="7" ${ali} stroke-width="1.5" transform="rotate(25 46 30)"/>
-    <ellipse cx="30" cy="40" rx="13" ry="12" fill="${corpo}"/>${strisce}
-    <circle cx="30" cy="26" r="8" fill="#2b1d0e"/><circle cx="27" cy="25" r="2" fill="#fff"/><circle cx="33" cy="25" r="2" fill="#fff"/>
-    <path d="${ant}" stroke="#2b1d0e" stroke-width="2" fill="none" stroke-linecap="round"/></g></svg>`;
+  const sc = f.grande ? 1.28 : 0.88, corpo = f.strisce ? "#f9c440" : "#c98a5b", corpoD = f.strisce ? "#e0a520" : "#a86f3f";
+  const ala = f.ali ? 'fill="#ffffff" fill-opacity=".6" stroke="#8fc4ea"' : 'fill="#79b6f0" stroke="#3c8ad6"';
+  const antL = f.antenne ? "M24 20 C 17 6, 8 4, 5 2" : "M24 20 C 21 14, 17 12, 15 11";
+  const antR = f.antenne ? "M36 20 C 43 6, 52 4, 55 2" : "M36 20 C 39 14, 43 12, 45 11";
+  const tipL = f.antenne ? "5,2" : "15,11", tipR = f.antenne ? "55,2" : "45,11";
+  const strisce = f.strisce ? '<path d="M18 41 Q30 45 42 41 L42 45 Q30 49 18 45 Z" fill="#3a2a14"/><path d="M19 49 Q30 53 41 49 L40 53 Q30 56 20 53 Z" fill="#3a2a14"/>' : '';
+  return `<svg viewBox="0 0 60 60" aria-hidden="true"><g transform="translate(30 33) scale(${sc}) translate(-30 -33)">
+    <ellipse cx="15" cy="31" rx="13" ry="8" ${ala} stroke-width="1.6" transform="rotate(-28 15 31)"/><ellipse cx="45" cy="31" rx="13" ry="8" ${ala} stroke-width="1.6" transform="rotate(28 45 31)"/>
+    <path d="M8 29 L19 32 M11 25 L19 31" stroke="#8fc4ea" stroke-width="1" opacity=".7"/><path d="M52 29 L41 32 M49 25 L41 31" stroke="#8fc4ea" stroke-width="1" opacity=".7"/>
+    <path d="M22 50 l-5 6 M30 52 l0 7 M38 50 l5 6" stroke="#3a2a14" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <ellipse cx="30" cy="44" rx="14" ry="13" fill="${corpo}"/><ellipse cx="30" cy="46" rx="11" ry="9" fill="${corpoD}" opacity=".35"/>${strisce}
+    <circle cx="30" cy="25" r="12" fill="${corpo}"/>
+    <circle cx="25" cy="24" r="4.2" fill="#fff"/><circle cx="35" cy="24" r="4.2" fill="#fff"/><circle cx="25.8" cy="24.6" r="2.4" fill="#2b1d0e"/><circle cx="35.8" cy="24.6" r="2.4" fill="#2b1d0e"/><circle cx="26.8" cy="23.6" r=".9" fill="#fff"/><circle cx="36.8" cy="23.6" r=".9" fill="#fff"/>
+    <circle cx="21" cy="30" r="2.2" fill="#ff8aa0" opacity=".7"/><circle cx="39" cy="30" r="2.2" fill="#ff8aa0" opacity=".7"/>
+    <path d="M26 31 Q30 34 34 31" stroke="#2b1d0e" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="${antL}" stroke="#3a2a14" stroke-width="2" fill="none" stroke-linecap="round"/><path d="${antR}" stroke="#3a2a14" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="${tipL.split(",")[0]}" cy="${tipL.split(",")[1]}" r="2.3" fill="#3a2a14"/><circle cx="${tipR.split(",")[0]}" cy="${tipR.split(",")[1]}" r="2.3" fill="#3a2a14"/></g></svg>`;
 }
 const casuale = () => ({ strisce: Math.random() < .5, ali: Math.random() < .5, grande: Math.random() < .5, antenne: Math.random() < .5 });
 function valuta(regola, ins) {
@@ -358,7 +380,7 @@ function tick() {
   const resto = S.scade - Date.now();
   $("tempoBarra").style.transform = `scaleX(${Math.max(0, resto / S.totale)})`;
   el.tempo.classList.toggle("urgente", resto < 5000);
-  if (resto <= 0) { S.fase = "fermo"; if (!perdiVita(t("tardi"))) return; nuovoLivello(); }
+  if (resto <= 0) { S.fase = "fermo"; if (!perdiVita(t("tardi"))) return; mostraSoluzione(t("tardi")); }
 }
 function avviaLoop() { fermaLoop(); S.loop = setInterval(tick, 100); }
 function fermaLoop() { if (S.loop) clearInterval(S.loop); S.loop = null; }
@@ -368,6 +390,13 @@ function perdiVita(testo) {
   S.vite--; S.serie = 0; aggiornaStato(); messaggio(testo, "male");
   if (S.vite <= 0) { fineGioco(); return false; }
   return true;
+}
+// dopo una vita persa: mostra la regola giusta, poi regola nuova
+function mostraSoluzione(testo) {
+  fermaLoop(); S.fase = "pausa";
+  $("solTesto").textContent = testo; $("solRegola").innerHTML = regolaHtml(S.segreta, false);
+  $("schermoSoluzione").hidden = false; $("bSoluzioneOk").focus({ preventScroll: true });
+  $("bSoluzioneOk").onclick = () => { $("schermoSoluzione").hidden = true; S.fase = "fermo"; nuovoLivello(); avviaLoop(); };
 }
 function successo() {
   const rimasto = Math.max(0, S.scade - Date.now());
@@ -394,6 +423,7 @@ function fineGioco() {
   const classifica = salvaPunteggio(S.nome, S.punti, S.livello);
   const posizione = classifica.findIndex(r => r.io) + 1;
   $("fnTesto").textContent = t("fnTesto")(S.nome, S.punti, t("diffNomi")[S.diff], S.livello) + (posizione > 0 ? t("posizione")(posizione) : "");
+  $("fnRegola").innerHTML = `<span class="vuoto">${t("solTitolo")}</span>` + regolaHtml(S.segreta, false);
   mostraClassifica($("classificaFine"), classifica);
   $("schermoFine").hidden = false; $("bRigioca").focus();
 }
@@ -427,8 +457,9 @@ function invia() {
       nodo.classList.add(mia ? "dentro" : "via");
       if (mia !== vera) {
         S.fase = "fermo";
-        if (!perdiVita(mia ? t("erroreEntrato") : t("erroreFermato"))) return;
-        setTimeout(() => { $("coda").innerHTML = ""; $("esitoIcona").textContent = ""; disegnaRegola(); }, 900);
+        const testo = mia ? t("erroreEntrato") : t("erroreFermato");
+        if (!perdiVita(testo)) return;
+        setTimeout(() => { $("coda").innerHTML = ""; $("esitoIcona").textContent = ""; mostraSoluzione(testo); }, 900);
         return;
       }
       k++; setTimeout(avanti, 250);
