@@ -24,6 +24,15 @@ main{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column
 .tondo:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
 .info{position:absolute;right:0;top:50%;transform:translateY(-50%);color:var(--sky-d);font-family:Georgia,serif;font-style:italic;font-weight:700}
 .lingua{position:absolute;left:0;top:50%;transform:translateY(-50%)}
+.coppa{position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:20px}
+@media (max-width:400px){.testa h1{font-size:24px}}
+.coppaLista{display:flex;flex-direction:column;gap:12px;text-align:left}
+.coppaLista h3{font-family:var(--display);margin:0;font-size:18px;display:flex;align-items:center;gap:6px}
+.coppaLista ol{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-variant-numeric:tabular-nums}
+.coppaLista li{display:grid;grid-template-columns:22px 1fr auto auto;gap:6px;align-items:center;padding:3px 8px;border-radius:8px;background:var(--sky);font-size:15px}
+.coppaLista li .pt{font-family:var(--display);font-size:17px}
+.coppaLista li small{color:var(--ink-soft);font-size:11px}
+.coppaLista .nessuno{color:var(--ink-soft);font-size:14px}
 h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,7.5vw,44px);margin:0;text-align:center;color:var(--honey-d);text-wrap:balance;line-height:1.1}
 .sotto{text-align:center;margin:0;color:var(--ink-soft);font-size:14px}
 .griglia{display:grid;grid-template-columns:repeat(2,1fr);grid-auto-rows:1fr;gap:10px;flex:1;min-height:0}
@@ -74,6 +83,7 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
     <button class="tondo lingua" id="bLingua" aria-label="Language / Lingua">🇬🇧</button>
     <h1>🐝 Scuola Ape</h1>
     <button class="tondo info" id="bInfo" aria-label="Info">i</button>
+    <button class="tondo coppa" id="bCoppa" aria-label="Classifica">🏆</button>
   </header>
   <p class="sotto" data-t="sotto"></p>
   <nav class="griglia" id="griglia" aria-label="Giochi"></nav>
@@ -115,6 +125,16 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
   </div>
 </div>
 
+<div class="velo" id="veloCoppa" hidden>
+  <div class="scheda" role="dialog" aria-modal="true" aria-labelledby="cTitolo" id="schedaCoppa">
+    <div class="em">🏆</div>
+    <h2 id="cTitolo" data-t="coppaTitolo"></h2>
+    <p data-t="coppaNota"></p>
+    <div class="coppaLista" id="coppaLista"></div>
+    <div class="azioni"><button class="chiudi" id="bChiudiCoppa" data-t="chiudi"></button></div>
+  </div>
+</div>
+
 <div class="velo" id="velo" hidden>
   <div class="scheda" role="dialog" aria-modal="true" aria-labelledby="sTitolo">
     <div class="em" id="sEm"></div>
@@ -141,7 +161,7 @@ const T = {
   it: {
     sotto: "Impara a programmare giocando con le api. Scegli un gioco!",
     piede: "App generata con l'intelligenza artificiale · Proprietà intellettuale di Xei S.r.l.",
-    gioca: "GIOCA", presto: "In arrivo", indietro: "Indietro", chiudi: "Chiudi", tabCoding: "Coding", tabRic: "Riconoscimenti", tabPriv: "Privacy", tabMaestre: "Per le maestre",
+    gioca: "GIOCA", presto: "In arrivo", indietro: "Indietro", chiudi: "Chiudi", tabCoding: "Coding", tabRic: "Riconoscimenti", tabPriv: "Privacy", coppaTitolo: "Classifica", coppaNota: "I migliori di ogni gioco su questo dispositivo, con il grado raggiunto.", coppaNessuno: "Nessuna partita ancora.", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" }, gradi: ["🐛", "🐛", "🍼", "🍼", "🐝", "🐝", "🎺", "🎺", "👑"], tabMaestre: "Per le maestre",
     giocoT: "Come si gioca", impariT: "Cosa impari", codingT: "Come nel coding vero",
     infoTitolo: "Cos'è il coding?",
     info1: "Il coding è il modo in cui si parla ai computer. Un computer è velocissimo ma non capisce niente da solo: bisogna spiegargli ogni cosa con istruzioni precise, una alla volta, nell'ordine giusto. Scrivere queste istruzioni si chiama programmare.",
@@ -186,7 +206,7 @@ const T = {
   en: {
     sotto: "Learn to code by playing with bees. Pick a game!",
     piede: "App generated with artificial intelligence · Intellectual property of Xei S.r.l.",
-    gioca: "PLAY", presto: "Coming soon", indietro: "Back", chiudi: "Close", tabCoding: "Coding", tabRic: "Credits", tabPriv: "Privacy", tabMaestre: "For teachers",
+    gioca: "PLAY", presto: "Coming soon", indietro: "Back", chiudi: "Close", tabCoding: "Coding", tabRic: "Credits", tabPriv: "Privacy", coppaTitolo: "Leaderboard", coppaNota: "The best of every game on this device, with the rank reached.", coppaNessuno: "No games played yet.", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" }, gradi: ["🐛", "🐛", "🍼", "🍼", "🐝", "🐝", "🎺", "🎺", "👑"], tabMaestre: "For teachers",
     giocoT: "How to play", impariT: "What you learn", codingT: "In real coding",
     infoTitolo: "What is coding?",
     info1: "Coding is how we talk to computers. A computer is super fast but understands nothing on its own: you have to explain everything with precise instructions, one at a time, in the right order. Writing those instructions is called programming.",
@@ -230,12 +250,12 @@ const T = {
   },
 };
 const GIOCHI = [
-  { k: "ape", em: "🍯", link: "ape-coder.html" },
-  { k: "danza", em: "💃", link: "danza.html" },
-  { k: "guardiana", em: "🛡️", link: "guardiana.html" },
-  { k: "fabbrica", em: "🏭", link: "fabbrica.html" },
-  { k: "favo", em: "🔶", link: "favo.html" },
-  { k: "impollinatrice", em: "🌸", link: "impollinatrice.html" },
+  { k: "ape", em: "🍯", link: "ape-coder.html", chiave: "apeCoder.classifica" },
+  { k: "danza", em: "💃", link: "danza.html", chiave: "danzaApe.classifica" },
+  { k: "guardiana", em: "🛡️", link: "guardiana.html", chiave: "guardiana.classifica" },
+  { k: "fabbrica", em: "🏭", link: "fabbrica.html", chiave: "fabbrica.classifica" },
+  { k: "favo", em: "🔶", link: "favo.html", chiave: "favo.classifica" },
+  { k: "impollinatrice", em: "🌸", link: "impollinatrice.html", chiave: "impollinatrice.classifica" },
 ];
 const $ = id => document.getElementById(id);
 const t = k => T[L][k];
@@ -273,8 +293,27 @@ document.querySelectorAll(".tab [role=tab]").forEach(b => b.addEventListener("cl
 $("bInfo").addEventListener("click", () => { $("veloInfo").hidden = false; mostraTab("coding"); document.querySelector(".tab [role=tab]").focus({ preventScroll: true }); });
 $("bChiudiInfo").addEventListener("click", chiudiInfo);
 $("veloInfo").addEventListener("click", e => { if (e.target === $("veloInfo")) chiudiInfo(); });
+function mostraCoppa() {
+  const g = t("gradi"), grado = lv => g[Math.min(g.length, Math.max(1, lv)) - 1];
+  let html = "", qualcosa = false;
+  for (const gi of GIOCHI) {
+    let righe = [];
+    for (const d of ["facile", "medio", "difficile", "senzafretta"]) {
+      try { (JSON.parse(localStorage.getItem(gi.chiave + "." + d)) || []).forEach(r => righe.push({ ...r, d })); } catch (e) {}
+    }
+    righe.sort((a, b) => b.punti - a.punti); righe = righe.slice(0, 5);
+    html += `<div><h3>${gi.em} ${t("giochi")[gi.k].titolo}</h3>` + (righe.length ? `<ol>${righe.map((r, i) => `<li><b>${i + 1}.</b><span>${String(r.nome).replace(/[<>&]/g, "")} ${grado(r.livello)}</span><span class="pt">${r.punti}</span><small>${t("diffNomi")[r.d] || r.d} · ${r.livello}</small></li>`).join("")}</ol>` : `<div class="nessuno">${t("coppaNessuno")}</div>`) + "</div>";
+    if (righe.length) qualcosa = true;
+  }
+  $("coppaLista").innerHTML = html;
+  $("veloCoppa").hidden = false; $("schedaCoppa").scrollTop = 0; $("bChiudiCoppa").focus({ preventScroll: true });
+}
+function chiudiCoppa() { $("veloCoppa").hidden = true; $("bCoppa").focus(); }
+$("bCoppa").addEventListener("click", mostraCoppa);
+$("bChiudiCoppa").addEventListener("click", chiudiCoppa);
+$("veloCoppa").addEventListener("click", e => { if (e.target === $("veloCoppa")) chiudiCoppa(); });
 $("bLingua").addEventListener("click", () => { L = L === "en" ? "it" : "en"; salvaLingua(L); disegna(); });
-document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if (!$("velo").hidden) chiudi(); if (!$("veloInfo").hidden) chiudiInfo(); });
+document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if (!$("velo").hidden) chiudi(); if (!$("veloInfo").hidden) chiudiInfo(); if (!$("veloCoppa").hidden) chiudiCoppa(); });
 disegna();
 </script>
 </body>
