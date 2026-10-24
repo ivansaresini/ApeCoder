@@ -34,7 +34,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .stato small{color:var(--ink-soft);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 @media (max-width:400px){.stato{padding:6px 8px;gap:6px}.stato small{display:none}.stato .vite{letter-spacing:0;font-size:16px}.stato .nome{max-width:28%;font-size:16px}.stato .punti{font-size:20px}}
 
-.campo{position:relative;width:min(100%,520px,calc(100dvh - 400px));aspect-ratio:1;max-width:100%;min-width:180px;
+body{--sotto:416px}
+body.due-mosse{--sotto:462px}
+@media (max-height:700px){.pad{grid-template-rows:repeat(3,48px)} body{--sotto:404px} body.due-mosse{--sotto:450px}}
+.campo{position:relative;flex:0 0 auto;width:min(100%,520px,calc(100dvh - var(--sotto) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));aspect-ratio:1;max-width:100%;min-width:160px;
   background:var(--meadow);border-radius:16px;overflow:hidden;box-shadow:0 6px 0 #6fae43}
 .griglia{position:absolute;inset:0;display:grid}
 .cella{border:1px solid rgba(255,255,255,.28)}
@@ -46,6 +49,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .ape{transition:left .26s linear,top .26s linear;z-index:3;filter:drop-shadow(0 3px 2px rgba(0,0,0,.25))}
 .ape.salto{transition:none}
 .alveare svg{width:78%;height:78%}
+.partenza::before{content:"";width:70%;height:70%;border:2px dashed #3b2a10;border-radius:6px;opacity:.5}
 @media (prefers-reduced-motion:reduce){.ape{transition-duration:.05s}}
 
 .tempo{width:100%;max-width:520px;height:12px;background:var(--paper);border-radius:999px;overflow:hidden;position:relative}
@@ -54,9 +58,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .msg{height:36px;line-height:18px;font-size:clamp(13px,3.9vw,15px);color:var(--ink-soft);text-align:center;width:100%;max-width:520px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .msg.bene{color:var(--ok)}.msg.male{color:var(--danger)}
 .codice{width:100%;max-width:520px;display:flex;flex-direction:column;gap:4px}
-.riga{min-height:42px;max-height:64px;overflow-y:auto;background:var(--paper);border-radius:12px;padding:4px 8px;display:flex;flex-wrap:wrap;align-content:flex-start;align-items:center;gap:5px;font-family:var(--display);font-size:17px;border:3px solid transparent}
+.riga{min-height:42px;max-height:66px;overflow-y:auto;background:var(--paper);border-radius:12px;padding:4px 8px;display:flex;flex-wrap:wrap;align-content:flex-start;align-items:center;gap:5px;font-family:var(--display);font-size:17px;border:3px solid transparent}
 .riga.attiva{border-color:var(--honey-d);background:#fff3d1}
-.riga .etich{font-size:12px;font-family:var(--body);color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
+.riga .etich{font-size:11px;font-family:var(--body);color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-right:2px}
+.riga[data-r="A"],.riga[data-r="B"]{max-height:42px;overflow:hidden}
+.riga[data-r="A"] .chip,.riga[data-r="B"] .chip,.esempio .riga .chip{font-size:15px;padding:1px 6px;border-radius:8px}
+@media (max-width:400px){.riga[data-r="P"] .chip .nm{display:none}}
 .riga .vuoto{color:var(--ink-soft);font-size:13px;font-family:var(--body)}
 .riga .resto{margin-left:auto;font-size:12px;color:var(--ink-soft);font-family:var(--body);white-space:nowrap}
 .riga .resto.zero{color:var(--danger)}
@@ -70,15 +77,18 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .pad button:active{transform:translateY(3px);box-shadow:0 1px 0 #d9cdb3}
 .pad .canc{grid-column:1;grid-row:1;font-size:22px}
 .pad .su{grid-column:2;grid-row:1}
-.pad .dove{grid-column:3;grid-row:1;font-size:clamp(11px,3.4vw,14px);background:var(--honey);box-shadow:0 4px 0 var(--honey-d);white-space:normal}
+.pad .dove{grid-column:3;grid-row:1;font-size:clamp(11px,3.4vw,14px);background:var(--honey);box-shadow:0 4px 0 var(--honey-d);white-space:normal;line-height:1.1;overflow-wrap:anywhere;hyphens:auto}
 .pad .sx{grid-column:1;grid-row:2}.pad .giu{grid-column:2;grid-row:2}.pad .dx{grid-column:3;grid-row:2}
-.pad .fnA{grid-column:1;grid-row:3;background:var(--fnA);box-shadow:0 4px 0 var(--fnA-d);font-size:clamp(13px,3.8vw,17px);white-space:nowrap}
-.pad .fnB{grid-column:2;grid-row:3;background:var(--fnB);box-shadow:0 4px 0 var(--fnB-d);font-size:clamp(13px,3.8vw,17px);white-space:nowrap}
+.pad .fnA{grid-column:1;grid-row:3;background:var(--fnA);box-shadow:0 4px 0 var(--fnA-d)}
+.pad .fnB{grid-column:2;grid-row:3;background:var(--fnB);box-shadow:0 4px 0 var(--fnB-d)}
+.pad .fnA,.pad .fnB{font-size:clamp(12px,3.6vw,17px);white-space:normal;line-height:1.1;overflow-wrap:anywhere}
 .pad .aiuto{grid-column:3;grid-row:3;font-family:var(--body);font-size:11px;color:var(--ink-soft);box-shadow:none;background:transparent;font-weight:600;padding:0;line-height:1.15;display:none}
 @media (min-width:600px){.pad .aiuto{display:block;font-size:13px}}
 .pad .invia{grid-column:4;grid-row:1/4;background:var(--honey);box-shadow:0 4px 0 var(--honey-d);font-size:22px;letter-spacing:.04em}
 .pad .invia:active{box-shadow:0 1px 0 var(--honey-d)}
 .pad button:disabled{opacity:.4;transform:none;box-shadow:none}
+.pad .aiuto:disabled{opacity:1}
+@media (min-height:800px){body{gap:8px}.pad{grid-template-rows:repeat(3,54px);gap:8px}.pad button{font-size:26px}.tempo{height:14px}body{--sotto:436px}body.due-mosse{--sotto:482px}}
 .pad .fnB[hidden]{display:block!important;visibility:hidden;pointer-events:none}
 
 .velo{position:fixed;inset:0;background:rgba(40,30,10,.55);display:flex;align-items:center;justify-content:center;
@@ -235,49 +245,49 @@ const T = {
   it: { titolo: "🌸 Impollinatrice", intro: "I fiori crescono a mazzi tutti uguali. Insegna all'ape una mossa, dalle un nome e richiamala quante volte vuoi!",
     r1: "L'ape deve passare su tutti i fiori. I mazzi di fiori sono tutti uguali.",
     r2: "La MOSSA 📘 è una lista di frecce con un nome. Nel PROGRAMMA la richiami con un tasto solo.",
-    r3: "Hai pochi mattoncini: scrivere tutto a frecce non basta mai. La mossa sì!",
+    r3: "I mattoncini 🧱 sono pochi: a scrivere tutto con le frecce non bastano. Con la mossa invece bastano!",
     r4: "La barra gialla è il tempo. Se finisce, perdi una vita.",
     nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", senzafretta: "🐢 Senza fretta", partiDa: "Parti dal livello", gioca: "GIOCA", invia: "ESEGUI",
-    mossaA: "raccogli", mossaB: "salta", programma: "programma", mossa: "mossa", scriviMossa: "✏️ scrivi la MOSSA", scriviProg: "✏️ scrivi il PROGRAMMA",
-    aiuto: "Le frecce vanno nella riga evidenziata", mattoncini: n => `🧱 ${n}`,
+    mossaA: "raccogli", mossaB: "salta", programma: "programma", mossa: "mossa", scriviA: "✏️ scrivi 📘", scriviB: "✏️ scrivi 📗", scriviProg: "✏️ programma",
+    aiuto: "Ogni freccia e ogni 📘 costa un mattoncino. Le frecce vanno nella riga evidenziata.", mattoncini: n => `🧱 ${n}`,
     sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello", capito: "HO CAPITO!",
-    porta: "Richiama la mossa 📘 nel programma, poi ESEGUI.", nuovoLiv: "Nuovo livello: mazzi nuovi!", tardi: "Tempo scaduto! −1 vita",
-    parziale: (a, b) => `Hai visitato ${a} fiori su ${b}. Correggi la mossa o il programma e riprova.`, vuotoProg: "Il programma è vuoto: richiama la mossa 📘.", vuotaMossa: "La mossa 📘 è vuota: scrivila con le frecce.",
+    porta: "Metti la mossa 📘 nel programma (si dice: chiamala!), poi ESEGUI.", nuovoLiv: "Nuovo livello: mazzi nuovi!", tardi: "Tempo scaduto! −1 vita",
+    parziale: (a, b) => `Hai visitato ${a} fiori su ${b}. L'ape si è fermata qui: doveva ripartire dal quadratino. Correggi e riprova.`, vuotoProg: "Il programma è vuoto: richiama la mossa 📘.", vuotaMossa: "La mossa 📘 è vuota: scrivila con le frecce.",
     bravo: "Tutti i fiori!", corto: " (programma corto!)", serie: " · serie ×", tropp: "Mattoncini finiti: usa la mossa invece delle frecce!",
     solTitolo: "Una soluzione era:", lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per ogni prato.`, lvTestoSenzaTempo: p => `Hai ${p} punti. Niente fretta: il prato nuovo ti aspetta.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
     fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
     nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" },
     tutorial: {
-      1: { em: "📘", titolo: "La mossa ha un nome", testo: "La riga azzurra è la MOSSA: si chiama 'raccogli' ed è già scritta. La riga gialla è il PROGRAMMA. Tocca il tasto 📘 raccogli tre volte: l'ape farà la mossa tre volte di fila. Poi premi ESEGUI.", nota: "Una lista di frecce con un nome si chiama FUNZIONE: la scrivi una volta e la usi quante volte vuoi." },
-      2: { em: "✏️", titolo: "Adesso la mossa la scrivi tu", testo: "Guarda un mazzo di fiori: quali frecce servono per passarci sopra e arrivare all'inizio del mazzo dopo? Tocca 'scrivi la MOSSA', metti le frecce, poi torna al PROGRAMMA e richiama 📘.", nota: "La mossa deve finire nel punto giusto per ricominciare: conta le caselle fino al mazzo dopo." },
-      7: { em: "📗", titolo: "Due mosse", testo: "Ora i mazzi sono di due tipi che si alternano. Hai due mosse: 📘 raccogli e 📗 salta. Scrivile tutte e due e nel programma richiamale nell'ordine giusto.", nota: "📘 📗 📘 📗: quattro tasti per un prato intero." },
+      1: { em: "📘", titolo: "La mossa ha un nome", testo: a => `La riga con 📘 è la MOSSA: si chiama '${a}' ed è già scritta. La riga sotto è il PROGRAMMA. Tocca il tasto 📘 una volta per ogni mazzo di fiori che vedi dietro questa scheda: l'ape farà la mossa tante volte. Poi premi ESEGUI. Puoi anche toccare una riga per scriverci dentro.`, nota: "Nella Danza dell'ape usavi RIPETI per rifare le stesse frecce di fila. La MOSSA fa di più: ha un nome, la scrivi una volta e la usi quando vuoi, anche in mezzo ad altre cose. I programmatori la chiamano FUNZIONE, e usarla si dice 'chiamare' la funzione." },
+      2: { em: "✏️", titolo: "Adesso la mossa la scrivi tu", testo: "Guarda il primo mazzo di fiori dietro questa scheda e il quadratino tratteggiato dove comincia il mazzo dopo. Quali frecce servono per passare su tutti i fiori del mazzo e fermarsi su quel quadratino? Tocca '✏️ scrivi 📘', metti le frecce, poi tocca '✏️ programma' e usa 📘 una volta per ogni mazzo.", nota: "È come quando la maestra dice 'preparate lo zaino': una parola sola, ma voi sapete che vuol dire tante azioni in fila." },
+      7: { em: "📗", titolo: "Due mosse", testo: (a, b) => `Ora i mazzi sono di due tipi che si alternano. Hai due mosse: 📘 ${a} e 📗 ${b}. Scrivile tutte e due e nel programma chiamale nell'ordine giusto.`, nota: "📘 📗 📘 📗: quattro tasti per un prato intero." },
     },
-    curiosita: ["Un'ape visita fino a 1.000 fiori in un solo giro, e in un giorno ne fa anche dieci.", "Senza le api molti frutti non nascerebbero: mele, pere, ciliegie, zucchine, mandorle.",
+    curiosita: ["In un giro un'ape visita 50-100 fiori, e fa anche dieci giri al giorno: quasi mille fiori!", "Senza le api molti frutti non nascerebbero: mele, pere, ciliegie, zucchine, mandorle.",
       "Ogni ape è fedele a un tipo di fiore per tutto il giro: così il polline arriva al fiore giusto.", "I fiori 'parlano' alle api con colori che noi non vediamo: disegni ultravioletti che indicano dove sta il nettare.",
-      "Un terzo del cibo che mangiamo dipende dagli insetti impollinatori.", "Le api preferiscono i fiori blu, viola e gialli; il rosso lo vedono scuro."] },
+      "Un boccone su tre di quello che mangiamo dipende dagli insetti impollinatori.", "Le api preferiscono i fiori blu, viola e gialli; il rosso lo vedono scuro."] },
   en: { titolo: "🌸 Pollinator", intro: "The flowers grow in identical bunches. Teach the bee a move, give it a name and call it as often as you like!",
     r1: "The bee must fly over every flower. The bunches of flowers are all the same.",
     r2: "The MOVE 📘 is a list of arrows with a name. In the PROGRAM you call it with a single button.",
-    r3: "You have few blocks: writing everything with arrows is never enough. The move is!",
+    r3: "Blocks 🧱 are few: writing everything with arrows isn't enough. With the move it is!",
     r4: "The yellow bar is the time. When it runs out, you lose a life.",
     nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", senzafretta: "🐢 No rush", partiDa: "Start at level", gioca: "PLAY", invia: "RUN",
-    mossaA: "collect", mossaB: "hop", programma: "program", mossa: "move", scriviMossa: "✏️ write the MOVE", scriviProg: "✏️ write the PROGRAM",
-    aiuto: "Arrows go into the highlighted row", mattoncini: n => `🧱 ${n}`,
+    mossaA: "collect", mossaB: "hop", programma: "program", mossa: "move", scriviA: "✏️ write 📘", scriviB: "✏️ write 📗", scriviProg: "✏️ program",
+    aiuto: "Every arrow and every 📘 costs one block. Arrows go into the highlighted row.", mattoncini: n => `🧱 ${n}`,
     sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level", capito: "GOT IT!",
-    porta: "Call the move 📘 in the program, then RUN.", nuovoLiv: "New level: new bunches!", tardi: "Time's up! −1 life",
-    parziale: (a, b) => `You visited ${a} of ${b} flowers. Fix the move or the program and try again.`, vuotoProg: "The program is empty: call the move 📘.", vuotaMossa: "The move 📘 is empty: write it with arrows.",
+    porta: "Put the move 📘 in the program (we say: call it!), then RUN.", nuovoLiv: "New level: new bunches!", tardi: "Time's up! −1 life",
+    parziale: (a, b) => `You visited ${a} of ${b} flowers. The bee stopped here: it had to start again from the dashed square. Fix it and try again.`, vuotoProg: "The program is empty: call the move 📘.", vuotaMossa: "The move 📘 is empty: write it with arrows.",
     bravo: "All the flowers!", corto: " (short program!)", serie: " · streak ×", tropp: "No blocks left: use the move instead of arrows!",
     solTitolo: "One solution was:", lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds per meadow.`, lvTestoSenzaTempo: p => `You have ${p} points. No rush: the new meadow is waiting.`, vitaExtra: " You earned an extra life! ❤️",
     fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
     nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" },
     tutorial: {
-      1: { em: "📘", titolo: "The move has a name", testo: "The blue row is the MOVE: it's called 'collect' and it's already written. The yellow row is the PROGRAM. Tap the 📘 collect button three times: the bee will do the move three times in a row. Then press RUN.", nota: "A list of arrows with a name is called a FUNCTION: write it once, use it as often as you like." },
-      2: { em: "✏️", titolo: "Now you write the move", testo: "Look at one bunch of flowers: which arrows fly over it and reach the start of the next bunch? Tap 'write the MOVE', add the arrows, then go back to the PROGRAM and call 📘.", nota: "The move must end in the right spot to start again: count the squares to the next bunch." },
-      7: { em: "📗", titolo: "Two moves", testo: "Now there are two kinds of bunches, taking turns. You have two moves: 📘 collect and 📗 hop. Write both and call them in the right order in the program.", nota: "📘 📗 📘 📗: four buttons for a whole meadow." },
+      1: { em: "📘", titolo: "The move has a name", testo: a => `The row with 📘 is the MOVE: it's called '${a}' and it's already written. The row below is the PROGRAM. Tap the 📘 button once for every bunch of flowers you see behind this card: the bee will do the move that many times. Then press RUN. You can also tap a row to write in it.`, nota: "In Bee Dance you used REPEAT to redo the same arrows in a row. The MOVE does more: it has a name, you write it once and use it whenever you like, even in the middle of other things. Programmers call it a FUNCTION, and using it is called 'calling' the function." },
+      2: { em: "✏️", titolo: "Now you write the move", testo: "Look at the first bunch of flowers behind this card and the dashed square where the next bunch begins. Which arrows fly over all the flowers of the bunch and stop on that square? Tap '✏️ write 📘', add the arrows, then tap '✏️ program' and use 📘 once for every bunch.", nota: "It's like when the teacher says 'pack your bag': one phrase, but you know it means many actions in a row." },
+      7: { em: "📗", titolo: "Two moves", testo: (a, b) => `Now there are two kinds of bunches, taking turns. You have two moves: 📘 ${a} and 📗 ${b}. Write both and call them in the right order in the program.`, nota: "📘 📗 📘 📗: four buttons for a whole meadow." },
     },
-    curiosita: ["A bee visits up to 1,000 flowers in a single trip, and makes up to ten trips a day.", "Without bees many fruits would not grow: apples, pears, cherries, courgettes, almonds.",
+    curiosita: ["On one trip a bee visits 50-100 flowers, and makes up to ten trips a day: almost a thousand flowers!", "Without bees many fruits would not grow: apples, pears, cherries, courgettes, almonds.",
       "Each bee sticks to one kind of flower for a whole trip: that way pollen reaches the right flower.", "Flowers 'talk' to bees with colours we can't see: ultraviolet patterns pointing to the nectar.",
-      "A third of the food we eat depends on pollinating insects.", "Bees prefer blue, purple and yellow flowers; red looks dark to them."] },
+      "One bite in three of what we eat depends on pollinating insects.", "Bees prefer blue, purple and yellow flowers; red looks dark to them."] },
 };
 const t = k => T[L][k];
 const DIR = { U: [0, -1], D: [0, 1], L: [-1, 0], R: [1, 0] };
@@ -286,34 +296,38 @@ const SVG_ALVEARE = '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="8" y="
 
 // ===================== mosse: ogni mossa è una lista di frecce; i fiori sono nelle celle indicate (relative al punto di partenza) =====================
 // avanza: di quante colonne la mossa sposta l'ape (per calcolare quante ripetizioni stanno nella griglia)
+// nome: it/en, mostrato nei chip, nei tasti e nella soluzione
 const MOSSE = [
-  { nome: "torre",  passi: ["U", "U", "D", "D", "R"], fiori: [[0, -1], [0, -2]], avanza: 1 },
-  { nome: "torre2", passi: ["U", "U", "D", "D", "R", "R"], fiori: [[0, -1], [0, -2]], avanza: 2 },
-  { nome: "gancio", passi: ["U", "R", "D", "R"], fiori: [[0, -1], [1, -1]], avanza: 2 },
-  { nome: "mazzo",  passi: ["U", "U", "R", "D", "D", "R"], fiori: [[0, -2], [1, -2], [1, -1]], avanza: 2 },
-  { nome: "tetto",  passi: ["U", "U", "R", "R", "D", "D"], fiori: [[0, -2], [1, -2], [2, -2]], avanza: 2 },
-  { nome: "salto",  passi: ["R", "R"], fiori: [[1, 0]], avanza: 2 },
+  { id: "torre",  nome: { it: "torre", en: "tower" },  passi: ["U", "U", "D", "D", "R"], fiori: [[0, -1], [0, -2]], avanza: 1 },
+  { id: "torre2", nome: { it: "torre", en: "tower" },  passi: ["U", "U", "D", "D", "R", "R"], fiori: [[0, -1], [0, -2]], avanza: 2 },
+  { id: "gancio", nome: { it: "gancio", en: "hook" },  passi: ["U", "R", "D", "R"], fiori: [[0, -1], [1, -1]], avanza: 2 },
+  { id: "mazzo",  nome: { it: "mazzo", en: "bunch" },  passi: ["U", "U", "R", "D", "D", "R"], fiori: [[0, -2], [1, -2], [1, -1]], avanza: 2 },
+  { id: "tetto",  nome: { it: "tetto", en: "roof" },   passi: ["U", "U", "R", "R", "D", "D"], fiori: [[0, -2], [1, -2], [2, -2]], avanza: 2 },
+  { id: "salto",  nome: { it: "salto", en: "hop" },    passi: ["R", "R"], fiori: [[1, 0]], avanza: 2 },
 ];
+// nome della mossa del prato corrente (fallback: T.mossaA / T.mossaB)
+const nomeMossa = (fn, p) => { const m = (p || S.prato) && (p || S.prato)[fn]; return m ? m.nome[L] : t(fn === "A" ? "mossaA" : "mossaB"); };
 function generaPrato(lv) {
   const N = Math.min(10, 6 + Math.floor((lv - 1) / 2)), h = { x: 0, y: N - 1 };
   const due = lv >= 7;
-  const facili = MOSSE.filter(m => m.passi.length <= (lv <= 2 ? 5 : 6) && m.nome !== "salto");
+  const facili = MOSSE.filter(m => m.passi.length <= (lv <= 2 ? 5 : 6) && m.id !== "salto");
   const A = facili[Math.floor(Math.random() * facili.length)];
-  const B = due ? MOSSE[Math.floor(Math.random() * MOSSE.length)] : null;
-  // sequenza di mosse: A A A… oppure A B A B…, finché restano nella griglia
-  const seq = [], fiori = []; let x = h.x, y = h.y, k = 0;
+  const altre = MOSSE.filter(m => m !== A);                       // B sempre diversa da A
+  const B = due ? altre[Math.floor(Math.random() * altre.length)] : null;
+  // sequenza di mosse: A A A… oppure A B A B…, finché restano nella griglia; partenze = casella da cui parte ogni mossa
+  const seq = [], fiori = [], partenze = []; let x = h.x, y = h.y, k = 0;
   while (true) {
     const m = due ? (k % 2 ? B : A) : A;
     if (x + m.avanza > N - 1 && k > 0) break;
     const celleOk = m.fiori.every(([dx, dy]) => x + dx >= 0 && x + dx < N && y + dy >= 0 && y + dy < N);
     if (!celleOk || seq.length >= (lv <= 2 ? 3 : lv <= 4 ? 4 : 5)) break;
-    seq.push(m === A ? "A" : "B");
+    seq.push(m === A ? "A" : "B"); partenze.push({ x, y });
     m.fiori.forEach(([dx, dy]) => { if (!fiori.some(f => f.x === x + dx && f.y === y + dy)) fiori.push({ x: x + dx, y: y + dy, preso: false }); });
     x += m.avanza; k++;
   }
   if (seq.length < 2) return generaPrato(lv);
   const ottimo = A.passi.length + (B ? B.passi.length : 0) + seq.length;   // definizioni + chiamate
-  return { N, h, A, B, seq, fiori, ottimo };
+  return { N, h, A, B, seq, fiori, partenze, ottimo };
 }
 
 // ===================== stato =====================
@@ -332,13 +346,16 @@ function nuovoPrato() {
   S.firma = firma; S.prato = p; S.N = p.N; S.alveare = p.h; S.ape = { ...p.h };
   S.fnA = mossaBloccata() ? [...p.A.passi] : []; S.fnB = []; S.prog = []; S.dove = "P"; S.tentativi = 0; S.fase = "fermo";
   S.budget = p.ottimo + CONFIG.slack;
-  S.totale = tempoLivello(S.livello) * 1000; S.scade = Date.now() + S.totale;
+  S.totale = tempoLivello(S.livello) * 1000;          // il tempo parte con avviaTempo()
   el.tempo.hidden = !!CONFIG.senzaTempo;
+  document.body.classList.toggle("due-mosse", dueMosse());
+  $("rigaB").hidden = !dueMosse(); $("bFnB").hidden = !dueMosse();
   el.griglia.style.gridTemplateColumns = `repeat(${p.N},1fr)`; el.griglia.style.gridTemplateRows = `repeat(${p.N},1fr)`;
   el.campo.style.setProperty("--cella", `calc(${el.campo.clientWidth}px / ${p.N})`);
-  $("rigaB").hidden = !dueMosse(); $("bFnB").hidden = !dueMosse();
+  $("tempoBarra").style.transform = "scaleX(1)"; el.tempo.classList.remove("urgente");
   aggiornaStato(); disegna();
 }
+function avviaTempo() { S.scade = Date.now() + S.totale; }
 
 // ===================== disegno =====================
 function pos(e, x, y) { const p = 100 / S.N; e.style.left = x * p + "%"; e.style.top = y * p + "%"; e.style.width = p + "%"; e.style.height = p + "%"; }
@@ -348,6 +365,8 @@ function disegna() {
   el.griglia.innerHTML = "";
   for (let i = 0; i < S.N * S.N; i++) { const c = document.createElement("div"); c.className = "cella"; el.griglia.appendChild(c); }
   el.griglia.appendChild(ent("alveare", SVG_ALVEARE, S.alveare.x, S.alveare.y));
+  // livelli 2-6 (mossa da scrivere, una sola): quadratino tratteggiato dove parte ogni mazzo (non sull'alveare)
+  if (!mossaBloccata() && !dueMosse()) (S.prato.partenze || []).forEach(q => { if (q.x !== S.alveare.x || q.y !== S.alveare.y) el.griglia.appendChild(ent("partenza", "", q.x, q.y)); });
   S.prato.fiori.forEach((f, i) => { const e = ent("fiore" + (f.preso ? " preso" : ""), '<span class="em">🌸</span>', f.x, f.y); e.dataset.i = i; el.griglia.appendChild(e); });
   apeEl = ent("ape salto", '<span class="em">🐝</span>', S.ape.x, S.ape.y);
   el.griglia.appendChild(apeEl);
@@ -359,19 +378,19 @@ function aggiornaStato() {
   $("sVite").textContent = "❤️".repeat(S.vite) + "🤍".repeat(Math.max(0, CONFIG.viteMax - S.vite));
 }
 const costo = () => S.fnA.length + S.fnB.length + S.prog.length;
-function chipProg(c) { return c.fn ? `<span class="chip fn${c.fn}">${c.fn === "A" ? "📘" : "📗"} ${t(c.fn === "A" ? "mossaA" : "mossaB")}</span>` : `<span class="chip">${FRECCIA[c.d]}</span>`; }
+function chipProg(c, p) { return c.fn ? `<span class="chip fn${c.fn}">${c.fn === "A" ? "📘" : "📗"} <span class="nm">${nomeMossa(c.fn, p)}</span></span>` : `<span class="chip">${FRECCIA[c.d]}</span>`; }
 function disegnaCodice() {
   const resto = S.budget - costo();
   const rigaFn = (id, fn, lista, em) => {
     const r = $(id); r.classList.toggle("attiva", S.dove === fn);
-    r.innerHTML = `<span class="chip fn${fn} nome">${em} ${t(fn === "A" ? "mossaA" : "mossaB")} =</span>` + (lista.length ? lista.map(d => `<span class="chip${mossaBloccata() ? " bloccata" : ""}">${FRECCIA[d]}</span>`).join("") : `<span class="vuoto">…</span>`);
+    r.innerHTML = (fn === "A" ? `<span class="etich">${t("mossa")}</span>` : "") + `<span class="chip fn${fn} nome">${em} ${nomeMossa(fn)} =</span>` + (lista.length ? lista.map(d => `<span class="chip${mossaBloccata() ? " bloccata" : ""}">${FRECCIA[d]}</span>`).join("") : `<span class="vuoto">…</span>`);
   };
   rigaFn("rigaA", "A", S.fnA, "📘"); if (dueMosse()) rigaFn("rigaB", "B", S.fnB, "📗");
   const p = $("rigaP"); p.classList.toggle("attiva", S.dove === "P");
   p.innerHTML = `<span class="etich">${t("programma")}</span>` + (S.prog.length ? S.prog.map(chipProg).join("") : `<span class="vuoto">…</span>`) + `<span class="resto${resto <= 0 ? " zero" : ""}">${t("mattoncini")(resto)}</span>`;
   [$("rigaA"), $("rigaB"), p].forEach(r => r.scrollTop = r.scrollHeight);
-  $("bFnA").textContent = "📘 " + t("mossaA"); $("bFnB").textContent = "📗 " + t("mossaB");
-  $("bDove").textContent = S.dove === "P" ? (dueMosse() ? "✏️ 📘/📗" : t("scriviMossa")) : t("scriviProg");
+  $("bFnA").textContent = "📘 " + nomeMossa("A"); $("bFnB").textContent = "📗 " + nomeMossa("B");
+  $("bDove").textContent = S.dove === "P" ? t("scriviA") : (S.dove === "A" && dueMosse()) ? t("scriviB") : t("scriviProg");
   $("bDove").disabled = mossaBloccata() || S.fase !== "fermo";
   $("bFnA").disabled = S.fase !== "fermo" || S.dove !== "P"; $("bFnB").disabled = S.fase !== "fermo" || S.dove !== "P";
 }
@@ -395,14 +414,14 @@ function perdiVita(testo) {
   return true;
 }
 function esempioHtml(p) {
-  const fn = (fnk, m, em) => `<div class="riga"><span class="chip fn${fnk} nome">${em} ${t(fnk === "A" ? "mossaA" : "mossaB")} =</span>${m.passi.map(d => `<span class="chip">${FRECCIA[d]}</span>`).join("")}</div>`;
-  return fn("A", p.A, "📘") + (p.B ? fn("B", p.B, "📗") : "") + `<div class="riga"><span class="etich">${t("programma")}</span>${p.seq.map(k => chipProg({ fn: k })).join("")}</div>`;
+  const fn = (fnk, m, em) => `<div class="riga">${fnk === "A" ? `<span class="etich">${t("mossa")}</span>` : ""}<span class="chip fn${fnk} nome">${em} ${nomeMossa(fnk, p)} =</span>${m.passi.map(d => `<span class="chip">${FRECCIA[d]}</span>`).join("")}</div>`;
+  return fn("A", p.A, "📘") + (p.B ? fn("B", p.B, "📗") : "") + `<div class="riga"><span class="etich">${t("programma")}</span>${p.seq.map(k => chipProg({ fn: k }, p)).join("")}</div>`;
 }
 function mostraSoluzione(testo) {
   fermaLoop(); S.fase = "pausa";
   $("solTesto").textContent = testo; $("solEsempio").innerHTML = esempioHtml(S.prato);
   $("schermoSoluzione").querySelector(".scheda").scrollTop = 0; $("schermoSoluzione").hidden = false; $("bSoluzioneOk").focus({ preventScroll: true });
-  $("bSoluzioneOk").onclick = () => { $("schermoSoluzione").hidden = true; nuovoPrato(); avviaLoop(); };
+  $("bSoluzioneOk").onclick = () => { $("schermoSoluzione").hidden = true; nuovoPrato(); avviaTempo(); avviaLoop(); };
 }
 function successo() {
   const rimasto = CONFIG.senzaTempo ? S.totale : Math.max(0, S.scade - Date.now());
@@ -413,7 +432,7 @@ function successo() {
   S.punti += guadagno; S.serie++; S.fase = "ok"; aggiornaStato();
   messaggio(`${t("bravo")} +${guadagno}` + (corto ? t("corto") : "") + (S.serie > 1 ? `${t("serie")}${S.serie}` : ""), "bene");
   if (S.base + S.punti >= sogliaLivello(S.livello)) { setTimeout(salitaLivello, 900); return; }
-  setTimeout(() => { nuovoPrato(); }, 1200);
+  setTimeout(() => { nuovoPrato(); avviaTempo(); }, 1200);
 }
 function salitaLivello() {
   fermaLoop(); S.livello++;
@@ -490,7 +509,7 @@ $("bFnA").addEventListener("click", () => chiama("A")); $("bFnB").addEventListen
 $("bDove").addEventListener("click", cambiaDove); $("bCanc").addEventListener("click", cancella); $("bInvia").addEventListener("click", invia);
 document.querySelectorAll(".riga").forEach(r => r.addEventListener("click", () => { if (S.fase !== "fermo" || mossaBloccata() && r.dataset.r !== "P") return; S.dove = r.dataset.r; disegnaCodice(); }));
 document.addEventListener("keydown", e => {
-  if (el.pad.hidden || e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  if (el.pad.hidden || document.querySelector(".velo:not([hidden])") || e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
   const k = { ArrowUp: "U", ArrowDown: "D", ArrowLeft: "L", ArrowRight: "R" }[e.key];
   if (k) { e.preventDefault(); aggiungi(k); }
   else if (e.key === "Enter") { e.preventDefault(); invia(); }
@@ -520,10 +539,18 @@ const ESEMPI = {
   2: { A: MOSSE[2], B: null, seq: ["A", "A", "A"] },
   7: { A: MOSSE[0], B: MOSSE[5], seq: ["A", "B", "A", "B"] },
 };
+// l'esempio e i nomi usano il prato corrente (già disegnato dietro la scheda), così corrispondono a ciò che il bambino vede
+function esempioTutorial(lv) {
+  const p = S.prato; if (!p) return ESEMPI[lv];
+  if (lv === 7) return p.B ? p : ESEMPI[7];
+  return { A: p.A, B: null, seq: p.B ? ["A", "A", "A"] : p.seq };
+}
 function mostraTutorial(lv, poi) {
   const tu = t("tutorial")[lv]; if (!tu) { poi(); return; }
-  $("tuEm").textContent = tu.em; $("tuTitolo").textContent = tu.titolo; $("tuTesto").textContent = tu.testo; $("tuNota").textContent = tu.nota;
-  $("tuEsempio").innerHTML = esempioHtml(ESEMPI[lv]);
+  const es = esempioTutorial(lv);
+  const testo = typeof tu.testo === "function" ? tu.testo(nomeMossa("A", es), nomeMossa("B", es)) : tu.testo;
+  $("tuEm").textContent = tu.em; $("tuTitolo").textContent = tu.titolo; $("tuTesto").textContent = testo; $("tuNota").textContent = tu.nota;
+  $("tuEsempio").innerHTML = esempioHtml(es);
   $("schermoTutorial").querySelector(".scheda").scrollTop = 0; $("schermoTutorial").hidden = false; $("bTutorialOk").focus({ preventScroll: true });
   $("bTutorialOk").onclick = () => { $("schermoTutorial").hidden = true; poi(); };
 }
@@ -537,7 +564,8 @@ function iniziaPartita() {
   Object.assign(CONFIG, { senzaTempo: false }, DIFFICOLTA[S.diff]);
   S.livello = +$("inLivello").value || 1; S.base = S.livello > 1 ? sogliaLivello(S.livello - 1) : 0;
   S.punti = 0; S.vite = CONFIG.vite; S.serie = 0; S.firma = ""; S.visti = new Set();
-  mostraGioco(true); tutorialFinoA(S.livello, () => { nuovoPrato(); messaggio(t("porta"), ""); avviaLoop(); });
+  mostraGioco(true); nuovoPrato();                       // prato disegnato prima dei tutorial, tempo fermo
+  tutorialFinoA(S.livello, () => { messaggio(t("porta"), ""); avviaTempo(); avviaLoop(); });
 }
 function classificaIniziale() {
   S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
@@ -549,7 +577,7 @@ $("formInizio").addEventListener("submit", e => {
   S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
   $("schermoInizio").hidden = true; iniziaPartita();
 });
-$("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; tutorialFinoA(S.livello, () => { nuovoPrato(); messaggio(t("nuovoLiv"), ""); avviaLoop(); }); });
+$("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; nuovoPrato(); tutorialFinoA(S.livello, () => { messaggio(t("nuovoLiv"), ""); avviaTempo(); avviaLoop(); }); });
 $("bRigioca").addEventListener("click", () => { $("schermoFine").hidden = true; $("inNome").value = S.nome; classificaIniziale(); $("formInizio").scrollTop = 0; $("schermoInizio").hidden = false; mostraGioco(false); });
 document.querySelectorAll('input[name="diff"]').forEach(r => r.addEventListener("change", classificaIniziale));
 window.addEventListener("resize", () => { if (!el.campo.hidden) el.campo.style.setProperty("--cella", `calc(${el.campo.clientWidth}px / ${S.N})`); });
