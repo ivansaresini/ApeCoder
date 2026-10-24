@@ -266,7 +266,7 @@ const SVG_ALVEARE = '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="8" y="
 // mattoncini: ogni freccia = 1, ogni RIPETI = 1. Un RIPETI n[▶ ▶] costa 3.
 const FIGURE = [
   // livello 1: solo frecce, 3 o 4 fiori in fila; "ottimo" è il numero di frecce (nessun ciclo)
-  { nome: "fila corta", min: 1, max: 1, gen: (N, h) => { const n = 3 + Math.floor(Math.random() * 2), v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - i - 1 } : { x: h.x + i + 1, y: h.y }), ottimo: n, extra: 2 }; } },
+  { nome: "fila corta", min: 1, max: 1, gen: (N, h) => { const n = 3 + Math.floor(Math.random() * Math.min(3, N - 3)), v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - i - 1 } : { x: h.x + i + 1, y: h.y }), ottimo: n, extra: 2 }; } },
   // livello 2: arriva RIPETI (senza chiusura)
   { nome: "riga", min: 2, max: 3, gen: (N, h) => { const n = N - 1, v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - i - 1 } : { x: h.x + i + 1, y: h.y }), ottimo: 2 }; } },
   { nome: "riga a salti", min: 2, max: 4, gen: (N, h) => { const n = Math.floor((N - 1) / 2), v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - 2 * (i + 1) } : { x: h.x + 2 * (i + 1), y: h.y }), ottimo: 3 }; } },
@@ -294,8 +294,14 @@ function nuovaFigura() {
   S.N = N; S.alveare = { x: 0, y: N - 1 }; S.ape = { ...S.alveare };
   const possibili = FIGURE.filter(f => f.min <= S.livello && (!f.max || S.livello <= f.max));
   const scelte = possibili.slice(-3);                       // le figure più recenti sbloccate
-  const fig = scelte[Math.floor(Math.random() * scelte.length)];
-  const r = fig.gen(N, S.alveare);
+  // mai la stessa figura due volte di fila: cambia tipo, direzione o lunghezza
+  let r, firma, tentativi = 0;
+  do {
+    const fig = scelte[Math.floor(Math.random() * scelte.length)];
+    r = fig.gen(N, S.alveare);
+    firma = r.fiori.map(f => f.x + "," + f.y).sort().join(";");
+  } while (firma === S.firmaPrecedente && ++tentativi < 20);
+  S.firmaPrecedente = firma;
   S.fiori = r.fiori.filter(f => f.x >= 0 && f.x < N && f.y >= 0 && f.y < N).map(f => ({ ...f, preso: false }));
   S.ottimo = r.ottimo; S.budget = r.ottimo + (r.extra || 0) + CONFIG.slack;
   S.prog = []; S.aperto = null; S.fase = "fermo";
