@@ -69,7 +69,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .pad button{border-radius:14px;font-size:28px;color:var(--ink);background:var(--paper);box-shadow:0 4px 0 #d9cdb3}
 .pad button:active{transform:translateY(3px);box-shadow:0 1px 0 #d9cdb3}
 .pad .su{grid-column:2;grid-row:1}.pad .sx{grid-column:1;grid-row:2}.pad .giu{grid-column:2;grid-row:2}.pad .dx{grid-column:3;grid-row:2}
-.pad .canc{grid-column:1;grid-row:1;font-size:22px}.pad .nulla{grid-column:3;grid-row:1}
+.pad .canc{grid-column:1;grid-row:1;font-size:22px}.pad .nulla{grid-column:3;grid-row:1;font-size:22px}
 .pad .invia{grid-column:4;grid-row:1/4;background:var(--honey);box-shadow:0 4px 0 var(--honey-d);font-size:24px;letter-spacing:.04em}
 .pad .invia:active{box-shadow:0 1px 0 var(--honey-d)}
 .pad .aiuto{grid-column:1/4;grid-row:3;font-family:var(--body);font-size:13px;color:var(--ink-soft);box-shadow:none;background:transparent;font-weight:600}
@@ -132,7 +132,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 <div class="pad" id="pad" hidden>
   <button class="canc" id="bCanc" aria-label="Cancella ultimo comando">✕</button>
   <button class="su" data-d="U" aria-label="Su">▲</button>
-  <span class="nulla" aria-hidden="true"></span>
+  <button class="nulla" id="bSvuota" aria-label="Svuota tutto">🗑️</button>
   <button class="sx" data-d="L" aria-label="Sinistra">◀</button>
   <button class="giu" data-d="D" aria-label="Giù">▼</button>
   <button class="dx" data-d="R" aria-label="Destra">▶</button>
@@ -448,6 +448,7 @@ function aggiungi(d) {
 function cancella() { if (S.fase !== "fermo") return; const u = S.comandi[S.comandi.length - 1]; if (!u) return; if (u.n > 1) u.n--; else S.comandi.pop(); disegnaCodice(); }
 el.pad.querySelectorAll("[data-d]").forEach(b => b.addEventListener("click", () => aggiungi(b.dataset.d)));
 $("bCanc").addEventListener("click", cancella);
+$("bSvuota").addEventListener("click", () => { if (S.fase !== "fermo") return; S.comandi = []; disegnaCodice(); });
 $("bInvia").addEventListener("click", invia);
 document.addEventListener("keydown", e => {
   if (el.pad.hidden || e.target.tagName === "INPUT") return;
