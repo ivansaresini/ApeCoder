@@ -20,7 +20,7 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--body);fon
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 12px;min-height:100dvh;display:flex}
 main{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
 .testa{position:relative;display:flex;justify-content:center;align-items:center}
-.tondo{width:36px;height:36px;border-radius:50%;border:0;background:var(--paper);cursor:pointer;box-shadow:0 3px 0 #d9cdb3;font-size:20px;line-height:1;display:grid;place-items:center}
+.tondo{width:44px;height:44px;border-radius:50%;border:0;background:var(--paper);cursor:pointer;box-shadow:0 3px 0 #d9cdb3;font-size:22px;line-height:1;display:grid;place-items:center}
 .tondo:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
 .info{position:absolute;right:0;top:50%;transform:translateY(-50%);color:var(--sky-d);font-family:Georgia,serif;font-style:italic;font-weight:700}
 .lingua{position:absolute;left:0;top:50%;transform:translateY(-50%)}
@@ -34,7 +34,7 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,7.5vw,44px);m
 .gioco:focus-visible{outline:3px solid var(--sky-d);outline-offset:3px}
 .gioco .em{font-size:clamp(30px,9vw,48px);line-height:1}
 .gioco h2{font-family:var(--display);font-weight:700;font-size:clamp(15px,4.6vw,20px);margin:0;line-height:1.15;text-wrap:balance}
-.gioco .cosa{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--sky-d);font-weight:800}
+.gioco .cosa{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--sky-d);font-weight:800}
 .gioco .tasto{margin-top:2px;background:var(--honey);border-radius:10px;padding:4px 12px;font-family:var(--display);font-size:14px;box-shadow:0 3px 0 var(--honey-d)}
 .gioco.presto{opacity:.85;box-shadow:none;border:2px dashed #d9cdb3}
 .gioco.presto .em{filter:grayscale(.6)}
@@ -61,7 +61,7 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
 .gioca[aria-disabled="true"]{background:#eee4cc;box-shadow:none;color:var(--ink-soft);pointer-events:none}
 .chiudi{background:var(--sky)}
 .tab{display:flex;gap:6px;background:var(--sky);border-radius:14px;padding:4px}
-.tab button{flex:1;min-width:0;border:0;border-radius:11px;padding:8px 2px;font-family:var(--display);font-weight:700;font-size:14px;background:transparent;color:var(--ink-soft);cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px}
+.tab button{flex:1 1 auto;min-width:0;min-height:44px;border:0;border-radius:11px;padding:8px 6px;font-family:var(--display);font-weight:700;font-size:clamp(12px,3.6vw,14px);background:transparent;color:var(--ink-soft);cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px}
 @media (max-width:440px){.tab button .ico{display:none}}
 .tab button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 2px 0 #d9cdb3}
 .tab button:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
@@ -223,7 +223,7 @@ const GIOCHI = [
   { k: "danza", em: "💃", link: "danza.html" },
   { k: "guardiana", em: "🛡️", link: "guardiana.html" },
   { k: "fabbrica", em: "🏭", link: "" },
-  { k: "favo", em: "⬡", link: "" },
+  { k: "favo", em: "🔶", link: "" },
   { k: "impollinatrice", em: "🌸", link: "" },
 ];
 const $ = id => document.getElementById(id);
