@@ -60,6 +60,11 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
 .gioca{background:var(--honey);box-shadow:0 4px 0 var(--honey-d)}
 .gioca[aria-disabled="true"]{background:#eee4cc;box-shadow:none;color:var(--ink-soft);pointer-events:none}
 .chiudi{background:var(--sky)}
+.tab{display:flex;gap:6px;background:var(--sky);border-radius:14px;padding:4px}
+.tab button{flex:1;border:0;border-radius:11px;padding:8px 4px;font-family:var(--display);font-weight:700;font-size:14px;background:transparent;color:var(--ink-soft);cursor:pointer}
+.tab button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 2px 0 #d9cdb3}
+.tab button:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
+.pannello{display:flex;flex-direction:column;gap:12px}
 </style>
 </head>
 <body>
@@ -75,19 +80,29 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
 </main>
 
 <div class="velo" id="veloInfo" hidden>
-  <div class="scheda" role="dialog" aria-modal="true" aria-labelledby="iTitolo">
-    <div class="em">💻</div>
-    <h2 id="iTitolo" data-t="infoTitolo"></h2>
-    <p data-t="info1"></p>
-    <div class="blocco"><b data-t="info2t"></b><span data-t="info2"></span></div>
-    <div class="blocco"><b data-t="info3t"></b><span data-t="info3"></span></div>
-    <h2 data-t="ricTitolo"></h2>
-    <p data-t="ric1"></p>
-    <p data-t="ric2"></p>
-    <h2 data-t="privTitolo"></h2>
-    <p data-t="priv1"></p>
-    <p data-t="priv2"></p>
-    <p data-t="priv3"></p>
+  <div class="scheda" role="dialog" aria-modal="true" aria-labelledby="iTitolo" id="schedaInfo">
+    <div class="tab" role="tablist">
+      <button role="tab" data-tab="coding" aria-selected="true">💻 <span data-t="tabCoding"></span></button>
+      <button role="tab" data-tab="ric" aria-selected="false">🙏 <span data-t="tabRic"></span></button>
+      <button role="tab" data-tab="priv" aria-selected="false">🔒 <span data-t="tabPriv"></span></button>
+    </div>
+    <div class="pannello" data-pan="coding">
+      <h2 id="iTitolo" data-t="infoTitolo"></h2>
+      <p data-t="info1"></p>
+      <div class="blocco"><b data-t="info2t"></b><span data-t="info2"></span></div>
+      <div class="blocco"><b data-t="info3t"></b><span data-t="info3"></span></div>
+    </div>
+    <div class="pannello" data-pan="ric" hidden>
+      <h2 data-t="ricTitolo"></h2>
+      <p data-t="ric1"></p>
+      <p data-t="ric2"></p>
+    </div>
+    <div class="pannello" data-pan="priv" hidden>
+      <h2 data-t="privTitolo"></h2>
+      <p data-t="priv1"></p>
+      <p data-t="priv2"></p>
+      <p data-t="priv3"></p>
+    </div>
     <div class="azioni"><button class="chiudi" id="bChiudiInfo" data-t="chiudi"></button></div>
   </div>
 </div>
@@ -118,7 +133,7 @@ const T = {
   it: {
     sotto: "Impara a programmare giocando con le api. Scegli un gioco!",
     piede: "App generata con l'intelligenza artificiale · Proprietà intellettuale di Xei S.r.l.",
-    gioca: "GIOCA", presto: "In arrivo", indietro: "Indietro", chiudi: "Chiudi",
+    gioca: "GIOCA", presto: "In arrivo", indietro: "Indietro", chiudi: "Chiudi", tabCoding: "Coding", tabRic: "Riconoscimenti", tabPriv: "Privacy",
     giocoT: "Come si gioca", impariT: "Cosa impari", codingT: "Come nel coding vero",
     infoTitolo: "Cos'è il coding?",
     info1: "Il coding è il modo in cui si parla ai computer. Un computer è velocissimo ma non capisce niente da solo: bisogna spiegargli ogni cosa con istruzioni precise, una alla volta, nell'ordine giusto. Scrivere queste istruzioni si chiama programmare.",
@@ -161,7 +176,7 @@ const T = {
   en: {
     sotto: "Learn to code by playing with bees. Pick a game!",
     piede: "App generated with artificial intelligence · Intellectual property of Xei S.r.l.",
-    gioca: "PLAY", presto: "Coming soon", indietro: "Back", chiudi: "Close",
+    gioca: "PLAY", presto: "Coming soon", indietro: "Back", chiudi: "Close", tabCoding: "Coding", tabRic: "Credits", tabPriv: "Privacy",
     giocoT: "How to play", impariT: "What you learn", codingT: "In real coding",
     infoTitolo: "What is coding?",
     info1: "Coding is how we talk to computers. A computer is super fast but understands nothing on its own: you have to explain everything with precise instructions, one at a time, in the right order. Writing those instructions is called programming.",
@@ -231,13 +246,19 @@ function apri(k) {
   $("sEm").textContent = g.em; $("sTitolo").textContent = d.titolo; $("sCosa").textContent = d.cosa;
   $("sGioco").textContent = d.gioco; $("sImpari").textContent = " " + d.impari; $("sCoding").textContent = " " + d.coding; $("sEsempio").textContent = d.esempio;
   const b = $("bGioca"); b.href = g.link || "#"; b.textContent = g.link ? t("gioca") : t("presto"); b.setAttribute("aria-disabled", g.link ? "false" : "true");
-  $("velo").hidden = false; $("bChiudi").focus();
+  $("velo").hidden = false; document.querySelector("#velo .scheda").scrollTop = 0; $("bChiudi").focus({ preventScroll: true });
 }
 function chiudi() { $("velo").hidden = true; if (ultimo) ultimo.focus(); }
 function chiudiInfo() { $("veloInfo").hidden = true; $("bInfo").focus(); }
 $("bChiudi").addEventListener("click", chiudi);
 $("velo").addEventListener("click", e => { if (e.target === $("velo")) chiudi(); });
-$("bInfo").addEventListener("click", () => { $("veloInfo").hidden = false; $("bChiudiInfo").focus(); });
+function mostraTab(k) {
+  document.querySelectorAll(".tab [role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === k ? "true" : "false"));
+  document.querySelectorAll(".pannello").forEach(p => p.hidden = p.dataset.pan !== k);
+  $("schedaInfo").scrollTop = 0;
+}
+document.querySelectorAll(".tab [role=tab]").forEach(b => b.addEventListener("click", () => mostraTab(b.dataset.tab)));
+$("bInfo").addEventListener("click", () => { $("veloInfo").hidden = false; mostraTab("coding"); document.querySelector(".tab [role=tab]").focus({ preventScroll: true }); });
 $("bChiudiInfo").addEventListener("click", chiudiInfo);
 $("veloInfo").addEventListener("click", e => { if (e.target === $("veloInfo")) chiudiInfo(); });
 $("bLingua").addEventListener("click", () => { L = L === "en" ? "it" : "en"; salvaLingua(L); disegna(); });
