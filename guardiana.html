@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Guardiana dell'alveare</title>
+<style>
+@font-face{font-family:'Fredoka';font-weight:500 700;font-display:swap;src:url(fonts/fredoka.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-weight:600 800;font-display:swap;src:url(fonts/nunito.woff2) format('woff2')}
+/* Layout: barra stato, pannello esempi (chi entra / chi no), fila all'ingresso, riga della regola, tastiera dei tasti SE */
+:root{
+  --sky:#dcf1fb; --meadow:#9bd56a; --honey:#f6b73c; --honey-d:#c98610; --ink:#3b2a10; --ink-soft:#7a6240; --paper:#fffaf0;
+  --danger:#e14b3b; --ok:#3a9a37; --sky-d:#2d7fc1; --cond:#ffd27a; --neg:#f3a6a6; --op:#c8a0e8; --op-d:#8e5cc0;
+  --display:'Fredoka',ui-rounded,'Arial Rounded MT Bold','Nunito',system-ui,sans-serif;
+  --body:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; color-scheme:light;
+}
+*{box-sizing:border-box}
+html{height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{height:100%;margin:0;background:var(--sky);color:var(--ink);font-family:var(--body);font-weight:600;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:8px;display:flex;flex-direction:column;align-items:center;gap:8px;overflow:hidden}
+h1,h2{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance}
+button{font-family:var(--display);font-weight:700;border:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
+[hidden]{display:none!important}
+
+.stato{width:100%;max-width:520px;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  background:var(--paper);border-radius:14px;padding:6px 12px;font-variant-numeric:tabular-nums;font-size:15px}
+.stato .nome{font-family:var(--display);font-size:18px;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stato .vite{letter-spacing:2px;font-size:18px}
+.stato .punti{font-family:var(--display);font-size:22px;color:var(--honey-d)}
+.stato small{color:var(--ink-soft);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+
+.esempi{width:100%;max-width:520px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gruppo{background:var(--paper);border-radius:14px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;align-items:center}
+.gruppo b{font-family:var(--display);font-size:14px}
+.gruppo.si b{color:var(--ok)}.gruppo.no b{color:var(--danger)}
+.gruppo .fila{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.ins{width:54px;height:54px;flex:0 0 auto}
+.ins svg{width:100%;height:100%}
+
+.ingresso{width:100%;max-width:520px;background:var(--meadow);border-radius:16px;height:96px;position:relative;overflow:hidden;box-shadow:0 5px 0 #6fae43}
+.ingresso .porta{position:absolute;right:0;top:0;bottom:0;width:72px;background:var(--honey);display:grid;place-items:center;font-size:34px;border-left:4px dashed var(--honey-d)}
+.ingresso .coda{position:absolute;left:0;top:0;bottom:0;right:72px}
+.ingresso .ins{position:absolute;top:50%;width:68px;height:68px;transform:translate(0,-50%);transition:left .45s ease,opacity .3s,transform .3s}
+.ingresso .ins.dentro{opacity:0;transform:translate(60px,-50%) scale(.6)}
+.ingresso .ins.via{opacity:0;transform:translate(0,-120%) scale(.6)}
+.ingresso .esito{position:absolute;right:76px;top:4px;font-size:30px;line-height:1}
+
+.tempo{width:100%;max-width:520px;height:14px;background:var(--paper);border-radius:999px;overflow:hidden;position:relative}
+.tempo i{position:absolute;inset:0;background:var(--honey);transform-origin:left;transition:transform .1s linear,background .2s}
+.tempo.urgente i{background:var(--danger)}
+.msg{height:22px;font-size:15px;color:var(--ink-soft);text-align:center;width:100%;max-width:520px}
+.msg.bene{color:var(--ok)}.msg.male{color:var(--danger)}
+.regola{width:100%;max-width:520px;min-height:48px;background:var(--paper);border-radius:14px;padding:6px 10px;
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-family:var(--display);font-size:18px}
+.regola .vuoto{color:var(--ink-soft);font-size:14px;font-family:var(--body)}
+.chip{border-radius:10px;padding:2px 10px;line-height:1.3;background:var(--cond);color:var(--ink)}
+.chip.se{background:var(--sky);color:var(--sky-d)}
+.chip.neg{background:var(--neg)}
+.chip.op{background:var(--op);color:#2a0f45}
+.chip.az{background:#cdebc4;color:var(--ok)}
+
+.pad{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,50px);gap:8px}
+.pad button{border-radius:14px;font-size:15px;color:var(--ink);background:var(--cond);box-shadow:0 4px 0 #d9b25f;padding:0 4px;line-height:1.1}
+.pad button:active{transform:translateY(3px);box-shadow:0 1px 0 #d9b25f}
+.pad .canc{background:var(--paper);box-shadow:0 4px 0 #d9cdb3;font-size:22px}
+.pad .non{background:var(--neg);box-shadow:0 4px 0 #c97676}
+.pad .e,.pad .o{background:var(--op);box-shadow:0 4px 0 var(--op-d);color:#2a0f45;font-size:18px}
+.pad .invia{grid-column:3/5;grid-row:3;background:var(--honey);box-shadow:0 4px 0 var(--honey-d);font-size:22px;letter-spacing:.04em}
+.pad .invia:active{box-shadow:0 1px 0 var(--honey-d)}
+.pad button:disabled{opacity:.4;transform:none;box-shadow:none}
+
+.velo{position:fixed;inset:0;background:rgba(40,30,10,.55);display:flex;align-items:center;justify-content:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px;z-index:20}
+.scheda{position:relative;background:var(--paper);border-radius:22px;padding:22px 20px;width:100%;max-width:420px;max-height:100%;overflow:auto;
+  display:flex;flex-direction:column;gap:14px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.scheda h1{font-size:34px;color:var(--sky-d)}
+.scheda h2{font-size:30px}
+.scheda p{margin:0;line-height:1.45}
+.scheda input{font:inherit;font-size:22px;padding:10px 14px;border-radius:12px;border:2px solid var(--honey);text-align:center;width:100%}
+.casa{position:absolute;top:10px;left:10px;font-size:24px;text-decoration:none;line-height:1;padding:6px;border-radius:10px}
+.casa:hover{background:var(--sky)}
+.grande{background:var(--honey);color:var(--ink);border-radius:14px;padding:12px 18px;font-size:22px;box-shadow:0 4px 0 var(--honey-d)}
+.grande:active{transform:translateY(3px);box-shadow:0 1px 0 var(--honey-d)}
+.regole{text-align:left;font-size:15px;display:grid;gap:6px;padding:0;margin:0;list-style:none}
+.regole li{display:flex;gap:10px;align-items:center}
+.regole .em{font-size:24px;flex:0 0 46px;text-align:center}
+.livelli{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.livelli label{position:relative;display:block}
+.livelli input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.livelli span{display:block;padding:10px 4px;border-radius:12px;background:var(--sky);font-family:var(--display);font-size:17px;border:2px solid transparent}
+.livelli input:checked + span{background:var(--honey);border-color:var(--honey-d)}
+.livelli input:focus-visible + span{outline:3px solid var(--sky-d);outline-offset:2px}
+.curiosita{background:var(--sky);border-radius:14px;padding:12px;text-align:left}
+.curiosita b{font-family:var(--display);color:var(--sky-d)}
+.regola.esempio{background:var(--sky);justify-content:center;min-height:0;padding:10px}
+.classifica{list-style:none;margin:0;padding:0;text-align:left;display:grid;gap:4px;font-variant-numeric:tabular-nums}
+.classifica li{display:grid;grid-template-columns:28px 1fr auto auto;gap:8px;padding:4px 8px;border-radius:8px;font-size:16px}
+.classifica li.io{background:var(--honey)}
+.classifica li span:last-child{color:var(--ink-soft);font-size:13px}
+.classifica .pt{font-family:var(--display);font-size:18px}
+.esito-grande{font-family:var(--display);font-size:52px;color:var(--honey-d);line-height:1}
+.legenda{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:14px;text-align:left}
+.legenda div{display:flex;align-items:center;gap:6px}
+.legenda .ins{width:40px;height:40px}
+</style>
+</head>
+<body>
+
+<div class="stato" id="stato" hidden>
+  <div class="nome" id="sNome">—</div>
+  <div><small id="sDiff"></small> <b id="sLivello">1</b></div>
+  <div class="vite" id="sVite"></div>
+  <div class="punti" id="sPunti">0</div>
+</div>
+
+<div class="esempi" id="esempi" hidden>
+  <div class="gruppo si"><b data-t="entrano"></b><div class="fila" id="esSi"></div></div>
+  <div class="gruppo no"><b data-t="fermati"></b><div class="fila" id="esNo"></div></div>
+</div>
+<div class="ingresso" id="ingresso" hidden><div class="coda" id="coda"></div><div class="porta">🏠</div><div class="esito" id="esitoIcona"></div></div>
+<div class="tempo" id="tempo" hidden><i id="tempoBarra"></i></div>
+<div class="msg" id="msg" hidden></div>
+<div class="regola" id="regola" hidden></div>
+
+<div class="pad" id="pad" hidden>
+  <button class="canc" id="bCanc" aria-label="Cancella">✕</button>
+  <button class="non" id="bNon" data-t="non"></button>
+  <button class="e" id="bE" data-t="e"></button>
+  <button class="o" id="bO" data-t="o"></button>
+  <button data-f="strisce" data-t="fStrisce"></button>
+  <button data-f="ali" data-t="fAli"></button>
+  <button data-f="grande" data-t="fGrande"></button>
+  <button data-f="antenne" data-t="fAntenne"></button>
+  <button class="aiuto" id="bAiuto" style="grid-column:1/3;background:transparent;box-shadow:none;font-family:var(--body);font-size:11px;color:var(--ink-soft)" data-t="aiuto"></button>
+  <button class="invia" id="bInvia" data-t="invia"></button>
+</div>
+
+<div class="velo" id="schermoInizio">
+  <form class="scheda" id="formInizio">
+    <a class="casa" href="index.html" aria-label="Menu">🏠</a>
+    <h1 data-t="titolo"></h1>
+    <p data-t="intro"></p>
+    <ul class="regole">
+      <li><span class="em">👀</span><span data-t="r1"></span></li>
+      <li><span class="em">✍️</span><span data-t="r2"></span></li>
+      <li><span class="em">🚪</span><span data-t="r3"></span></li>
+      <li><span class="em">⏳</span><span data-t="r4"></span></li>
+    </ul>
+    <div class="legenda" id="legenda"></div>
+    <input id="inNome" maxlength="10" data-ph="nome" autocomplete="off" required>
+    <div class="livelli" role="radiogroup">
+      <label><input type="radio" name="diff" value="facile" checked><span data-t="facile"></span></label>
+      <label><input type="radio" name="diff" value="medio"><span data-t="medio"></span></label>
+      <label><input type="radio" name="diff" value="difficile"><span data-t="difficile"></span></label>
+    </div>
+    <button class="grande" type="submit" data-t="gioca"></button>
+    <div id="classificaInizio"></div>
+  </form>
+</div>
+
+<div class="velo" id="schermoLivello" hidden>
+  <div class="scheda">
+    <div class="esito-grande">🎉</div>
+    <h2 id="lvTitolo"></h2>
+    <p id="lvTesto"></p>
+    <div class="curiosita"><b data-t="sapevi"></b><br><span id="lvCuriosita"></span></div>
+    <button class="grande" id="bContinua" data-t="continua"></button>
+  </div>
+</div>
+
+<div class="velo" id="schermoTutorial" hidden>
+  <div class="scheda">
+    <div class="esito-grande" id="tuEm"></div>
+    <h2 id="tuTitolo"></h2>
+    <p id="tuTesto"></p>
+    <div class="regola esempio" id="tuEsempio"></div>
+    <p id="tuNota"></p>
+    <button class="grande" id="bTutorialOk" data-t="capito"></button>
+  </div>
+</div>
+
+<div class="velo" id="schermoFine" hidden>
+  <div class="scheda">
+    <div class="esito-grande">🛡️</div>
+    <h2 data-t="fine"></h2>
+    <p id="fnTesto"></p>
+    <ol class="classifica" id="classificaFine"></ol>
+    <button class="grande" id="bRigioca" data-t="rigioca"></button>
+  </div>
+</div>
+
+<script>
+// ===================== CONFIG =====================
+const CONFIG = {
+  vite: 3, viteMax: 5, vitaOgniLivelli: 3,
+  tempoLivello: 40, riduzionePerLivello: 0.06, tempoMin: 12,   // secondi per scrivere la regola
+  msInsetto: 1100, insettiInFila: 6,
+  punti: { base: 120, bonusVelocita: 150, bonusCorto: 60, serieStep: 0.10, serieMax: 0.5 },
+  soglie: [500, 1200, 2100, 3200, 4500, 6000, 7700, 9600, 11700, 14000],
+  classificaMax: 10,
+};
+const DIFFICOLTA = {
+  facile:    { tempoLivello: 60, riduzionePerLivello: 0.04, tempoMin: 20, msInsetto: 1300, vite: 5 },
+  medio:     { tempoLivello: 45, riduzionePerLivello: 0.06, tempoMin: 14, msInsetto: 1100, vite: 4 },
+  difficile: { tempoLivello: 30, riduzionePerLivello: 0.08, tempoMin: 9,  msInsetto: 900,  vite: 3 },
+};
+// ===================== lingua =====================
+function leggiLingua() { try { const l = localStorage.getItem("scuolaApe.lingua"); if (l === "it" || l === "en") return l; } catch (e) {} return (navigator.language || "it").toLowerCase().startsWith("en") ? "en" : "it"; }
+const L = leggiLingua();
+const T = {
+  it: { titolo: "🛡️ Guardiana dell'alveare", intro: "Sei l'ape di guardia. Guarda chi è entrato e chi no, scopri la regola e scrivila: poi arriva la fila!",
+    r1: "In alto vedi gli insetti che sono entrati ✅ e quelli fermati ⛔. Cosa hanno di diverso?",
+    r2: "Scrivi la regola con i tasti: SE … ALLORA entra. Tutti gli altri vengono fermati.",
+    r3: "Premi INVIA: la fila passa davanti alla porta e la tua regola decide. Un errore costa una vita.",
+    r4: "La barra gialla è il tempo per scrivere la regola.",
+    entrano: "✅ Entrati", fermati: "⛔ Fermati",
+    fStrisce: "strisce", fAli: "ali trasparenti", fGrande: "grande", fAntenne: "antenne lunghe",
+    non: "NON", e: "E", o: "O", invia: "INVIA", aiuto: "Tocca una caratteristica per scrivere la regola",
+    se: "SE", allora: "→ ENTRA", nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", gioca: "GIOCA",
+    sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello", capito: "HO CAPITO!",
+    vuoto: "Scrivi la regola…", porta: "Scopri la regola e scrivila!", nuovoLiv: "Nuovo livello: regola nuova!",
+    tardi: "Tempo scaduto! −1 vita", erroreEntrato: "Ops! Questo non doveva entrare. −1 vita", erroreFermato: "Ops! Questa era un'amica. −1 vita",
+    bravo: "Fila superata!", corto: " (regola perfetta!)", serie: " · serie ×", incompleta: "La regola non è completa.",
+    lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per scrivere la regola.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
+    fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
+    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile" },
+    legenda: { strisce: "strisce", ali: "ali trasparenti", grande: "grande", antenne: "antenne lunghe" },
+    tutorial: {
+      1: { em: "👀", titolo: "Come si scopre la regola", testo: "Guarda gli insetti entrati ✅ e quelli fermati ⛔. Cosa hanno tutti quelli entrati che i fermati non hanno? Quella è la regola. Toccala sulla tastiera e premi INVIA.", nota: "Esempio: se tutti gli entrati hanno le strisce e i fermati no, la regola è questa." },
+      3: { em: "🚫", titolo: "Nuovo tasto: NON", testo: "A volte entrano proprio quelli che una cosa NON ce l'hanno. Tocca NON e poi la caratteristica.", nota: "Entrano gli insetti SENZA strisce." },
+      5: { em: "🔗", titolo: "Nuovo tasto: E", testo: "Con E la regola chiede due cose insieme: per entrare servono tutte e due.", nota: "Entra solo chi ha le strisce E le ali trasparenti. Con una sola delle due, resta fuori." },
+      7: { em: "🔀", titolo: "Nuovo tasto: O", testo: "Con O basta una delle due cose per entrare.", nota: "Entra chi è grande, oppure chi ha le antenne lunghe, oppure tutte e due." },
+    },
+    curiosita: ["Le api guardiane stanno all'ingresso e riconoscono le compagne dall'odore dell'alveare.", "Se un'ape di un altro alveare porta nettare in dono, a volte le guardiane la lasciano entrare.",
+      "Un'ape fa la guardiana solo per pochi giorni della sua vita, poi diventa bottinatrice.", "Le guardiane usano le antenne per 'annusare' chi arriva: le antenne sono il loro naso.",
+      "Contro un calabrone le api giapponesi formano una palla e lo scaldano fino a 47 gradi.", "Quando c'è pericolo, la guardiana rilascia un odore d'allarme che richiama le compagne."] },
+  en: { titolo: "🛡️ Hive Guard", intro: "You are the guard bee. See who got in and who didn't, work out the rule and write it: then the line arrives!",
+    r1: "At the top you see the insects that got in ✅ and the ones stopped ⛔. What is different about them?",
+    r2: "Write the rule with the buttons: IF … THEN enter. Everyone else is stopped.",
+    r3: "Press GO: the line passes the door and your rule decides. A mistake costs a life.",
+    r4: "The yellow bar is the time you have to write the rule.",
+    entrano: "✅ Let in", fermati: "⛔ Stopped",
+    fStrisce: "stripes", fAli: "clear wings", fGrande: "big", fAntenne: "long antennae",
+    non: "NOT", e: "AND", o: "OR", invia: "GO", aiuto: "Tap a feature to write the rule",
+    se: "IF", allora: "→ ENTER", nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", gioca: "PLAY",
+    sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level", capito: "GOT IT!",
+    vuoto: "Write the rule…", porta: "Work out the rule and write it!", nuovoLiv: "New level: new rule!",
+    tardi: "Time's up! −1 life", erroreEntrato: "Oops! That one should not get in. −1 life", erroreFermato: "Oops! That was a friend. −1 life",
+    bravo: "Line cleared!", corto: " (perfect rule!)", serie: " · streak ×", incompleta: "The rule is not complete.",
+    lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds to write the rule.`, vitaExtra: " You earned an extra life! ❤️",
+    fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
+    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard" },
+    legenda: { strisce: "stripes", ali: "clear wings", grande: "big", antenne: "long antennae" },
+    tutorial: {
+      1: { em: "👀", titolo: "How to find the rule", testo: "Look at the insects that got in ✅ and the ones stopped ⛔. What do all the ones that got in have, that the stopped ones don't? That is the rule. Tap it on the keyboard and press GO.", nota: "Example: if everyone who got in has stripes and the stopped ones don't, this is the rule." },
+      3: { em: "🚫", titolo: "New button: NOT", testo: "Sometimes the ones who get in are exactly those WITHOUT something. Tap NOT and then the feature.", nota: "Insects WITHOUT stripes get in." },
+      5: { em: "🔗", titolo: "New button: AND", testo: "With AND the rule asks for two things together: you need both to get in.", nota: "Only those with stripes AND clear wings get in. With just one of them, you stay out." },
+      7: { em: "🔀", titolo: "New button: OR", testo: "With OR one of the two things is enough to get in.", nota: "Whoever is big, or has long antennae, or both, gets in." },
+    },
+    curiosita: ["Guard bees stand at the entrance and recognise their sisters by the smell of the hive.", "If a bee from another hive brings nectar as a gift, the guards sometimes let her in.",
+      "A bee is a guard for only a few days of her life, then she becomes a forager.", "Guards use their antennae to 'sniff' who arrives: antennae are their nose.",
+      "Against a hornet, Japanese bees form a ball and heat it up to 47 degrees.", "When there is danger, the guard releases an alarm smell that calls her sisters."] },
+};
+const t = k => T[L][k];
+const CARATT = ["strisce", "ali", "grande", "antenne"];
+
+// ===================== disegno dell'insetto (SVG procedurale) =====================
+function insettoSvg(f) {
+  const sc = f.grande ? 1.25 : 0.9, corpo = f.strisce ? "#f6b73c" : "#8a5a2b";
+  const ali = f.ali ? 'fill="#ffffff" fill-opacity=".55" stroke="#9fc9e8"' : 'fill="#5aa0e0" stroke="#2d7fc1"';
+  const ant = f.antenne ? 'M26 24 C 18 10, 8 8, 4 4 M34 24 C 42 10, 52 8, 56 4' : 'M26 24 C 22 18, 18 16, 16 14 M34 24 C 38 18, 42 16, 44 14';
+  const strisce = f.strisce ? '<rect x="18" y="34" width="24" height="4" rx="2" fill="#2b1d0e"/><rect x="18" y="42" width="24" height="4" rx="2" fill="#2b1d0e"/>' : '';
+  return `<svg viewBox="0 0 60 60" aria-hidden="true"><g transform="translate(30 32) scale(${sc}) translate(-30 -32)">
+    <ellipse cx="14" cy="30" rx="12" ry="7" ${ali} stroke-width="1.5" transform="rotate(-25 14 30)"/><ellipse cx="46" cy="30" rx="12" ry="7" ${ali} stroke-width="1.5" transform="rotate(25 46 30)"/>
+    <ellipse cx="30" cy="40" rx="13" ry="12" fill="${corpo}"/>${strisce}
+    <circle cx="30" cy="26" r="8" fill="#2b1d0e"/><circle cx="27" cy="25" r="2" fill="#fff"/><circle cx="33" cy="25" r="2" fill="#fff"/>
+    <path d="${ant}" stroke="#2b1d0e" stroke-width="2" fill="none" stroke-linecap="round"/></g></svg>`;
+}
+const casuale = () => ({ strisce: Math.random() < .5, ali: Math.random() < .5, grande: Math.random() < .5, antenne: Math.random() < .5 });
+function valuta(regola, ins) {
+  if (!regola.cond.length) return false;
+  const v = regola.cond.map(c => c.neg ? !ins[c.f] : !!ins[c.f]);
+  return regola.op === "O" ? v.some(Boolean) : v.every(Boolean);
+}
+
+// ===================== stato =====================
+const S = { nome: "", diff: "facile", livello: 1, punti: 0, vite: 3, serie: 0, segreta: null, regola: { cond: [], op: "E" }, pendNeg: false,
+  fila: [], fase: "fermo", loop: null, scade: 0, totale: 0, firma: "" };
+const $ = id => document.getElementById(id);
+const el = { stato: $("stato"), esempi: $("esempi"), ingresso: $("ingresso"), tempo: $("tempo"), msg: $("msg"), regola: $("regola"), pad: $("pad") };
+const tempoLivello = lv => Math.max(CONFIG.tempoMin, CONFIG.tempoLivello * Math.pow(1 - CONFIG.riduzionePerLivello, lv - 1));
+const sogliaLivello = lv => CONFIG.soglie[Math.min(lv, CONFIG.soglie.length) - 1] + Math.max(0, lv - CONFIG.soglie.length) * 3000;
+const sbloccato = () => ({ non: S.livello >= 3, e: S.livello >= 5, o: S.livello >= 7 });
+
+// regola segreta del livello: 1 caratteristica (liv 1-2), con NON (3-4), due con E (5-6), due con O (7+)
+function nuovaRegola() {
+  const u = sbloccato(); let r, firma, tent = 0;
+  do {
+    const c = [...CARATT].sort(() => Math.random() - .5);
+    const due = u.e && (S.livello >= 7 ? true : Math.random() < .7);
+    r = { cond: c.slice(0, due ? 2 : 1).map(f => ({ f, neg: u.non && Math.random() < .4 })), op: u.o && Math.random() < .5 ? "O" : "E" };
+    firma = JSON.stringify(r);
+  } while (firma === S.firma && ++tent < 20);
+  S.firma = firma; return r;
+}
+// esempi: 3 entrati e 3 fermati, scelti così che le altre caratteristiche variino
+function esempi(regola) {
+  const si = [], no = []; let tent = 0;
+  while ((si.length < 3 || no.length < 3) && ++tent < 500) {
+    const i = casuale(), k = JSON.stringify(i);
+    const g = valuta(regola, i) ? si : no;
+    if (g.length < 3 && !g.some(x => JSON.stringify(x) === k)) g.push(i);
+  }
+  return { si, no };
+}
+function nuovoLivello() {
+  S.segreta = nuovaRegola(); S.regola = { cond: [], op: "E" }; S.pendNeg = false; S.fase = "fermo";
+  const e = esempi(S.segreta);
+  $("esSi").innerHTML = e.si.map(i => `<div class="ins">${insettoSvg(i)}</div>`).join("");
+  $("esNo").innerHTML = e.no.map(i => `<div class="ins">${insettoSvg(i)}</div>`).join("");
+  $("coda").innerHTML = ""; $("esitoIcona").textContent = "";
+  S.totale = tempoLivello(S.livello) * 1000; S.scade = Date.now() + S.totale;
+  aggiornaTasti(); aggiornaStato(); disegnaRegola();
+}
+function aggiornaTasti() { const u = sbloccato(); $("bNon").hidden = !u.non; $("bE").hidden = !u.e; $("bO").hidden = !u.o; }
+function aggiornaStato() {
+  $("sNome").textContent = S.nome; $("sLivello").textContent = t("liv") + " " + S.livello; $("sDiff").textContent = t("diffNomi")[S.diff]; $("sPunti").textContent = S.punti;
+  $("sVite").textContent = "❤️".repeat(S.vite) + "🤍".repeat(Math.max(0, CONFIG.viteMax - S.vite));
+}
+function regolaHtml(r, pendNeg) {
+  if (!r.cond.length && !pendNeg) return `<span class="vuoto">${t("vuoto")}</span>`;
+  let h = `<span class="chip se">${t("se")}</span>`;
+  r.cond.forEach((c, i) => {
+    if (i > 0) h += `<span class="chip op">${t(r.op.toLowerCase())}</span>`;
+    h += `<span class="chip${c.neg ? " neg" : ""}">${c.neg ? t("non") + " " : ""}${t("legenda")[c.f]}</span>`;
+  });
+  if (r.attesa && r.cond.length === 1) h += `<span class="chip op">${t(r.op.toLowerCase())}</span>`;
+  if (pendNeg) h += `<span class="chip neg">${t("non")} …</span>`;
+  if (r.cond.length && !r.attesa && !pendNeg) h += `<span class="chip az">${t("allora")}</span>`;
+  return h;
+}
+function disegnaRegola() {
+  el.regola.innerHTML = regolaHtml(S.regola, S.pendNeg);
+  const fermo = S.fase === "fermo", r = S.regola, n = r.cond.length;
+  const posso = fermo && (n === 0 || (n === 1 && r.attesa));          // posso aggiungere una caratteristica
+  el.pad.querySelectorAll("[data-f]").forEach(b => b.disabled = !posso);
+  $("bNon").disabled = !posso;
+  const op = fermo && n === 1 && !r.attesa && !S.pendNeg;
+  $("bE").disabled = !op; $("bO").disabled = !op;
+}
+function messaggio(m, tipo) { el.msg.textContent = m; el.msg.className = "msg " + (tipo || ""); }
+
+// ===================== tempo =====================
+function tick() {
+  if (S.fase !== "fermo") return;
+  const resto = S.scade - Date.now();
+  $("tempoBarra").style.transform = `scaleX(${Math.max(0, resto / S.totale)})`;
+  el.tempo.classList.toggle("urgente", resto < 5000);
+  if (resto <= 0) { S.fase = "fermo"; if (!perdiVita(t("tardi"))) return; nuovoLivello(); }
+}
+function avviaLoop() { fermaLoop(); S.loop = setInterval(tick, 100); }
+function fermaLoop() { if (S.loop) clearInterval(S.loop); S.loop = null; }
+
+// ===================== esiti =====================
+function perdiVita(testo) {
+  S.vite--; S.serie = 0; aggiornaStato(); messaggio(testo, "male");
+  if (S.vite <= 0) { fineGioco(); return false; }
+  return true;
+}
+function successo() {
+  const rimasto = Math.max(0, S.scade - Date.now());
+  const bonus = Math.round(CONFIG.punti.bonusVelocita * rimasto / S.totale);
+  const corto = S.regola.cond.length <= S.segreta.cond.length ? CONFIG.punti.bonusCorto : 0;
+  const molt = 1 + Math.min(CONFIG.punti.serieMax, S.serie * CONFIG.punti.serieStep);
+  const guadagno = Math.round((CONFIG.punti.base + bonus + corto) * molt);
+  S.punti += guadagno; S.serie++; aggiornaStato();
+  messaggio(`${t("bravo")} +${guadagno}` + (corto ? t("corto") : "") + (S.serie > 1 ? `${t("serie")}${S.serie}` : ""), "bene");
+  if (S.punti >= sogliaLivello(S.livello)) { salitaLivello(); return; }
+  setTimeout(() => { S.fase = "fermo"; nuovoLivello(); }, 900);
+}
+function salitaLivello() {
+  fermaLoop(); S.livello++;
+  let extra = "";
+  if ((S.livello - 1) % CONFIG.vitaOgniLivelli === 0 && S.vite < CONFIG.viteMax) { S.vite++; extra = t("vitaExtra"); }
+  $("lvTitolo").textContent = `${t("livello")} ${S.livello}!`;
+  $("lvTesto").textContent = t("lvTesto")(S.punti, Math.round(tempoLivello(S.livello))) + extra;
+  $("lvCuriosita").textContent = t("curiosita")[(S.livello - 2) % t("curiosita").length];
+  $("schermoLivello").hidden = false; $("bContinua").focus();
+}
+function fineGioco() {
+  fermaLoop(); S.fase = "fine";
+  const classifica = salvaPunteggio(S.nome, S.punti, S.livello);
+  const posizione = classifica.findIndex(r => r.io) + 1;
+  $("fnTesto").textContent = t("fnTesto")(S.nome, S.punti, t("diffNomi")[S.diff], S.livello) + (posizione > 0 ? t("posizione")(posizione) : "");
+  mostraClassifica($("classificaFine"), classifica);
+  $("schermoFine").hidden = false; $("bRigioca").focus();
+}
+
+// ===================== la fila =====================
+function invia() {
+  if (S.fase !== "fermo") return;
+  if (!S.regola.cond.length || S.pendNeg) { messaggio(t("incompleta"), "male"); return; }
+  S.fase = "fila"; messaggio("", ""); disegnaRegola();
+  // la fila contiene sempre almeno un insetto su cui una regola sbagliata si vede
+  S.fila = []; let tent = 0;
+  while (S.fila.length < CONFIG.insettiInFila && ++tent < 200) S.fila.push(casuale());
+  const tutte = []; for (let b = 0; b < 16; b++) tutte.push({ strisce: !!(b & 1), ali: !!(b & 2), grande: !!(b & 4), antenne: !!(b & 8) });
+  const diversi = tutte.filter(i => valuta(S.regola, i) !== valuta(S.segreta, i));
+  if (diversi.length && !S.fila.some(i => valuta(S.regola, i) !== valuta(S.segreta, i))) {
+    S.fila[1 + Math.floor(Math.random() * (S.fila.length - 1))] = diversi[Math.floor(Math.random() * diversi.length)];
+  }
+  const coda = $("coda"); coda.innerHTML = "";
+  const nodi = S.fila.map((i, k) => { const d = document.createElement("div"); d.className = "ins"; d.innerHTML = insettoSvg(i); d.style.left = (8 + k * 70) + "px"; coda.appendChild(d); return d; });
+  let k = 0;
+  const avanti = () => {
+    if (S.fase !== "fila") return;
+    if (k >= S.fila.length) { successo(); return; }
+    const ins = S.fila[k], nodo = nodi[k];
+    const mia = valuta(S.regola, ins), vera = valuta(S.segreta, ins);
+    nodi.forEach((n, j) => { if (j > k) n.style.left = (8 + (j - k - 1) * 70) + "px"; });
+    nodo.style.left = "calc(100% - 72px)";
+    setTimeout(() => {
+      if (S.fase !== "fila") return;
+      $("esitoIcona").textContent = mia ? "✅" : "⛔";
+      nodo.classList.add(mia ? "dentro" : "via");
+      if (mia !== vera) {
+        S.fase = "fermo";
+        if (!perdiVita(mia ? t("erroreEntrato") : t("erroreFermato"))) return;
+        setTimeout(() => { $("coda").innerHTML = ""; $("esitoIcona").textContent = ""; disegnaRegola(); }, 900);
+        return;
+      }
+      k++; setTimeout(avanti, 250);
+    }, CONFIG.msInsetto * 0.55);
+  };
+  setTimeout(avanti, 300);
+}
+
+// ===================== editor della regola =====================
+function toccaCaratt(f) {
+  if (S.fase !== "fermo") return;
+  const r = S.regola;
+  if (r.cond.length >= 2) return;
+  if (r.cond.length === 1 && !r.attesa) return;
+  r.cond.push({ f, neg: S.pendNeg }); S.pendNeg = false; r.attesa = false; disegnaRegola();
+}
+function toccaNon() { if (S.fase !== "fermo") return; S.pendNeg = !S.pendNeg; disegnaRegola(); }
+function toccaOp(op) { if (S.fase !== "fermo" || S.regola.cond.length !== 1) return; S.regola.op = op; S.regola.attesa = true; disegnaRegola(); }
+function cancella() {
+  if (S.fase !== "fermo") return;
+  const r = S.regola;
+  if (S.pendNeg) S.pendNeg = false; else if (r.attesa) r.attesa = false; else r.cond.pop();
+  disegnaRegola();
+}
+el.pad.querySelectorAll("[data-f]").forEach(b => b.addEventListener("click", () => toccaCaratt(b.dataset.f)));
+$("bNon").addEventListener("click", toccaNon); $("bE").addEventListener("click", () => toccaOp("E")); $("bO").addEventListener("click", () => toccaOp("O"));
+$("bCanc").addEventListener("click", cancella); $("bInvia").addEventListener("click", invia);
+document.addEventListener("keydown", e => {
+  if (el.pad.hidden || e.target.tagName === "INPUT") return;
+  if (e.key === "Enter") { e.preventDefault(); invia(); } else if (e.key === "Backspace") { e.preventDefault(); cancella(); }
+  else if (/^[1-4]$/.test(e.key)) toccaCaratt(CARATT[+e.key - 1]); else if (e.key === "n") toccaNon(); else if (e.key === "e") toccaOp("E"); else if (e.key === "o") toccaOp("O");
+});
+
+// ===================== classifica =====================
+const chiave = () => "guardiana.classifica." + S.diff;
+function leggiClassifica() { try { return JSON.parse(localStorage.getItem(chiave())) || []; } catch (e) { return []; } }
+function salvaPunteggio(nome, punti, livello) {
+  const lista = leggiClassifica().map(r => ({ ...r, io: false }));
+  lista.push({ nome, punti, livello, io: true });
+  lista.sort((a, b) => b.punti - a.punti);
+  const top = lista.slice(0, CONFIG.classificaMax);
+  try { localStorage.setItem(chiave(), JSON.stringify(top.map(({ nome, punti, livello }) => ({ nome, punti, livello })))); } catch (e) {}
+  return top;
+}
+function mostraClassifica(ol, lista) {
+  ol.innerHTML = lista.length ? lista.map((r, i) => `<li class="${r.io ? "io" : ""}"><b>${i + 1}.</b><span>${r.nome.replace(/[<>&]/g, "")}</span><span class="pt">${r.punti}</span><span>${t("liv").toLowerCase()} ${r.livello}</span></li>`).join("")
+    : `<li><span></span><span>${t("nessuno")}</span></li>`;
+}
+
+// ===================== tutorial e avvio =====================
+const ESEMPI = {
+  1: { cond: [{ f: "strisce", neg: false }], op: "E" }, 3: { cond: [{ f: "strisce", neg: true }], op: "E" },
+  5: { cond: [{ f: "strisce", neg: false }, { f: "ali", neg: false }], op: "E" }, 7: { cond: [{ f: "grande", neg: false }, { f: "antenne", neg: false }], op: "O" },
+};
+function mostraTutorial(lv, poi) {
+  const tu = t("tutorial")[lv]; if (!tu) { poi(); return; }
+  $("tuEm").textContent = tu.em; $("tuTitolo").textContent = tu.titolo; $("tuTesto").textContent = tu.testo; $("tuNota").textContent = tu.nota;
+  $("tuEsempio").innerHTML = regolaHtml(ESEMPI[lv], false);
+  $("schermoTutorial").hidden = false; $("bTutorialOk").focus();
+  $("bTutorialOk").onclick = () => { $("schermoTutorial").hidden = true; poi(); };
+}
+function mostraGioco(v) { [el.stato, el.esempi, el.ingresso, el.tempo, el.msg, el.regola, el.pad].forEach(e => e.hidden = !v); }
+function iniziaPartita() {
+  Object.assign(CONFIG, DIFFICOLTA[S.diff]);
+  S.livello = 1; S.punti = 0; S.vite = CONFIG.vite; S.serie = 0; S.firma = "";
+  mostraGioco(true); mostraTutorial(1, () => { nuovoLivello(); messaggio(t("porta"), ""); avviaLoop(); });
+}
+function classificaIniziale() {
+  S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
+  const lista = leggiClassifica(); $("classificaInizio").innerHTML = "";
+  if (lista.length) { const ol = document.createElement("ol"); ol.className = "classifica"; mostraClassifica(ol, lista.slice(0, 5)); $("classificaInizio").appendChild(ol); }
+}
+$("formInizio").addEventListener("submit", e => {
+  e.preventDefault(); S.nome = $("inNome").value.trim().slice(0, 10) || "Ape";
+  S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
+  $("schermoInizio").hidden = true; iniziaPartita();
+});
+$("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; mostraTutorial(S.livello, () => { nuovoLivello(); messaggio(t("nuovoLiv"), ""); avviaLoop(); }); });
+$("bRigioca").addEventListener("click", () => { $("schermoFine").hidden = true; $("inNome").value = S.nome; classificaIniziale(); $("schermoInizio").hidden = false; mostraGioco(false); });
+document.querySelectorAll('input[name="diff"]').forEach(r => r.addEventListener("change", classificaIniziale));
+document.documentElement.lang = L;
+document.title = L === "en" ? "Hive Guard" : "Guardiana dell'alveare";
+document.querySelectorAll("[data-t]").forEach(e => e.textContent = t(e.dataset.t));
+document.querySelectorAll("[data-ph]").forEach(e => e.placeholder = t(e.dataset.ph));
+$("legenda").innerHTML = CARATT.map(f => { const i = { strisce: false, ali: false, grande: false, antenne: false }; i[f] = true; return `<div><span class="ins">${insettoSvg(i)}</span>${t("legenda")[f]}</div>`; }).join("");
+classificaIniziale();
+</script>
+</body>
+</html>
