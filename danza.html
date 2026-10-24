@@ -32,7 +32,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .stato small{color:var(--ink-soft);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 .stato > div{white-space:nowrap;flex-shrink:0}
 .stato .nome{flex-shrink:1}
-@media (max-width:400px){.stato{padding:6px 8px;gap:6px}.stato small{display:none}.stato .vite{letter-spacing:0;font-size:16px}.stato .nome{max-width:28%;font-size:16px}.stato .punti{font-size:20px}}
+@media (max-width:480px){.stato{padding:6px 8px;gap:6px}.stato small{display:none}.stato .vite{letter-spacing:0;font-size:16px}.stato .nome{max-width:28%;font-size:16px}.stato .punti{font-size:20px}}
 
 .campo{position:relative;width:min(100%,520px,calc(100dvh - 368px));aspect-ratio:1;max-width:100%;
   background:var(--meadow);border-radius:16px;overflow:hidden;box-shadow:0 6px 0 #6fae43}
@@ -121,6 +121,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .azioni2 button{flex:1;border-radius:14px;padding:12px 8px;font-size:18px;color:var(--ink)}
 .azioni2 .salva{background:var(--honey);box-shadow:0 4px 0 var(--honey-d)}
 .azioni2 .resta{background:var(--sky)}
+.stato .esci{position:relative}
+.stato .esci::before{content:"";position:absolute;inset:-6px}
+.azioni2 button{line-height:1.2;font-size:clamp(16px,4.6vw,18px)}
+@media (max-width:400px){.azioni2{flex-direction:column}}
+@media (max-height:720px){.grado{padding:8px 10px;gap:2px}.grado .gEm{font-size:36px}.grado .gTit{font-size:19px}.grado .gNota{font-size:13px;line-height:1.3}#classificaFine li{padding:2px 8px;font-size:14px}}
+#schermoFine .grande{position:sticky;bottom:0;box-shadow:0 4px 0 var(--honey-d),0 -10px 10px var(--paper)}
 .stato .esci:active{background:var(--sky)}
 .grado{background:var(--sky);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px}
 .grado .gEm{font-size:44px;line-height:1}
@@ -257,8 +263,8 @@ const T = {
     bravo: "Tutti i fiori!", corto: " (corto!)", serie: " · serie ×", tropp: "Hai finito i mattoncini: usa RIPETI!",
     lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per ogni figura.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
     fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
-    nessuno: "Nessun punteggio ancora. Sarai il primo!", esciTitolo: "Vuoi uscire?", esciTesto: p => `Hai ${p} punti: li salvo in classifica.`, esciSalva: "Salva ed esci", esciContinua: "Continua a giocare",
-    gradi: [[1, "🐛", "Larva", "Hai appena aperto gli occhi e già vuoi programmare: il prato ti aspetta!"], [3, "🍼", "Ape nutrice", "Ti prendi cura delle cose piccole, ed è così che si cresce. Avanti!"], [5, "🐝", "Ape operaia", "Lavori sodo e non ti fermi mai: l'alveare conta su di te!"], [7, "🎺", "Fuco", "Il fuco se la prende comoda… ma tu no: sei arrivato fin qui a suon di codice!"], [9, "👑", "Ape regina", "Comandi tu: con il codice hai conquistato l'alveare intero!"]],
+    nessuno: "Nessun punteggio ancora. Sarai il primo!", esciTitolo: "Vuoi uscire?", esciTesto: p => `Hai ${p} punti: li metto nella classifica di questo dispositivo, poi torni al menu.`, esciNiente: "Non hai ancora fatto punti: esco senza salvare.", esciSalva: "Salva ed esci", esciSolo: "Esci", esciContinua: "Continua a giocare",
+    gradi: [[1, "🐛", "Larva", "Hai appena aperto gli occhi e già vuoi programmare: il prato ti aspetta!"], [3, "🍼", "Ape nutrice", "Ti prendi cura delle piccole cose, ed è così che si cresce. Avanti!"], [5, "🛡️", "Ape guardiana", "Stai all'ingresso dell'alveare e nulla ti sfugge: che attenzione!"], [7, "🌸", "Ape bottinatrice", "Voli di fiore in fiore e torni carica di nettare: l'alveare conta su di te!"], [9, "👑", "Ape regina", "Tutto l'alveare lavora con te: con il codice lo hai conquistato!"]],
     gradoTitolo: "Sei un'ape di grado:", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" }, capito: "HO CAPITO!",
     tutorial: {
       2: { em: "🔁", titolo: "Nuovo tasto: RIPETI", testo: "Tocca RIPETI. Poi tocca una freccia: entra nel riquadro viola. Conta i fiori: tante volte quanti sono i fiori da visitare. Poi premi ESEGUI.",
@@ -283,8 +289,8 @@ const T = {
     bravo: "All the flowers!", corto: " (short!)", serie: " · streak ×", tropp: "No blocks left: use REPEAT!",
     lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds per shape.`, vitaExtra: " You earned an extra life! ❤️",
     fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
-    nessuno: "No scores yet. You'll be the first!", esciTitolo: "Leave the game?", esciTesto: p => `You have ${p} points: I'll save them to the leaderboard.`, esciSalva: "Save and leave", esciContinua: "Keep playing",
-    gradi: [[1, "🐛", "Larva", "You've just opened your eyes and you already want to code: the meadow is waiting!"], [3, "🍼", "Nurse bee", "You take care of the small things, and that's how you grow. Onward!"], [5, "🐝", "Worker bee", "You work hard and never stop: the hive counts on you!"], [7, "🎺", "Drone", "Drones take it easy… but not you: you coded your way all the way here!"], [9, "👑", "Queen bee", "You're in charge: with code you've conquered the whole hive!"]],
+    nessuno: "No scores yet. You'll be the first!", esciTitolo: "Leave the game?", esciTesto: p => `You have ${p} points: I'll put them on this device's leaderboard, then back to the menu.`, esciNiente: "No points yet: I'll leave without saving.", esciSalva: "Save and leave", esciSolo: "Leave", esciContinua: "Keep playing",
+    gradi: [[1, "🐛", "Larva", "You've just opened your eyes and you already want to code: the meadow is waiting!"], [3, "🍼", "Nurse bee", "You take care of the small things, and that's how you grow. Onward!"], [5, "🛡️", "Guard bee", "You stand at the hive entrance and nothing gets past you: what focus!"], [7, "🌸", "Forager bee", "You fly from flower to flower and come back full of nectar: the hive counts on you!"], [9, "👑", "Queen bee", "The whole hive works with you: with code you've conquered it!"]],
     gradoTitolo: "Your bee rank:", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" }, capito: "GOT IT!",
     tutorial: {
       2: { em: "🔁", titolo: "New button: REPEAT", testo: "Tap REPEAT. Then tap an arrow: it goes inside the purple box. Count the flowers: as many times as there are flowers to visit. Then press RUN.",
@@ -430,10 +436,10 @@ function salitaLivello() {
 }
 function fineGioco() {
   fermaLoop(); S.fase = "fine";
-  const classifica = salvaPunteggio(S.nome, S.punti, S.livello);
+  const classifica = salvaPunteggio(S.nome, S.punti, S.livello, S.livelloPartenza);
   const posizione = classifica.findIndex(r => r.io) + 1;
   $("fnTesto").textContent = t("fnTesto")(S.nome, S.punti, t("diffNomi")[S.diff], S.livello) + (posizione > 0 ? t("posizione")(posizione) : "");
-  const g = grado(S.livello);
+  const g = grado(S.livello - S.livelloPartenza + 1);
   $("fnGrado").innerHTML = `<small>${t("gradoTitolo")}</small><span class="gEm">${g[1]}</span><span class="gTit">${g[2]}</span><span class="gNota">${g[3]}</span>`;
   mostraClassifica($("classificaFine"), classifica);
   $("schermoFine").querySelector(".scheda").scrollTop = 0;
@@ -512,17 +518,17 @@ document.addEventListener("keydown", e => {
 // ===================== classifica =====================
 const chiave = () => "danzaApe.classifica." + S.diff;
 function leggiClassifica() { try { return JSON.parse(localStorage.getItem(chiave())) || []; } catch (e) { return []; } }
-function salvaPunteggio(nome, punti, livello) {
+function salvaPunteggio(nome, punti, livello, partenza) {
   const lista = leggiClassifica().map(r => ({ ...r, io: false }));
-  lista.push({ nome, punti, livello, io: true });
+  lista.push({ nome, punti, livello, partenza, io: true });
   lista.sort((a, b) => b.punti - a.punti);
   const top = lista.slice(0, CONFIG.classificaMax);
-  try { localStorage.setItem(chiave(), JSON.stringify(top.map(({ nome, punti, livello }) => ({ nome, punti, livello })))); } catch (e) {}
+  try { localStorage.setItem(chiave(), JSON.stringify(top.map(({ nome, punti, livello, partenza }) => ({ nome, punti, livello, partenza })))); } catch (e) {}
   return top;
 }
 function grado(lv) { const g = t("gradi"); let r = g[0]; for (const x of g) if (lv >= x[0]) r = x; return r; }
 function mostraClassifica(ol, lista) {
-  ol.innerHTML = lista.length ? lista.map((r, i) => `<li class="${r.io ? "io" : ""}"><b>${i + 1}.</b><span>${r.nome.replace(/[<>&]/g, "")}</span><span class="pt">${r.punti}</span><span>${grado(r.livello)[1]} ${t("liv").toLowerCase()} ${r.livello}</span></li>`).join("")
+  ol.innerHTML = lista.length ? lista.map((r, i) => `<li class="${r.io ? "io" : ""}"><b>${i + 1}.</b><span>${r.nome.replace(/[<>&]/g, "")}</span><span class="pt">${r.punti}</span><span>${grado((r.livello - (r.partenza || 1)) + 1)[1]} ${t("liv").toLowerCase()} ${r.livello}</span></li>`).join("")
     : `<li><span></span><span>${t("nessuno")}</span></li>`;
 }
 
@@ -530,7 +536,7 @@ function mostraClassifica(ol, lista) {
 function mostraGioco(v) { [el.stato, el.campo, el.tempo, el.msg, el.codice, el.pad].forEach(e => e.hidden = !v); }
 function iniziaPartita() {
   Object.assign(CONFIG, DIFFICOLTA[S.diff]);
-  S.livello = Math.max(1, parseInt($("inLivello").value, 10) || 1); S.punti = 0; S.vite = CONFIG.vite; S.serie = 0;
+  S.livello = Math.max(1, parseInt($("inLivello").value, 10) || 1); S.livelloPartenza = S.livello; S.punti = 0; S.vite = CONFIG.vite; S.serie = 0;
   // partendo da un livello alto, prima mostra in fila i tutorial dei livelli già superati
   const daMostrare = Object.keys(t("tutorial")).map(Number).filter(lv => lv <= S.livello).sort((a, b) => a - b);
   const avvia = () => { mostraGioco(true); nuovaFigura(); messaggio(t("porta"), ""); avviaLoop(); };
@@ -568,7 +574,8 @@ document.querySelectorAll("[data-ph]").forEach(e => e.placeholder = t(e.dataset.
 $("bEsci").addEventListener("click", () => {
   if (S.fase === "fine") { location.href = "index.html"; return; }
   S.pausaDa = Date.now(); fermaLoop();
-  $("esciTesto").textContent = t("esciTesto")(S.punti);
+  $("esciTesto").textContent = S.punti === 0 ? t("esciNiente") : t("esciTesto")(S.punti);
+  $("bSalvaEsci").textContent = S.punti === 0 ? t("esciSolo") : t("esciSalva");
   $("schermoEsci").hidden = false; $("bResta").focus({ preventScroll: true });
 });
 $("bResta").addEventListener("click", () => {
@@ -579,7 +586,7 @@ $("bResta").addEventListener("click", () => {
   if (S.fiore && S.fiore.scade) S.fiore.scade += dt;
   if (!document.querySelector(".velo:not([hidden])")) avviaLoop();
 });
-$("bSalvaEsci").addEventListener("click", () => { salvaPunteggio(S.nome, S.punti, S.livello); location.href = "index.html"; });
+$("bSalvaEsci").addEventListener("click", () => { if (S.punti > 0) salvaPunteggio(S.nome, S.punti, S.livello, S.livelloPartenza); location.href = "index.html"; });
 classificaIniziale();
 </script>
 </body>

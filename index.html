@@ -19,19 +19,24 @@ html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
 body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--body);font-weight:600;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 12px;min-height:100dvh;display:flex}
 main{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
-.testa{position:relative;display:flex;justify-content:center;align-items:center}
+.testa{display:grid;grid-template-columns:44px 44px minmax(0,1fr) 44px 44px;grid-template-areas:"lingua . h1 coppa info";gap:8px;align-items:center}
+.testa h1{grid-area:h1;min-width:0}
 .tondo{width:44px;height:44px;border-radius:50%;border:0;background:var(--paper);cursor:pointer;box-shadow:0 3px 0 #d9cdb3;font-size:22px;line-height:1;display:grid;place-items:center}
 .tondo:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
-.info{position:absolute;right:0;top:50%;transform:translateY(-50%);color:var(--sky-d);font-family:Georgia,serif;font-style:italic;font-weight:700}
-.lingua{position:absolute;left:0;top:50%;transform:translateY(-50%)}
-.coppa{position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:20px}
-@media (max-width:400px){.testa h1{font-size:24px}}
+.info{grid-area:info;color:var(--sky-d);font-family:Georgia,serif;font-style:italic;font-weight:700}
+.lingua{grid-area:lingua}
+.coppa{grid-area:coppa;font-size:20px}
+.info,.lingua,.coppa{position:static;transform:none}
+@media (max-width:520px){.testa{grid-template-columns:44px 1fr 44px 44px;grid-template-areas:"lingua . coppa info" "h1 h1 h1 h1";row-gap:4px}.testa h1{font-size:clamp(26px,7.5vw,32px)}}
 .coppaLista{display:flex;flex-direction:column;gap:12px;text-align:left}
-.coppaLista h3{font-family:var(--display);margin:0;font-size:18px;display:flex;align-items:center;gap:6px}
+.coppaLista h3{font-family:var(--display);margin:0;font-size:18px;display:flex;align-items:center;gap:6px;position:sticky;top:0;background:var(--paper);padding:4px 0}
 .coppaLista ol{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-variant-numeric:tabular-nums}
-.coppaLista li{display:grid;grid-template-columns:22px 1fr auto auto;gap:6px;align-items:center;padding:3px 8px;border-radius:8px;background:var(--sky);font-size:15px}
-.coppaLista li .pt{font-family:var(--display);font-size:17px}
-.coppaLista li small{color:var(--ink-soft);font-size:11px}
+.coppaLista li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;grid-template-areas:"n nome pt" "n diff pt";column-gap:6px;row-gap:0;align-items:center;padding:4px 8px;border-radius:8px;background:var(--sky);font-size:15px}
+.coppaLista li b{grid-area:n}
+.coppaLista li > span:nth-child(2){grid-area:nome;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.coppaLista li .pt{grid-area:pt;font-family:var(--display);font-size:17px}
+.coppaLista li small{grid-area:diff;color:var(--ink-soft);font-size:12px;line-height:1.2}
+#schedaCoppa .azioni{position:sticky;bottom:0;background:var(--paper);padding-top:8px;margin-bottom:-22px;padding-bottom:22px}
 .coppaLista .nessuno{color:var(--ink-soft);font-size:14px}
 h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,7.5vw,44px);margin:0;text-align:center;color:var(--honey-d);text-wrap:balance;line-height:1.1}
 .sotto{text-align:center;margin:0;color:var(--ink-soft);font-size:14px}
@@ -161,7 +166,7 @@ const T = {
   it: {
     sotto: "Impara a programmare giocando con le api. Scegli un gioco!",
     piede: "App generata con l'intelligenza artificiale · Proprietà intellettuale di Xei S.r.l.",
-    gioca: "GIOCA", presto: "In arrivo", indietro: "Indietro", chiudi: "Chiudi", tabCoding: "Coding", tabRic: "Riconoscimenti", tabPriv: "Privacy", coppaTitolo: "Classifica", coppaNota: "I migliori di ogni gioco su questo dispositivo, con il grado raggiunto.", coppaNessuno: "Nessuna partita ancora.", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" }, gradi: ["🐛", "🐛", "🍼", "🍼", "🐝", "🐝", "🎺", "🎺", "👑"], tabMaestre: "Per le maestre",
+    gioca: "GIOCA", presto: "In arrivo", indietro: "Indietro", chiudi: "Chiudi", tabCoding: "Coding", tabRic: "Riconoscimenti", tabPriv: "Privacy", coppaTitolo: "Classifica", coppaNota: "I record di questo dispositivo, con il grado raggiunto. Ogni ape vola a modo suo: il vero traguardo è battere il TUO punteggio di ieri!", coppaNessuno: "Nessuna partita ancora.", alveare: "🐝 Alveare di classe", alveareRiga: (partite, punti) => `${partite} partite · ${punti} punti insieme`, diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" }, gradi: ["🐛", "🐛", "🍼", "🍼", "🛡️", "🛡️", "🌸", "🌸", "👑"], tabMaestre: "Per le maestre",
     giocoT: "Come si gioca", impariT: "Cosa impari", codingT: "Come nel coding vero",
     infoTitolo: "Cos'è il coding?",
     info1: "Il coding è il modo in cui si parla ai computer. Un computer è velocissimo ma non capisce niente da solo: bisogna spiegargli ogni cosa con istruzioni precise, una alla volta, nell'ordine giusto. Scrivere queste istruzioni si chiama programmare.",
@@ -206,7 +211,7 @@ const T = {
   en: {
     sotto: "Learn to code by playing with bees. Pick a game!",
     piede: "App generated with artificial intelligence · Intellectual property of Xei S.r.l.",
-    gioca: "PLAY", presto: "Coming soon", indietro: "Back", chiudi: "Close", tabCoding: "Coding", tabRic: "Credits", tabPriv: "Privacy", coppaTitolo: "Leaderboard", coppaNota: "The best of every game on this device, with the rank reached.", coppaNessuno: "No games played yet.", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" }, gradi: ["🐛", "🐛", "🍼", "🍼", "🐝", "🐝", "🎺", "🎺", "👑"], tabMaestre: "For teachers",
+    gioca: "PLAY", presto: "Coming soon", indietro: "Back", chiudi: "Close", tabCoding: "Coding", tabRic: "Credits", tabPriv: "Privacy", coppaTitolo: "Leaderboard", coppaNota: "This device's records, with the rank reached. Every bee flies its own way: the real goal is beating YOUR score from yesterday!", coppaNessuno: "No games played yet.", alveare: "🐝 Class hive", alveareRiga: (games, points) => `${games} games · ${points} points together`, diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" }, gradi: ["🐛", "🐛", "🍼", "🍼", "🛡️", "🛡️", "🌸", "🌸", "👑"], tabMaestre: "For teachers",
     giocoT: "How to play", impariT: "What you learn", codingT: "In real coding",
     infoTitolo: "What is coding?",
     info1: "Coding is how we talk to computers. A computer is super fast but understands nothing on its own: you have to explain everything with precise instructions, one at a time, in the right order. Writing those instructions is called programming.",
@@ -295,16 +300,17 @@ $("bChiudiInfo").addEventListener("click", chiudiInfo);
 $("veloInfo").addEventListener("click", e => { if (e.target === $("veloInfo")) chiudiInfo(); });
 function mostraCoppa() {
   const g = t("gradi"), grado = lv => g[Math.min(g.length, Math.max(1, lv)) - 1];
-  let html = "", qualcosa = false;
+  let html = "", qualcosa = false, partite = 0, puntiTot = 0;
   for (const gi of GIOCHI) {
     let righe = [];
     for (const d of ["facile", "medio", "difficile", "senzafretta"]) {
-      try { (JSON.parse(localStorage.getItem(gi.chiave + "." + d)) || []).forEach(r => righe.push({ ...r, d })); } catch (e) {}
+      try { (JSON.parse(localStorage.getItem(gi.chiave + "." + d)) || []).forEach(r => { righe.push({ ...r, d }); partite++; puntiTot += +r.punti || 0; }); } catch (e) {}
     }
     righe.sort((a, b) => b.punti - a.punti); righe = righe.slice(0, 5);
-    html += `<div><h3>${gi.em} ${t("giochi")[gi.k].titolo}</h3>` + (righe.length ? `<ol>${righe.map((r, i) => `<li><b>${i + 1}.</b><span>${String(r.nome).replace(/[<>&]/g, "")} ${grado(r.livello)}</span><span class="pt">${r.punti}</span><small>${t("diffNomi")[r.d] || r.d} · ${r.livello}</small></li>`).join("")}</ol>` : `<div class="nessuno">${t("coppaNessuno")}</div>`) + "</div>";
+    html += `<div><h3>${gi.em} ${t("giochi")[gi.k].titolo}</h3>` + (righe.length ? `<ol>${righe.map((r, i) => `<li><b>${i + 1}.</b><span>${String(r.nome).replace(/[<>&]/g, "")} ${grado((r.livello - (r.partenza || 1)) + 1)}</span><span class="pt">${r.punti}</span><small>${t("diffNomi")[r.d] || r.d} · ${r.livello}</small></li>`).join("")}</ol>` : `<div class="nessuno">${t("coppaNessuno")}</div>`) + "</div>";
     if (righe.length) qualcosa = true;
   }
+  html = `<div><h3>${t("alveare")}</h3><ol><li><b>🍯</b><span>${t("alveareRiga")(partite, puntiTot)}</span></li></ol></div>` + html;
   $("coppaLista").innerHTML = html;
   $("veloCoppa").hidden = false; $("schedaCoppa").scrollTop = 0; $("bChiudiCoppa").focus({ preventScroll: true });
 }
