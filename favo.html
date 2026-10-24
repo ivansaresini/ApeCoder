@@ -7,17 +7,17 @@
 <style>
 @font-face{font-family:'Fredoka';font-weight:500 700;font-display:swap;src:url(fonts/fredoka.woff2) format('woff2')}
 @font-face{font-family:'Nunito';font-weight:600 800;font-display:swap;src:url(fonts/nunito.woff2) format('woff2')}
-/* Layout: barra stato, favo (SVG di esagoni), barra tempo, messaggio, tavolozza dei colori + ESEGUI */
+/* Layout: barra stato, favo (SVG di esagoni), barra tempo, messaggio, tavolozza dei colori + CONTROLLA (che diventa AVANTI dopo il successo) */
 :root{
   --sky:#dcf1fb; --meadow:#9bd56a; --honey:#f6b73c; --honey-d:#c98610; --ink:#3b2a10; --ink-soft:#7a6240; --paper:#fffaf0;
-  --danger:#c0332a; --ok:#2a7527; --sky-d:#2d7fc1; --favo:#e9c46a;
-  --c-miele:#f6b73c; --c-polline:#e8702a; --c-cera:#fff6d6; --c-propoli:#7a4a1e; --c-vuoto:#fbf3dc;
+  --danger:#c0332a; --ok:#2a7527; --sky-d:#2d7fc1; --favo:#b9803a;
+  --c-miele:#f6b73c; --c-polline:#e8702a; --c-cera:#fff6d6; --c-propoli:#7a4a1e; --c-vuoto:#a8702c;
   --display:'Fredoka',ui-rounded,'Arial Rounded MT Bold','Nunito',system-ui,sans-serif;
   --body:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; color-scheme:light;
 }
 *{box-sizing:border-box}
-html{height:100%}
-body{height:100%;margin:0;background:var(--sky);color:var(--ink);font-family:var(--body);font-weight:600;
+html{height:100%;height:100dvh}
+body{height:100%;height:100dvh;margin:0;background:var(--sky);color:var(--ink);font-family:var(--body);font-weight:600;
   padding:calc(8px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
   display:flex;flex-direction:column;align-items:center;gap:8px;overflow:hidden}
 h1,h2{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance}
@@ -34,10 +34,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .stato small{color:var(--ink-soft);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 @media (max-width:400px){.stato{padding:6px 8px;gap:6px}.stato small{display:none}.stato .vite{letter-spacing:0;font-size:16px}.stato .nome{max-width:28%;font-size:16px}.stato .punti{font-size:20px}}
 
-.favo{width:100%;max-width:520px;flex:1;min-height:120px;background:var(--favo);border-radius:16px;box-shadow:0 6px 0 #c9a040;display:flex;align-items:center;justify-content:center;padding:8px}
+.favo{width:100%;max-width:520px;flex:1;min-height:120px;background:var(--favo);border-radius:16px;box-shadow:0 6px 0 #8a5a22;touch-action:manipulation;display:flex;align-items:center;justify-content:center;padding:8px}
 .favo svg{width:100%;height:100%;max-height:100%}
 .favo .cella{cursor:pointer}
-.favo .cella.vuota polygon{stroke-dasharray:6 4}
+.favo .cella.vuota polygon{stroke-dasharray:6 4;stroke:#fff3c4}
 .favo .cella.sel polygon{stroke:var(--sky-d);stroke-width:5}
 .favo .cella.ok polygon{stroke:var(--ok);stroke-width:5}
 .favo .cella.male polygon{stroke:var(--danger);stroke-width:5}
@@ -46,13 +46,14 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .tempo{width:100%;max-width:520px;height:14px;background:var(--paper);border-radius:999px;overflow:hidden;position:relative}
 .tempo i{position:absolute;inset:0;background:var(--honey);transform-origin:left;transition:transform .1s linear,background .2s}
 .tempo.urgente i{background:var(--danger)}
-.msg{height:22px;line-height:22px;font-size:clamp(13px,3.9vw,15px);color:var(--ink-soft);text-align:center;width:100%;max-width:520px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg{height:36px;line-height:18px;font-size:clamp(13px,3.9vw,15px);color:var(--ink-soft);text-align:center;width:100%;max-width:520px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .msg.bene{color:var(--ok)}.msg.male{color:var(--danger)}
 .regola{width:100%;max-width:520px;min-height:40px;background:var(--paper);border-radius:14px;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;font-family:var(--display);font-size:17px}
 .regola .vuoto{color:var(--ink-soft);font-size:14px;font-family:var(--body)}
 .chip{border-radius:10px;padding:2px 10px;line-height:1.3;background:var(--honey);color:var(--ink)}
 .chip.rip{background:#c8a0e8;color:#2a0f45}
 .chip .pallino{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:4px;border:1px solid rgba(0,0,0,.25)}
+.chip .pallino,.pad button .pallino{border-color:#a0741a}
 
 .pad{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:54px 54px;gap:8px}
 .pad button{border-radius:14px;font-size:15px;color:var(--ink);background:var(--paper);box-shadow:0 4px 0 #d9cdb3;padding:0 4px;line-height:1.1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
@@ -86,7 +87,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .livelli input:checked + span{background:var(--honey);border-color:var(--honey-d)}
 .livelli input:focus-visible + span{outline:3px solid var(--sky-d);outline-offset:2px}
 .partenza{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--display);font-size:17px}
-.partenza select{width:auto;font-size:18px;padding:6px 10px}
+.partenza select{width:auto;font-size:18px;padding:10px 14px;min-height:44px}
 .curiosita{background:var(--sky);border-radius:14px;padding:12px;text-align:left}
 .curiosita b{font-family:var(--display);color:var(--sky-d)}
 .regola.esempio{background:var(--sky);min-height:0;padding:10px}
@@ -96,7 +97,15 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .classifica li span:last-child{color:var(--ink-soft);font-size:13px}
 .classifica .pt{font-family:var(--display);font-size:18px}
 .esito{font-family:var(--display);font-size:52px;color:var(--honey-d);line-height:1}
-@media (max-height:720px){.scheda{padding:16px 16px;gap:10px}.scheda h1{font-size:30px}.scheda p{font-size:15px;line-height:1.35}.regole{gap:4px;font-size:14px}.regole .em{font-size:20px;flex-basis:36px}#classificaInizio .classifica li{padding:2px 8px;font-size:14px}}
+@media (max-height:720px){.scheda{padding:16px 16px;gap:10px}.scheda h1{font-size:30px}.scheda p{font-size:15px;line-height:1.35}.regole{gap:4px;font-size:14px}.regole .em{font-size:20px;flex-basis:36px}#classificaInizio .classifica li{padding:2px 8px;font-size:14px}#formInizio .regole{display:none}}
+@media (max-width:400px){
+  body{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+  .favo{padding:4px}
+  .regola{font-size:15px;gap:4px;padding:6px 8px}
+  .chip{padding:2px 7px}
+  .regola > .vuoto:first-child:not(:only-child){display:none}
+  .pad button{font-size:clamp(12px,3.7vw,15px);white-space:nowrap}
+}
 </style>
 </head>
 <body>
@@ -206,50 +215,52 @@ const L = leggiLingua();
 const T = {
   it: { titolo: "🔶 Celle esagonali", intro: "Le celle del favo sono colorate seguendo una regola. Scoprila e colora le celle vuote!",
     r1: "Il favo ha celle piene e celle vuote (tratteggiate).",
-    r2: "Tocca un colore, poi tocca le celle vuote per colorarle. ✕ svuota una cella.",
-    r3: "Il trucco: trova il pezzo che si ripete. Quando premi ESEGUI, se è tutto giusto ti mostro la regola.",
-    r4: "La barra gialla è il tempo. Un ESEGUI sbagliato o il tempo finito costano una vita.",
+    r2: "Tocca un colore, poi tocca le celle vuote per colorarle. Per cambiare colore a una cella basta toccarla di nuovo. ✕ svuota l'ultima cella che hai colorato.",
+    r3: "Il trucco: trova il pezzo che si ripete. Premi CONTROLLA: se è tutto giusto compare la regola.",
+    r4: "La barra gialla è il tempo. Un CONTROLLA sbagliato o il tempo finito costano una vita.",
     miele: "miele", polline: "polline", cera: "cera", propoli: "propoli",
-    nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", senzafretta: "🐢 Senza fretta", partiDa: "Parti dal livello", gioca: "GIOCA", invia: "ESEGUI",
+    nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", senzafretta: "🐢 Senza fretta", partiDa: "Parti dal livello", gioca: "GIOCA", invia: "CONTROLLA", avanti: "AVANTI ▶",
     sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello", capito: "HO CAPITO!",
-    porta: "Scegli un colore e riempi le celle vuote.", nuovoLiv: "Nuovo livello: regola nuova!", tardi: "Tempo scaduto! −1 vita",
+    porta: "Scegli un colore e riempi le celle vuote.", nuovoLiv: "Nuovo livello: il pezzo che si ripete diventa più lungo!", tardi: "Tempo scaduto! −1 vita",
     sceltaColore: "Prima tocca un colore!", mancano: n => `Mancano ${n} celle da colorare.`,
-    sbagliato: "Le celle rosse sono sbagliate. Correggile e riprova. −1 vita", bravo: "Favo perfetto!", primo: " (al primo colpo!)", serie: " · serie ×",
-    regolaT: "La regola:", ripeti: "ripeti", vuoto: "Qui comparirà la regola…",
+    sbagliato: "Celle rosse sbagliate: tocca un colore e poi la cella rossa. −1 vita", bravo: "Favo perfetto! Guarda la regola: è un pezzo corto che si ripete.", primo: " (al primo colpo!)", serie: " · serie ×",
+    regolaT: "La regola:", ripeti: "ripeti sempre", vuoto: "Qui comparirà la regola…",
     solTitolo: "La regola era:", solNota: "",
     lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per ogni favo.`, lvTestoSenzaTempo: p => `Hai ${p} punti. Niente fretta: il favo nuovo ti aspetta.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
     fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
     nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" },
     tutorial: {
-      1: { em: "👀", titolo: "Come si gioca", testo: "Guarda le celle colorate: i colori si ripetono sempre nello stesso ordine. Scopri l'ordine e colora le celle vuote nello stesso modo. Tocca un colore, poi la cella.", nota: "Qui la regola è: miele, polline, e poi si ricomincia." },
+      1: { em: "👀", titolo: "Come si gioca", testo: "Guarda le celle colorate: i colori si ripetono sempre nello stesso ordine. Scopri l'ordine e colora le celle vuote nello stesso modo. Tocca un colore, poi la cella. Il pezzo che si ripete è la REGOLA. Il computer la scrive così: [miele, polline] e RIPETI, come il RIPETI di Ape Coder: poche istruzioni, tante celle.", nota: "Qui la regola è: miele, polline, e poi si ricomincia." },
       3: { em: "🔁", titolo: "Trova il pezzo che si ripete", testo: "Ora il pezzo che si ripete è più lungo: possono essere tre colori, oppure due uguali e uno diverso. Leggi le celle dall'inizio e trova dove la sequenza ricomincia.", nota: "Qui il pezzo che si ripete è: miele, miele, propoli." },
-      5: { em: "↩️", titolo: "La regola va a capo", testo: "Adesso il favo ha due righe. La regola continua da una riga all'altra, come quando leggi: finita la prima riga, si prosegue sulla seconda senza ricominciare.", nota: "" },
+      5: { em: "↩️", titolo: "La regola continua sulla riga sotto", testo: "Il favo ha due righe. Finita la prima riga, la regola NON ricomincia: continua sulla seconda, come quando leggi un libro.", nota: "Prima riga: miele, polline, cera, miele · seconda riga: polline, cera, miele…" },
+      7: { em: "4️⃣", titolo: "Un pezzo da quattro", testo: "Ora il pezzo che si ripete ha quattro celle. Conta: dopo quattro colori si ricomincia. Leggi sempre da sinistra a destra e poi scendi alla riga sotto.", nota: "Qui il pezzo che si ripete è: miele, polline, miele, propoli." },
     },
-    curiosita: ["Le api costruiscono celle a sei lati perché l'esagono riempie lo spazio senza buchi e usa pochissima cera.", "Le pareti delle celle sono spesse meno di un decimo di millimetro, eppure reggono chili di miele.",
+    curiosita: ["Le api costruiscono celle a sei lati perché l'esagono riempie lo spazio senza buchi e usa pochissima cera.", "Le pareti delle celle sono spesse meno di un decimo di millimetro, eppure un telaino pieno pesa anche 2-3 chili.",
       "Un favo nuovo è bianco: diventa giallo e poi scuro con il tempo e con il polline.", "Le celle delle larve di fuco (i maschi) sono più grandi di quelle delle operaie.",
       "Le api misurano le celle con le antenne, come con un righello.", "In un favo le celle sono leggermente inclinate verso l'alto: così il miele non cola fuori."] },
   en: { titolo: "🔶 Honeycomb Cells", intro: "The honeycomb cells are coloured following a rule. Work it out and colour the empty cells!",
     r1: "The comb has filled cells and empty cells (dashed).",
-    r2: "Tap a colour, then tap the empty cells to colour them. ✕ clears a cell.",
-    r3: "The trick: find the piece that repeats. When you press RUN, if everything is right I show you the rule.",
-    r4: "The yellow bar is the time. A wrong RUN or running out of time costs a life.",
+    r2: "Tap a colour, then tap the empty cells to colour them. To change a cell's colour just tap it again. ✕ clears the last cell you coloured.",
+    r3: "The trick: find the piece that repeats. Press CHECK: if everything is right the rule appears.",
+    r4: "The yellow bar is the time. A wrong CHECK or running out of time costs a life.",
     miele: "honey", polline: "pollen", cera: "wax", propoli: "propolis",
-    nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", senzafretta: "🐢 No rush", partiDa: "Start at level", gioca: "PLAY", invia: "RUN",
+    nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", senzafretta: "🐢 No rush", partiDa: "Start at level", gioca: "PLAY", invia: "CHECK", avanti: "NEXT ▶",
     sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level", capito: "GOT IT!",
-    porta: "Pick a colour and fill the empty cells.", nuovoLiv: "New level: new rule!", tardi: "Time's up! −1 life",
+    porta: "Pick a colour and fill the empty cells.", nuovoLiv: "New level: the repeating piece gets longer!", tardi: "Time's up! −1 life",
     sceltaColore: "Tap a colour first!", mancano: n => `${n} cells still to colour.`,
-    sbagliato: "The red cells are wrong. Fix them and try again. −1 life", bravo: "Perfect comb!", primo: " (first try!)", serie: " · streak ×",
-    regolaT: "The rule:", ripeti: "repeat", vuoto: "The rule will appear here…",
+    sbagliato: "Red cells are wrong: tap a colour and then the red cell. −1 life", bravo: "Perfect comb! Look at the rule: a short piece that repeats.", primo: " (first try!)", serie: " · streak ×",
+    regolaT: "The rule:", ripeti: "repeat forever", vuoto: "The rule will appear here…",
     solTitolo: "The rule was:", solNota: "",
     lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds per comb.`, lvTestoSenzaTempo: p => `You have ${p} points. No rush: the new comb is waiting.`, vitaExtra: " You earned an extra life! ❤️",
     fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
     nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" },
     tutorial: {
-      1: { em: "👀", titolo: "How to play", testo: "Look at the coloured cells: the colours always repeat in the same order. Find the order and colour the empty cells the same way. Tap a colour, then the cell.", nota: "Here the rule is: honey, pollen, then start again." },
+      1: { em: "👀", titolo: "How to play", testo: "Look at the coloured cells: the colours always repeat in the same order. Find the order and colour the empty cells the same way. Tap a colour, then the cell. The piece that repeats is the RULE. The computer writes it like this: [honey, pollen] and REPEAT, just like the REPEAT in Bee Coder: few instructions, many cells.", nota: "Here the rule is: honey, pollen, then start again." },
       3: { em: "🔁", titolo: "Find the piece that repeats", testo: "Now the repeating piece is longer: it can be three colours, or two the same and one different. Read the cells from the start and find where the sequence starts over.", nota: "Here the repeating piece is: honey, honey, propolis." },
-      5: { em: "↩️", titolo: "The rule wraps around", testo: "Now the comb has two rows. The rule continues from one row to the next, like reading: when the first row ends, carry on in the second without starting over.", nota: "" },
+      5: { em: "↩️", titolo: "The rule carries on to the next row", testo: "The comb has two rows. When the first row ends, the rule does NOT start over: it carries on in the second row, like when you read a book.", nota: "First row: honey, pollen, wax, honey · second row: pollen, wax, honey…" },
+      7: { em: "4️⃣", titolo: "A piece of four", testo: "Now the repeating piece has four cells. Count: after four colours it starts again. Always read from left to right, then go down to the row below.", nota: "Here the repeating piece is: honey, pollen, honey, propolis." },
     },
-    curiosita: ["Bees build six-sided cells because hexagons fill space with no gaps and use very little wax.", "Cell walls are thinner than a tenth of a millimetre, yet they hold kilos of honey.",
+    curiosita: ["Bees build six-sided cells because hexagons fill space with no gaps and use very little wax.", "Cell walls are thinner than a tenth of a millimetre, yet a full frame can weigh 2-3 kilos.",
       "A new comb is white: it turns yellow and then dark with time and pollen.", "Drone (male) larva cells are bigger than worker cells.",
       "Bees measure the cells with their antennae, like a ruler.", "Comb cells tilt slightly upwards so the honey doesn't run out."] },
 };
@@ -262,8 +273,8 @@ function generaLivello(lv) {
   const sc = () => col.splice(Math.floor(Math.random() * col.length), 1)[0];
   let unita, righe = 1, totale;
   if (lv <= 2) { const a = sc(), b = sc(); unita = [a, b]; totale = 7; }
-  else if (lv <= 4) { const a = sc(), b = sc(), c = sc(); unita = Math.random() < .5 ? [a, b, c] : [a, a, b]; totale = 8; }
-  else if (lv <= 6) { const a = sc(), b = sc(), c = sc(); unita = [[a, b, c], [a, a, b], [a, b, b], [a, b, a, c]][Math.floor(Math.random() * 4)]; righe = 2; totale = 12; }
+  else if (lv <= 4) { const a = sc(), b = sc(), c = sc(); unita = Math.random() < .5 ? [a, b, c] : [a, a, b]; totale = 7; }
+  else if (lv <= 6) { const a = sc(), b = sc(), c = sc(); unita = [[a, b, c], [a, a, b], [a, b, b], [a, b, a, c]][Math.floor(Math.random() * 4)]; righe = 2; totale = 14; }
   else { const a = sc(), b = sc(), c = sc(), d = sc(); unita = [[a, b, c, d], [a, a, b, c], [a, b, b, c], [a, b, a, c]][Math.floor(Math.random() * 4)]; righe = lv >= 9 ? 3 : 2; totale = righe === 3 ? 18 : 14; }
   const celle = []; for (let i = 0; i < totale; i++) celle.push(unita[i % unita.length]);
   // celle vuote: all'inizio solo in fondo, poi anche in mezzo (mai le prime unita.length celle)
@@ -298,7 +309,7 @@ function aggiornaStato() {
 // disegno del favo: esagoni a punta in alto, righe sfalsate
 function disegna(esito) {
   const liv = S.liv, perRiga = Math.ceil(liv.celle.length / liv.righe), r = 30, w = Math.sqrt(3) * r, h = 1.5 * r;
-  const W = w * (perRiga + 0.5) + 8, H = h * (liv.righe - 1) + 2 * r + 8;
+  const W = w * (perRiga + (liv.righe > 1 ? 0.5 : 0)) + 8, H = h * (liv.righe - 1) + 2 * r + 8;
   let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
   liv.celle.forEach((c, i) => {
     const riga = Math.floor(i / perRiga), colIdx = i % perRiga;
@@ -307,7 +318,7 @@ function disegna(esito) {
     const val = S.risposta[i], vuota = liv.vuote.has(i);
     let cls = "cella" + (vuota && val === null ? " vuota" : "") + (esito && vuota ? (esito[i] ? " ok" : " male") : "");
     const fill = val ? COLORI[val] : "var(--c-vuoto)";
-    svg += `<g class="${cls}" data-i="${i}" ${vuota ? "" : 'style="cursor:default"'}><polygon points="${pts.join(" ")}" fill="${fill}" stroke="#a0741a" stroke-width="3"/>${vuota && val === null ? `<text x="${cx}" y="${cy + 12}" text-anchor="middle" fill="#a0741a">?</text>` : ""}</g>`;
+    svg += `<g class="${cls}" data-i="${i}" ${vuota ? "" : 'style="cursor:default"'}><polygon points="${pts.join(" ")}" fill="${fill}" stroke="#4a2e0c" stroke-width="3"/>${vuota && val === null ? `<text x="${cx}" y="${cy + 12}" text-anchor="middle" fill="#fff3c4">?</text>` : ""}</g>`;
   });
   el.favo.innerHTML = svg + "</svg>";
 }
@@ -338,6 +349,7 @@ $("bInvia").addEventListener("click", invia);
 document.addEventListener("keydown", e => { if (el.pad.hidden || e.target.tagName === "INPUT") return; if (e.key === "Enter") { e.preventDefault(); invia(); } });
 
 function invia() {
+  if (S.fase === "ok") { avanti(); return; }
   if (S.fase !== "fermo") return;
   const mancanti = [...S.liv.vuote].filter(i => S.risposta[i] === null).length;
   if (mancanti) { messaggio(t("mancano")(mancanti), "male"); return; }
@@ -353,7 +365,7 @@ function perdiVita(testo) {
   return true;
 }
 function successo() {
-  S.fase = "ok";
+  S.fase = "ok"; fermaLoop();
   const rimasto = CONFIG.senzaTempo ? S.totale : Math.max(0, S.scade - Date.now());
   const bonus = Math.round(CONFIG.punti.bonusVelocita * rimasto / S.totale);
   const primo = S.tentativi === 1 ? CONFIG.punti.bonusPrimoColpo : 0;
@@ -362,8 +374,13 @@ function successo() {
   S.punti += guadagno; S.serie++; aggiornaStato();
   disegna(S.risposta.map(() => true)); disegnaRegola(S.liv.unita);
   messaggio(`${t("bravo")} +${guadagno}` + (primo ? t("primo") : "") + (S.serie > 1 ? `${t("serie")}${S.serie}` : ""), "bene");
-  if (S.base + S.punti >= sogliaLivello(S.livello)) { setTimeout(salitaLivello, 1200); return; }
-  setTimeout(nuovoFavo, 1600);
+  // il tempo è fermo: il bambino legge la regola e passa avanti quando vuole
+  $("bInvia").textContent = t("avanti"); $("bInvia").focus({ preventScroll: true });
+}
+function avanti() {
+  $("bInvia").textContent = t("invia");
+  if (S.base + S.punti >= sogliaLivello(S.livello)) { salitaLivello(); return; }
+  nuovoFavo(); messaggio(t("porta"), ""); avviaLoop();
 }
 function mostraSoluzione(testo) {
   fermaLoop(); S.fase = "pausa";
@@ -417,7 +434,7 @@ function mostraClassifica(ol, lista) {
 }
 
 // ===================== tutorial e avvio =====================
-const ESEMPI = { 1: ["miele", "polline"], 3: ["miele", "miele", "propoli"], 5: null };
+const ESEMPI = { 1: ["miele", "polline"], 3: ["miele", "miele", "propoli"], 5: ["miele", "polline", "cera"], 7: ["miele", "polline", "miele", "propoli"] };
 function mostraTutorial(lv, poi) {
   const tu = t("tutorial")[lv]; if (!tu) { poi(); return; }
   $("tuEm").textContent = tu.em; $("tuTitolo").textContent = tu.titolo; $("tuTesto").textContent = tu.testo; $("tuNota").textContent = tu.nota;
@@ -427,7 +444,7 @@ function mostraTutorial(lv, poi) {
   $("bTutorialOk").onclick = () => { $("schermoTutorial").hidden = true; poi(); };
 }
 function tutorialFinoA(lv, poi) {
-  const lista = [1, 3, 5].filter(x => x <= lv && !S.visti.has(x));
+  const lista = [1, 3, 5, 7].filter(x => x <= lv && !S.visti.has(x));
   const next = () => { const x = lista.shift(); if (x === undefined) { poi(); return; } S.visti.add(x); mostraTutorial(x, next); };
   next();
 }

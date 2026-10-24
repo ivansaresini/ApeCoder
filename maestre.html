@@ -78,7 +78,7 @@ const T = {
     concettoT: "Il concetto", primaT: "Prima del gioco (senza computer)", domandeT: "Domande da porre", dopoT: "Dopo il gioco",
     modiTitolo: "Modalità consigliate in classe",
     modi1t: "🐢 Senza fretta", modi1: "La quarta difficoltà toglie il tempo: perfetta sulla LIM, per giocare tutti insieme e discutere ogni scelta prima di premere ESEGUI.",
-    modi2t: "Parti dal livello", modi2: "Nella schermata iniziale si può scegliere il livello di partenza, per andare dritti al concetto che vuoi lavorare: in Guardiana il tasto E compare al livello 5 e il tasto O al 7; in Fabbrica il bug compare dal livello 4. I tutorial dei livelli precedenti vengono mostrati comunque, in sequenza.",
+    modi2t: "Parti dal livello", modi2: "Nella schermata iniziale si può scegliere il livello di partenza, per andare dritti al concetto che vuoi lavorare: in Guardiana il tasto E compare al livello 5 e il tasto O al 7; in Fabbrica il bug compare dal livello 4; in Celle esagonali il favo a due righe arriva al livello 5 e il pezzo da quattro al 7. I tutorial dei livelli precedenti vengono mostrati comunque, in sequenza.",
     giochi: [
       { em: "🍯", titolo: "Ape Coder", cosa: "Sequenze",
         concetto: "Un programma è una lista di istruzioni eseguite una dopo l'altra, nell'ordine esatto in cui sono scritte. Il computer non indovina e non aggiusta: fa solo quello che gli dici.",
@@ -100,6 +100,11 @@ const T = {
         prima: ["\"La ricetta del panino\": cartoncini con le fasi (prendi il pane, apri il barattolo, spalma, chiudi il panino…) e uno intruso (\"mettere le scarpe\"). I bambini li ordinano in fila sul pavimento.", "La maestra esegue la ricetta alla lettera, nell'ordine dato, senza aggiustare niente: se il pane viene chiuso prima di spalmare, lo fa davvero. Si ride, e poi si corregge."],
         domande: ["Quali fasi possono scambiarsi senza problemi e quali no?", "Come fai a essere sicuro che una fase è un bug?"],
         dopo: ["Fumetto del miele in 5 vignette: ogni bambino disegna le fasi di \"Come nasce il miele\" nell'ordine giusto.", "Scambiarsi i fumetti e inserire di nascosto una vignetta intrusa: il compagno deve trovare il bug."] },
+      { em: "🔶", titolo: "Celle esagonali", cosa: "Regolarità e cicli",
+        concetto: "Una sequenza di colori che si ripete nasconde una regola: il pezzo corto che torna sempre uguale. Trovare la regola e scriverla una volta sola con RIPETI è lo stesso ciclo di Danza dell'ape, visto al contrario: dal risultato si risale al programma.",
+        prima: ["\"Collana di regole\", a coppie: un bambino infila perline o tappi colorati seguendo una regola segreta (per esempio giallo, giallo, nero); il compagno la scopre e la scrive su un cartellino \"REGOLA: … · RIPETI\". Poi si scambiano i ruoli. Variante: dalla regola scritta sul cartellino costruire la collana.", "\"Favo umano\": 8-10 bambini in fila con cartoncini colorati secondo una regola. Due o tre si girano di spalle (sono le celle vuote) e la classe dice di che colore sono. Poi la fila continua su due righe: la regola non ricomincia, prosegue sulla seconda.", "\"Favo di carta\": un foglio con esagoni vuoti. La maestra scrive solo \"RIPETI 5 volte [miele, polline, cera]\" e i bambini colorano. Confrontare con quanto sarebbe lungo scrivere il colore di ogni cella."],
+        domande: ["Qual è il pezzo che si ripete?", "Quante celle bastano per essere sicuri della regola?", "Come la scriviamo più corta?"],
+        dopo: ["Battere mani-mani-ginocchia più volte e chiedere: qual è il pezzo che si ripete? Come lo scriviamo con RIPETI?"] },
     ],
   },
   en: {
@@ -109,7 +114,7 @@ const T = {
     concettoT: "The concept", primaT: "Before the game (unplugged)", domandeT: "Questions to ask", dopoT: "After the game",
     modiTitolo: "Recommended classroom modes",
     modi1t: "🐢 No rush", modi1: "The fourth difficulty removes the timer: perfect on the interactive whiteboard, to play all together and discuss every choice before pressing RUN.",
-    modi2t: "Start at level", modi2: "On the start screen you can pick the starting level, to go straight to the concept you want to work on: in Hive Guard the AND button appears at level 5 and OR at level 7; in Honey Factory the bug appears from level 4. The tutorials of the earlier levels are still shown, in sequence.",
+    modi2t: "Start at level", modi2: "On the start screen you can pick the starting level, to go straight to the concept you want to work on: in Hive Guard the AND button appears at level 5 and OR at level 7; in Honey Factory the bug appears from level 4; in Honeycomb Cells the two-row comb arrives at level 5 and the piece of four at level 7. The tutorials of the earlier levels are still shown, in sequence.",
     giochi: [
       { em: "🍯", titolo: "Bee Coder", cosa: "Sequences",
         concetto: "A program is a list of instructions run one after another, in the exact order they are written. The computer never guesses and never fixes things: it does only what you tell it.",
@@ -131,6 +136,11 @@ const T = {
         prima: ["\"The sandwich recipe\": cards with the steps (take the bread, open the jar, spread, close the sandwich…) and one intruder (\"put on your shoes\"). The children line them up on the floor.", "The teacher follows the recipe to the letter, in the given order, without fixing anything: if the bread is closed before spreading, she really does it. Everyone laughs, then they fix it."],
         domande: ["Which steps can be swapped without problems and which can't?", "How can you be sure a step is a bug?"],
         dopo: ["Honey comic strip in 5 panels: each child draws the steps of \"How honey is made\" in the right order.", "Swap comics and secretly slip in an intruder panel: the classmate has to find the bug."] },
+      { em: "🔶", titolo: "Honeycomb Cells", cosa: "Patterns & loops",
+        concetto: "A sequence of colours that repeats hides a rule: the short piece that always comes back the same. Finding the rule and writing it once with REPEAT is the same loop as Bee Dance, seen backwards: from the result you work out the program.",
+        prima: ["\"Rule necklace\", in pairs: one child threads beads or coloured bottle caps following a secret rule (for example yellow, yellow, black); the partner works it out and writes it on a card \"RULE: … · REPEAT\". Then they swap roles. Variation: build the necklace from the rule written on the card.", "\"Human comb\": 8-10 children in a line holding coloured cards following a rule. Two or three turn their backs (they are the empty cells) and the class says what colour they are. Then the line carries on in two rows: the rule does not start over, it continues in the second row.", "\"Paper comb\": a sheet with empty hexagons. The teacher writes only \"REPEAT 5 times [honey, pollen, wax]\" and the children colour. Compare with how long it would take to write the colour of every cell."],
+        domande: ["What is the piece that repeats?", "How many cells are enough to be sure of the rule?", "How do we write it shorter?"],
+        dopo: ["Clap hands-hands-knees several times and ask: what is the piece that repeats? How do we write it with REPEAT?"] },
     ],
   },
 };
