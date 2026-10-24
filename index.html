@@ -52,6 +52,8 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
 .scheda a{color:var(--sky-d)}
 .blocco{background:var(--sky);border-radius:14px;padding:12px 14px}
 .blocco b{font-family:var(--display);color:var(--sky-d);display:block;margin-bottom:4px}
+.blocco.giallo{background:#fde9a8;border:2px solid var(--honey)}
+.blocco.giallo b{color:var(--honey-d)}
 .codice{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff;border-radius:8px;padding:4px 8px;display:inline-block;font-size:14px;margin-top:4px}
 .azioni{display:flex;gap:10px}
 .azioni button,.azioni a{flex:1;font-family:var(--display);font-weight:700;font-size:20px;border:0;border-radius:14px;padding:12px;cursor:pointer;text-decoration:none;text-align:center;color:var(--ink)}
@@ -95,7 +97,7 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
     <div class="em" id="sEm"></div>
     <h2 id="sTitolo"></h2>
     <div class="cosa" id="sCosa"></div>
-    <p id="sGioco"></p>
+    <div class="blocco giallo"><b data-t="giocoT"></b><span id="sGioco"></span></div>
     <div class="blocco"><b data-t="impariT"></b><span id="sImpari"></span></div>
     <div class="blocco"><b data-t="codingT"></b><span id="sCoding"></span><br><span class="codice" id="sEsempio"></span></div>
     <div class="azioni"><button class="chiudi" id="bChiudi" data-t="indietro"></button><a class="gioca" id="bGioca" href="#"></a></div>
@@ -117,7 +119,7 @@ const T = {
     sotto: "Impara a programmare giocando con le api. Scegli un gioco!",
     piede: "App generata con l'intelligenza artificiale · Proprietà intellettuale di Xei S.r.l.",
     gioca: "GIOCA", presto: "In arrivo", indietro: "Indietro", chiudi: "Chiudi",
-    impariT: "Cosa impari", codingT: "Come nel coding vero",
+    giocoT: "Come si gioca", impariT: "Cosa impari", codingT: "Come nel coding vero",
     infoTitolo: "Cos'è il coding?",
     info1: "Il coding è il modo in cui si parla ai computer. Un computer è velocissimo ma non capisce niente da solo: bisogna spiegargli ogni cosa con istruzioni precise, una alla volta, nell'ordine giusto. Scrivere queste istruzioni si chiama programmare.",
     info2t: "Perché impararlo da piccoli", info2: "Programmare insegna a dividere un problema grande in pezzi piccoli, a provare, sbagliare e correggere senza paura. Serve anche a chi non farà il programmatore: è un modo di pensare.",
@@ -160,7 +162,7 @@ const T = {
     sotto: "Learn to code by playing with bees. Pick a game!",
     piede: "App generated with artificial intelligence · Intellectual property of Xei S.r.l.",
     gioca: "PLAY", presto: "Coming soon", indietro: "Back", chiudi: "Close",
-    impariT: "What you learn", codingT: "In real coding",
+    giocoT: "How to play", impariT: "What you learn", codingT: "In real coding",
     infoTitolo: "What is coding?",
     info1: "Coding is how we talk to computers. A computer is super fast but understands nothing on its own: you have to explain everything with precise instructions, one at a time, in the right order. Writing those instructions is called programming.",
     info2t: "Why learn it young", info2: "Programming teaches you to split a big problem into small pieces, and to try, fail and fix without fear. It helps even if you never become a programmer: it is a way of thinking.",
