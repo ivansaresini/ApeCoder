@@ -54,7 +54,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .tempo{width:100%;max-width:520px;height:14px;background:var(--paper);border-radius:999px;overflow:hidden;position:relative}
 .tempo i{position:absolute;inset:0;background:var(--honey);transform-origin:left;transition:transform .1s linear,background .2s}
 .tempo.urgente i{background:var(--danger)}
-.msg{height:22px;line-height:22px;font-size:clamp(13px,3.9vw,15px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-soft);text-align:center;width:100%;max-width:520px}
+.msg{min-height:22px;line-height:1.25;font-size:clamp(13px,3.9vw,15px);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ink-soft);text-align:center;width:100%;max-width:520px}
 .msg.bene{color:var(--ok)}.msg.male{color:var(--danger)}
 .regola{width:100%;max-width:520px;min-height:48px;background:var(--paper);border-radius:14px;padding:6px 10px;
   display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-family:var(--display);font-size:18px}
@@ -64,6 +64,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .chip.neg{background:var(--neg)}
 .chip.op{background:var(--op);color:#2a0f45}
 .chip.az{background:#cdebc4;color:var(--ok)}
+.chip.altrimenti{background:#eee4cc;color:var(--ink-soft)}
 
 .pad{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,54px);gap:8px}
 .pad button{border-radius:14px;font-size:clamp(11.5px,3.4vw,15px);color:var(--ink);background:var(--cond);box-shadow:0 4px 0 #d9b25f;padding:0 3px;line-height:1.1;overflow-wrap:anywhere}
@@ -93,12 +94,15 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .regole{text-align:left;font-size:15px;display:grid;gap:6px;padding:0;margin:0;list-style:none}
 .regole li{display:flex;gap:10px;align-items:center}
 .regole .em{font-size:24px;flex:0 0 46px;text-align:center}
-.livelli{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.livelli{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .livelli label{position:relative;display:block}
 .livelli input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
 .livelli span{display:block;padding:12px 2px;border-radius:12px;background:var(--sky);font-family:var(--display);font-size:clamp(13px,3.8vw,17px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:2px solid transparent;min-height:44px}
 .livelli input:checked + span{background:var(--honey);border-color:var(--honey-d)}
 .livelli input:focus-visible + span{outline:3px solid var(--sky-d);outline-offset:2px}
+.partenza{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-size:16px}
+.partenza select{font:inherit;font-size:18px;padding:6px 10px;border-radius:12px;border:2px solid var(--honey);background:var(--paper);color:var(--ink);min-height:44px}
+.partenza select:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
 .curiosita{background:var(--sky);border-radius:14px;padding:12px;text-align:left}
 .curiosita b{font-family:var(--display);color:var(--sky-d)}
 .regola.esempio{background:var(--sky);justify-content:center;min-height:0;padding:10px}
@@ -162,7 +166,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
       <label><input type="radio" name="diff" value="facile" checked><span data-t="facile"></span></label>
       <label><input type="radio" name="diff" value="medio"><span data-t="medio"></span></label>
       <label><input type="radio" name="diff" value="difficile"><span data-t="difficile"></span></label>
+      <label><input type="radio" name="diff" value="senzafretta"><span data-t="senzafretta"></span></label>
     </div>
+    <label class="partenza"><span data-t="partiDa"></span> <select id="inLivello"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option></select></label>
     <button class="grande" type="submit" data-t="gioca"></button>
     <div id="classificaInizio"></div>
   </form>
@@ -225,6 +231,7 @@ const DIFFICOLTA = {
   facile:    { tempoLivello: 60, riduzionePerLivello: 0.04, tempoMin: 20, msInsetto: 1300, vite: 5 },
   medio:     { tempoLivello: 45, riduzionePerLivello: 0.06, tempoMin: 14, msInsetto: 1100, vite: 4 },
   difficile: { tempoLivello: 30, riduzionePerLivello: 0.08, tempoMin: 9,  msInsetto: 900,  vite: 3 },
+  senzafretta: { tempoLivello: 60, riduzionePerLivello: 0.04, tempoMin: 20, msInsetto: 1300, vite: 5, senzaTempo: true },   // il tempo non scade mai
 };
 // ===================== lingua =====================
 function leggiLingua() { try { const l = localStorage.getItem("scuolaApe.lingua"); if (l === "it" || l === "en") return l; } catch (e) {} return (navigator.language || "it").toLowerCase().startsWith("en") ? "en" : "it"; }
@@ -233,25 +240,27 @@ const T = {
   it: { titolo: "🛡️ Guardiana dell'alveare", intro: "Sei l'ape di guardia. Guarda chi è entrato e chi no, scopri la regola e scrivila: poi arriva la fila!",
     r1: "In alto vedi gli insetti che sono entrati ✅ e quelli fermati ⛔. Cosa hanno di diverso?",
     r2: "Scrivi la regola con i tasti: SE … ALLORA entra. Tutti gli altri vengono fermati.",
-    r3: "Premi INVIA: la fila passa davanti alla porta e la tua regola decide. Un errore costa una vita.",
+    r3: "Premi ESEGUI: la fila passa davanti alla porta e la tua regola decide. Un errore costa una vita.",
     r4: "La barra gialla è il tempo per scrivere la regola.",
     entrano: "✅ Entrati", fermati: "⛔ Fermati",
     fStrisce: "strisce", fAli: "ali chiare", fGrande: "grande", fMiele: "col miele",
-    non: "NON", e: "E", o: "O", invia: "INVIA", aiuto: "Tocca una caratteristica per scrivere la regola",
-    se: "SE", allora: "→ ENTRA", nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", gioca: "GIOCA",
+    non: "NON", e: "E", o: "O", invia: "ESEGUI", aiuto: "Tocca una parola (strisce, ali…) per scrivere la regola",
+    se: "SE", allora: "→ ENTRA", altrimenti: "ALTRIMENTI → FERMATA", nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", senzafretta: "🐢 Senza fretta", gioca: "GIOCA",
+    partiDa: "Parti dal livello",
     sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello", capito: "HO CAPITO!",
     vuoto: "Scrivi la regola…", porta: "Scopri la regola e scrivila!", nuovoLiv: "Nuovo livello: regola nuova!",
     solTitolo: "La regola era:", solNota: "Guarda di nuovo gli entrati e i fermati: ora si vede? Adesso arriva una regola nuova.",
     tardi: "Tempo scaduto! −1 vita", erroreEntrato: "Ops! Questo non doveva entrare. −1 vita", erroreFermato: "Ops! Questa era un'amica. −1 vita",
+    riprova: "Riprova: guarda bene gli esempi.", smentita: "Guarda questo! La tua regola andava bene finora, ma lui l'ha smentita. Correggi la regola.",
     bravo: "Fila superata!", corto: " (regola perfetta!)", serie: " · serie ×", incompleta: "La regola non è completa.",
-    lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per scrivere la regola.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
+    lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per scrivere la regola.`, lvTestoSenzaTempo: p => `Hai ${p} punti. Prenditi tutto il tempo che vuoi.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
     fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
-    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile" },
-    legenda: { strisce: "strisce", ali: "ali trasparenti", grande: "grande", miele: "con la goccia di miele" },
+    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile", senzafretta: "Senza fretta" },
+    legenda: { strisce: "strisce", ali: "ali trasparenti", grande: "grande", miele: "con la goccia di miele" }, grandePiccolo: "grande / piccolo",
     tutorial: {
-      1: { em: "👀", titolo: "Come si scopre la regola", testo: "Guarda gli insetti entrati ✅ e quelli fermati ⛔. Cosa hanno tutti quelli entrati che i fermati non hanno? Quella è la regola. Toccala sulla tastiera e premi INVIA.", nota: "Esempio: se tutti gli entrati hanno le strisce e i fermati no, la regola è questa." },
-      3: { em: "🚫", titolo: "Nuovo tasto: NON", testo: "A volte entrano proprio quelli che una cosa NON ce l'hanno. Tocca NON e poi la caratteristica.", nota: "Entrano gli insetti SENZA strisce." },
-      5: { em: "🔗", titolo: "Nuovo tasto: E", testo: "Con E la regola chiede due cose insieme: per entrare servono tutte e due.", nota: "Entra solo chi ha le strisce E le ali trasparenti. Con una sola delle due, resta fuori." },
+      1: { em: "👀", titolo: "Come si scopre la regola", testo: "Guarda gli insetti entrati ✅ e i fermati ⛔. Cosa hanno in comune tutti gli entrati? E i fermati, perché sono rimasti fuori? Le 4 cose da guardare sono nella legenda della prima schermata. Tocca la parola giusta e premi ESEGUI.", nota: "Esempio: se tutti gli entrati hanno le strisce e i fermati no, la regola è questa." },
+      3: { em: "🚫", titolo: "Nuovo tasto: NON", testo: "Guarda bene: a volte entrano proprio quelli a cui MANCA qualcosa. Tocca NON e poi la parola.", nota: "Entrano gli insetti SENZA strisce." },
+      5: { em: "🔗", titolo: "Nuovo tasto: E", testo: "Con E la regola chiede due cose insieme: per entrare servono tutte e due. E è severo: servono tutte e due le cose. O è generoso: ne basta una.", nota: "Entra solo chi ha le strisce E le ali trasparenti. Con una sola delle due, resta fuori." },
       7: { em: "🔀", titolo: "Nuovo tasto: O", testo: "Con O basta una delle due cose per entrare.", nota: "Entra chi è grande, oppure chi porta il miele, oppure tutte e due." },
     },
     curiosita: ["Le api guardiane stanno all'ingresso e riconoscono le compagne dall'odore dell'alveare.", "Se un'ape di un altro alveare porta nettare in dono, a volte le guardiane la lasciano entrare.",
@@ -260,25 +269,27 @@ const T = {
   en: { titolo: "🛡️ Hive Guard", intro: "You are the guard bee. See who got in and who didn't, work out the rule and write it: then the line arrives!",
     r1: "At the top you see the insects that got in ✅ and the ones stopped ⛔. What is different about them?",
     r2: "Write the rule with the buttons: IF … THEN enter. Everyone else is stopped.",
-    r3: "Press GO: the line passes the door and your rule decides. A mistake costs a life.",
+    r3: "Press RUN: the line passes the door and your rule decides. A mistake costs a life.",
     r4: "The yellow bar is the time you have to write the rule.",
     entrano: "✅ Let in", fermati: "⛔ Stopped",
     fStrisce: "stripes", fAli: "clear wings", fGrande: "big", fMiele: "with honey",
-    non: "NOT", e: "AND", o: "OR", invia: "GO", aiuto: "Tap a feature to write the rule",
-    se: "IF", allora: "→ ENTER", nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", gioca: "PLAY",
+    non: "NOT", e: "AND", o: "OR", invia: "RUN", aiuto: "Tap a word (stripes, wings…) to write the rule",
+    se: "IF", allora: "→ ENTER", altrimenti: "ELSE → STOPPED", nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", senzafretta: "🐢 No rush", gioca: "PLAY",
+    partiDa: "Start at level",
     sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level", capito: "GOT IT!",
     vuoto: "Write the rule…", porta: "Work out the rule and write it!", nuovoLiv: "New level: new rule!",
     solTitolo: "The rule was:", solNota: "Look again at who got in and who was stopped: can you see it now? A new rule is coming.",
     tardi: "Time's up! −1 life", erroreEntrato: "Oops! That one should not get in. −1 life", erroreFermato: "Oops! That was a friend. −1 life",
+    riprova: "Try again: look closely at the examples.", smentita: "Look at this one! Your rule worked until now, but he proved it wrong. Fix the rule.",
     bravo: "Line cleared!", corto: " (perfect rule!)", serie: " · streak ×", incompleta: "The rule is not complete.",
-    lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds to write the rule.`, vitaExtra: " You earned an extra life! ❤️",
+    lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds to write the rule.`, lvTestoSenzaTempo: p => `You have ${p} points. Take all the time you want.`, vitaExtra: " You earned an extra life! ❤️",
     fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
-    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard" },
-    legenda: { strisce: "stripes", ali: "clear wings", grande: "big", miele: "with a honey drop" },
+    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard", senzafretta: "No rush" },
+    legenda: { strisce: "stripes", ali: "clear wings", grande: "big", miele: "with a honey drop" }, grandePiccolo: "big / small",
     tutorial: {
-      1: { em: "👀", titolo: "How to find the rule", testo: "Look at the insects that got in ✅ and the ones stopped ⛔. What do all the ones that got in have, that the stopped ones don't? That is the rule. Tap it on the keyboard and press GO.", nota: "Example: if everyone who got in has stripes and the stopped ones don't, this is the rule." },
-      3: { em: "🚫", titolo: "New button: NOT", testo: "Sometimes the ones who get in are exactly those WITHOUT something. Tap NOT and then the feature.", nota: "Insects WITHOUT stripes get in." },
-      5: { em: "🔗", titolo: "New button: AND", testo: "With AND the rule asks for two things together: you need both to get in.", nota: "Only those with stripes AND clear wings get in. With just one of them, you stay out." },
+      1: { em: "👀", titolo: "How to find the rule", testo: "Look at the insects that got in ✅ and the ones stopped ⛔. What do all the ones that got in have in common? And why were the stopped ones left out? The 4 things to look at are in the legend on the first screen. Tap the right word and press RUN.", nota: "Example: if everyone who got in has stripes and the stopped ones don't, this is the rule." },
+      3: { em: "🚫", titolo: "New button: NOT", testo: "Look closely: sometimes the ones who get in are exactly those who are MISSING something. Tap NOT and then the word.", nota: "Insects WITHOUT stripes get in." },
+      5: { em: "🔗", titolo: "New button: AND", testo: "With AND the rule asks for two things together: you need both to get in. AND is strict: you need both things. OR is generous: one is enough.", nota: "Only those with stripes AND clear wings get in. With just one of them, you stay out." },
       7: { em: "🔀", titolo: "New button: OR", testo: "With OR one of the two things is enough to get in.", nota: "Whoever is big, or carries honey, or both, gets in." },
     },
     curiosita: ["Guard bees stand at the entrance and recognise their sisters by the smell of the hive.", "If a bee from another hive brings nectar as a gift, the guards sometimes let her in.",
@@ -315,8 +326,8 @@ function valuta(regola, ins) {
 }
 
 // ===================== stato =====================
-const S = { nome: "", diff: "facile", livello: 1, punti: 0, vite: 3, serie: 0, segreta: null, regola: { cond: [], op: "E" }, pendNeg: false,
-  fila: [], fase: "fermo", loop: null, scade: 0, totale: 0, firma: "" };
+const S = { nome: "", diff: "facile", livello: 1, base: 0, punti: 0, vite: 3, serie: 0, segreta: null, regola: { cond: [], op: "E" }, pendNeg: false,
+  esempi: { si: [], no: [] }, errori: 0, senzaBonus: false, fila: [], fase: "fermo", loop: null, scade: 0, totale: 0, firma: "" };
 const $ = id => document.getElementById(id);
 const el = { stato: $("stato"), esempi: $("esempi"), ingresso: $("ingresso"), tempo: $("tempo"), msg: $("msg"), regola: $("regola"), pad: $("pad") };
 const tempoLivello = lv => Math.max(CONFIG.tempoMin, CONFIG.tempoLivello * Math.pow(1 - CONFIG.riduzionePerLivello, lv - 1));
@@ -334,23 +345,47 @@ function nuovaRegola() {
   } while (firma === S.firma && ++tent < 20);
   S.firma = firma; return r;
 }
-// esempi: 3 entrati e 3 fermati, scelti così che le altre caratteristiche variino
+// tutte le regole che il bambino potrebbe scrivere con i tasti sbloccati a questo livello
+function regoleCandidate() {
+  const u = sbloccato(), negs = u.non ? [false, true] : [false], ops = u.o ? ["E", "O"] : ["E"], lista = [];
+  CARATT.forEach(f => negs.forEach(neg => lista.push({ cond: [{ f, neg }], op: "E" })));
+  if (u.e) CARATT.forEach((f1, i) => CARATT.forEach((f2, j) => { if (j <= i) return;
+    negs.forEach(n1 => negs.forEach(n2 => ops.forEach(op => lista.push({ cond: [{ f: f1, neg: n1 }, { f: f2, neg: n2 }], op }))));
+  }));
+  return lista;
+}
+// una regola è coerente con gli esempi se fa entrare tutti i "si" e ferma tutti i "no"
+const coerente = (regola, es) => es.si.every(i => valuta(regola, i)) && es.no.every(i => !valuta(regola, i));
+const stessaRegola = (a, b) => a.cond.length === b.cond.length && (a.cond.length < 2 || a.op === b.op) &&
+  a.cond.every(c => b.cond.some(d => d.f === c.f && d.neg === c.neg));
+// esempi: n entrati e n fermati (di solito 3), scelti così che la regola segreta sia l'unica coerente fra le candidate
 function esempi(regola) {
-  const si = [], no = []; let tent = 0;
-  while ((si.length < 3 || no.length < 3) && ++tent < 500) {
-    const i = casuale(), k = JSON.stringify(i);
-    const g = valuta(regola, i) ? si : no;
-    if (g.length < 3 && !g.some(x => JSON.stringify(x) === k)) g.push(i);
-  }
-  return { si, no };
+  const candidate = regoleCandidate().filter(r => !stessaRegola(r, regola));
+  const genera = n => {
+    const si = [], no = []; let tent = 0;
+    while ((si.length < n || no.length < n) && ++tent < 500) {
+      const i = casuale(), k = JSON.stringify(i);
+      const g = valuta(regola, i) ? si : no;
+      if (g.length < n && !g.some(x => JSON.stringify(x) === k)) g.push(i);
+    }
+    return { si, no };
+  };
+  const unica = es => !candidate.some(r => coerente(r, es));
+  let es;
+  for (let tent = 0; tent < 300; tent++) { es = genera(3); if (unica(es)) return es; }
+  for (let n = 4; n <= 8; n++) { for (let tent = 0; tent < 100; tent++) { es = genera(n); if (unica(es)) return es; } }
+  return es;
+}
+function disegnaEsempi() {
+  $("esSi").innerHTML = S.esempi.si.map(i => `<div class="ins">${insettoSvg(i)}</div>`).join("");
+  $("esNo").innerHTML = S.esempi.no.map(i => `<div class="ins">${insettoSvg(i)}</div>`).join("");
 }
 function nuovoLivello() {
-  S.segreta = nuovaRegola(); S.regola = { cond: [], op: "E" }; S.pendNeg = false; S.fase = "fermo";
-  const e = esempi(S.segreta);
-  $("esSi").innerHTML = e.si.map(i => `<div class="ins">${insettoSvg(i)}</div>`).join("");
-  $("esNo").innerHTML = e.no.map(i => `<div class="ins">${insettoSvg(i)}</div>`).join("");
+  S.segreta = nuovaRegola(); S.regola = { cond: [], op: "E" }; S.pendNeg = false; S.fase = "fermo"; S.errori = 0; S.senzaBonus = false;
+  S.esempi = esempi(S.segreta); disegnaEsempi();
   $("coda").innerHTML = ""; $("esitoIcona").textContent = "";
   S.totale = tempoLivello(S.livello) * 1000; S.scade = Date.now() + S.totale;
+  if (CONFIG.senzaTempo) $("tempoBarra").style.transform = "none";
   aggiornaTasti(); aggiornaStato(); disegnaRegola();
 }
 function aggiornaTasti() { const u = sbloccato(); $("bNon").hidden = !u.non; $("bE").hidden = !u.e; $("bO").hidden = !u.o; }
@@ -367,7 +402,7 @@ function regolaHtml(r, pendNeg) {
   });
   if (r.attesa && r.cond.length === 1) h += `<span class="chip op">${t(r.op.toLowerCase())}</span>`;
   if (pendNeg) h += `<span class="chip neg">${t("non")} …</span>`;
-  if (r.cond.length && !r.attesa && !pendNeg) h += `<span class="chip az">${t("allora")}</span>`;
+  if (r.cond.length && !r.attesa && !pendNeg) h += `<span class="chip az">${t("allora")}</span><span class="chip altrimenti">${t("altrimenti")}</span>`;
   return h;
 }
 function disegnaRegola() {
@@ -383,7 +418,7 @@ function messaggio(m, tipo) { el.msg.textContent = m; el.msg.className = "msg " 
 
 // ===================== tempo =====================
 function tick() {
-  if (S.fase !== "fermo") return;
+  if (S.fase !== "fermo" || CONFIG.senzaTempo) return;
   const resto = S.scade - Date.now();
   $("tempoBarra").style.transform = `scaleX(${Math.max(0, resto / S.totale)})`;
   el.tempo.classList.toggle("urgente", resto < 5000);
@@ -398,6 +433,13 @@ function perdiVita(testo) {
   if (S.vite <= 0) { fineGioco(); return false; }
   return true;
 }
+// errore nella fila con vita persa: al primo errore si riprova (senza bonus velocità), al secondo si vede la soluzione
+function erroreFila(testo, riprendi) {
+  S.errori++;
+  if (!perdiVita(testo)) return;
+  if (S.errori < 2) { S.senzaBonus = true; setTimeout(() => { riprendi(); messaggio(t("riprova"), "male"); }, 900); return; }
+  setTimeout(() => { $("coda").innerHTML = ""; $("esitoIcona").textContent = ""; mostraSoluzione(testo); }, 900);
+}
 // dopo una vita persa: mostra la regola giusta, poi regola nuova
 function mostraSoluzione(testo) {
   fermaLoop(); S.fase = "pausa";
@@ -407,14 +449,14 @@ function mostraSoluzione(testo) {
   $("bSoluzioneOk").onclick = () => { $("schermoSoluzione").hidden = true; S.fase = "fermo"; nuovoLivello(); avviaLoop(); };
 }
 function successo() {
-  const rimasto = Math.max(0, S.scade - Date.now());
-  const bonus = Math.round(CONFIG.punti.bonusVelocita * rimasto / S.totale);
+  const rimasto = CONFIG.senzaTempo ? S.totale : Math.max(0, S.scade - Date.now());
+  const bonus = S.senzaBonus ? 0 : Math.round(CONFIG.punti.bonusVelocita * rimasto / S.totale);
   const corto = S.regola.cond.length <= S.segreta.cond.length ? CONFIG.punti.bonusCorto : 0;
   const molt = 1 + Math.min(CONFIG.punti.serieMax, S.serie * CONFIG.punti.serieStep);
   const guadagno = Math.round((CONFIG.punti.base + bonus + corto) * molt);
   S.punti += guadagno; S.serie++; aggiornaStato();
   messaggio(`${t("bravo")} +${guadagno}` + (corto ? t("corto") : "") + (S.serie > 1 ? `${t("serie")}${S.serie}` : ""), "bene");
-  if (S.punti >= sogliaLivello(S.livello)) { salitaLivello(); return; }
+  if (S.base + S.punti >= sogliaLivello(S.livello)) { salitaLivello(); return; }
   setTimeout(() => { S.fase = "fermo"; nuovoLivello(); }, 900);
 }
 function salitaLivello() {
@@ -422,7 +464,7 @@ function salitaLivello() {
   let extra = "";
   if ((S.livello - 1) % CONFIG.vitaOgniLivelli === 0 && S.vite < CONFIG.viteMax) { S.vite++; extra = t("vitaExtra"); }
   $("lvTitolo").textContent = `${t("livello")} ${S.livello}!`;
-  $("lvTesto").textContent = t("lvTesto")(S.punti, Math.round(tempoLivello(S.livello))) + extra;
+  $("lvTesto").textContent = (CONFIG.senzaTempo ? t("lvTestoSenzaTempo")(S.punti) : t("lvTesto")(S.punti, Math.round(tempoLivello(S.livello)))) + extra;
   $("lvCuriosita").textContent = t("curiosita")[(S.livello - 2) % t("curiosita").length];
   $("schermoLivello").querySelector(".scheda").scrollTop = 0;
   $("schermoLivello").hidden = false; $("bContinua").focus({ preventScroll: true });
@@ -443,6 +485,9 @@ function invia() {
   if (S.fase !== "fermo") return;
   if (!S.regola.cond.length || S.pendNeg) { messaggio(t("incompleta"), "male"); return; }
   S.fase = "fila"; messaggio("", ""); disegnaRegola();
+  const filaInizio = Date.now(), coerenteConEsempi = coerente(S.regola, S.esempi);
+  // si torna a scrivere la regola (regola ed esempi restano); il tempo passato nella fila non conta
+  const riprendi = () => { $("coda").innerHTML = ""; $("esitoIcona").textContent = ""; S.scade += Date.now() - filaInizio; S.fase = "fermo"; disegnaRegola(); };
   // la fila contiene sempre almeno un insetto su cui una regola sbagliata si vede
   S.fila = []; let tent = 0;
   while (S.fila.length < CONFIG.insettiInFila && ++tent < 200) S.fila.push(casuale());
@@ -466,10 +511,14 @@ function invia() {
       $("esitoIcona").textContent = mia ? "✅" : "⛔";
       nodo.classList.add(mia ? "dentro" : "via");
       if (mia !== vera) {
-        S.fase = "fermo";
-        const testo = mia ? t("erroreEntrato") : t("erroreFermato");
-        if (!perdiVita(testo)) return;
-        setTimeout(() => { $("coda").innerHTML = ""; $("esitoIcona").textContent = ""; mostraSoluzione(testo); }, 900);
+        S.fase = "errore";
+        if (coerenteConEsempi) {
+          // la regola andava bene con gli esempi visti: nessuna vita persa, l'insetto diventa un esempio nuovo
+          (vera ? S.esempi.si : S.esempi.no).push(ins); disegnaEsempi(); messaggio(t("smentita"), "male");
+          setTimeout(riprendi, 900);
+          return;
+        }
+        erroreFila(mia ? t("erroreEntrato") : t("erroreFermato"), riprendi);
         return;
       }
       k++; setTimeout(avanti, 250);
@@ -532,11 +581,18 @@ function mostraTutorial(lv, poi) {
   $("schermoTutorial").hidden = false; $("bTutorialOk").focus({ preventScroll: true });
   $("bTutorialOk").onclick = () => { $("schermoTutorial").hidden = true; poi(); };
 }
-function mostraGioco(v) { [el.stato, el.esempi, el.ingresso, el.tempo, el.msg, el.regola, el.pad].forEach(e => e.hidden = !v); }
+function mostraGioco(v) { [el.stato, el.esempi, el.ingresso, el.tempo, el.msg, el.regola, el.pad].forEach(e => e.hidden = !v); if (v && CONFIG.senzaTempo) el.tempo.hidden = true; }
+// mostra in sequenza i tutorial dei livelli fino a quello di partenza (1, 3, 5, 7), poi chiama poi()
+function tutorialFinoA(lv, poi) {
+  const lista = Object.keys(ESEMPI).map(Number).filter(k => k <= lv).sort((a, b) => a - b);
+  const prossimo = () => { const k = lista.shift(); if (k === undefined) { poi(); return; } mostraTutorial(k, prossimo); };
+  prossimo();
+}
 function iniziaPartita() {
-  Object.assign(CONFIG, DIFFICOLTA[S.diff]);
-  S.livello = 1; S.punti = 0; S.vite = CONFIG.vite; S.serie = 0; S.firma = "";
-  mostraGioco(true); mostraTutorial(1, () => { nuovoLivello(); messaggio(t("porta"), ""); avviaLoop(); });
+  Object.assign(CONFIG, { senzaTempo: false }, DIFFICOLTA[S.diff]);
+  S.livello = Math.min(9, Math.max(1, +$("inLivello").value || 1)); S.punti = 0; S.base = S.livello > 1 ? sogliaLivello(S.livello - 1) : 0;   // partendo da un livello alto le soglie si contano da lì
+  S.vite = CONFIG.vite; S.serie = 0; S.firma = "";
+  mostraGioco(true); el.tempo.classList.remove("urgente"); tutorialFinoA(S.livello, () => { nuovoLivello(); messaggio(t("porta"), ""); avviaLoop(); });
 }
 function classificaIniziale() {
   S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
@@ -555,7 +611,9 @@ document.documentElement.lang = L;
 document.title = L === "en" ? "Hive Guard" : "Guardiana dell'alveare";
 document.querySelectorAll("[data-t]").forEach(e => e.textContent = t(e.dataset.t));
 document.querySelectorAll("[data-ph]").forEach(e => e.placeholder = t(e.dataset.ph));
-$("legenda").innerHTML = CARATT.map(f => { const i = { strisce: false, ali: false, grande: false, miele: false }; i[f] = true; return `<div><span class="ins">${insettoSvg(i)}</span>${t("legenda")[f]}</div>`; }).join("");
+$("legenda").innerHTML = CARATT.map(f => { const i = { strisce: false, ali: false, grande: false, miele: false }; i[f] = true;
+  if (f === "grande") return `<div><span class="ins">${insettoSvg(i)}</span><span class="ins">${insettoSvg({ ...i, grande: false })}</span>${t("grandePiccolo")}</div>`;
+  return `<div><span class="ins">${insettoSvg(i)}</span>${t("legenda")[f]}</div>`; }).join("");
 classificaIniziale();
 </script>
 </body>
