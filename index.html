@@ -61,7 +61,8 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
 .gioca[aria-disabled="true"]{background:#eee4cc;box-shadow:none;color:var(--ink-soft);pointer-events:none}
 .chiudi{background:var(--sky)}
 .tab{display:flex;gap:6px;background:var(--sky);border-radius:14px;padding:4px}
-.tab button{flex:1;border:0;border-radius:11px;padding:8px 4px;font-family:var(--display);font-weight:700;font-size:14px;background:transparent;color:var(--ink-soft);cursor:pointer}
+.tab button{flex:1;min-width:0;border:0;border-radius:11px;padding:8px 2px;font-family:var(--display);font-weight:700;font-size:14px;background:transparent;color:var(--ink-soft);cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px}
+@media (max-width:440px){.tab button .ico{display:none}}
 .tab button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 2px 0 #d9cdb3}
 .tab button:focus-visible{outline:3px solid var(--sky-d);outline-offset:2px}
 .pannello{display:flex;flex-direction:column;gap:12px}
@@ -82,9 +83,9 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
 <div class="velo" id="veloInfo" hidden>
   <div class="scheda" role="dialog" aria-modal="true" aria-labelledby="iTitolo" id="schedaInfo">
     <div class="tab" role="tablist">
-      <button role="tab" data-tab="coding" aria-selected="true">💻 <span data-t="tabCoding"></span></button>
-      <button role="tab" data-tab="ric" aria-selected="false">🙏 <span data-t="tabRic"></span></button>
-      <button role="tab" data-tab="priv" aria-selected="false">🔒 <span data-t="tabPriv"></span></button>
+      <button role="tab" data-tab="coding" aria-selected="true"><span class="ico">💻</span><span data-t="tabCoding"></span></button>
+      <button role="tab" data-tab="ric" aria-selected="false"><span class="ico">🙏</span><span data-t="tabRic"></span></button>
+      <button role="tab" data-tab="priv" aria-selected="false"><span class="ico">🔒</span><span data-t="tabPriv"></span></button>
     </div>
     <div class="pannello" data-pan="coding">
       <h2 id="iTitolo" data-t="infoTitolo"></h2>
