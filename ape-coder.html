@@ -129,28 +129,28 @@ html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
   <button class="sx" data-d="L" aria-label="Sinistra">◀</button>
   <button class="giu" data-d="D" aria-label="Giù">▼</button>
   <button class="dx" data-d="R" aria-label="Destra">▶</button>
-  <button class="invia" id="bInvia">INVIA</button>
-  <button class="aiuto" id="bAiuto">Tocca una freccia per aggiungere un passo. Il tempo di ogni albero è scritto sotto di lui.</button>
+  <button class="invia" id="bInvia" data-t="invia"></button>
+  <button class="aiuto" id="bAiuto" data-t="aiuto"></button>
 </div>
 
 <div class="velo" id="schermoInizio">
   <form class="scheda" id="formInizio">
     <a class="casa" href="index.html" aria-label="Torna al menu">🏠</a>
-    <h1>🐝 Ape Coder</h1>
-    <p>Scrivi il codice per portare l'ape dall'alveare all'albero col miele, prima che il miele finisca!</p>
+    <h1 data-t="titolo"></h1>
+    <p data-t="intro"></p>
     <ul class="regole">
-      <li><span class="em frecce"><i>▲</i><i>▶</i></span><span>Ogni freccia è un passo. Tocca due volte la stessa per fare 2 passi.</span></li>
-      <li><span class="em">🍯</span><span>Premi INVIA: l'ape vola. Se atterra sull'albero, punti!</span></li>
-      <li><span class="em">🕸️</span><span>Se atterra su una ragnatela, perde una vita.</span></li>
-      <li><span class="em">🌸</span><span>Passa sopra un fiore per riprendere una vita.</span></li>
+      <li><span class="em frecce"><i>▲</i><i>▶</i></span><span data-t="r1"></span></li>
+      <li><span class="em">🍯</span><span data-t="r2"></span></li>
+      <li><span class="em">🕸️</span><span data-t="r3"></span></li>
+      <li><span class="em">🌸</span><span data-t="r4"></span></li>
     </ul>
-    <input id="inNome" maxlength="10" placeholder="Il tuo nome" autocomplete="off" required>
+    <input id="inNome" maxlength="10" data-ph="nome" autocomplete="off" required>
     <div class="livelli" role="radiogroup" aria-label="Difficoltà">
-      <label><input type="radio" name="diff" value="facile" id="dFacile" checked><span>🐣 Facile</span></label>
-      <label><input type="radio" name="diff" value="medio" id="dMedio"><span>🐝 Medio</span></label>
-      <label><input type="radio" name="diff" value="difficile" id="dDifficile"><span>🔥 Difficile</span></label>
+      <label><input type="radio" name="diff" value="facile" id="dFacile" checked><span data-t="facile"></span></label>
+      <label><input type="radio" name="diff" value="medio" id="dMedio"><span data-t="medio"></span></label>
+      <label><input type="radio" name="diff" value="difficile" id="dDifficile"><span data-t="difficile"></span></label>
     </div>
-    <button class="grande" type="submit">GIOCA</button>
+    <button class="grande" type="submit" data-t="gioca"></button>
     <div id="classificaInizio"></div>
   </form>
 </div>
@@ -160,18 +160,18 @@ html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
     <div class="esito">🎉</div>
     <h2 id="lvTitolo">Livello 2!</h2>
     <p id="lvTesto"></p>
-    <div class="curiosita"><b>Lo sapevi?</b><br><span id="lvCuriosita"></span></div>
-    <button class="grande" id="bContinua">CONTINUA</button>
+    <div class="curiosita"><b data-t="sapevi"></b><br><span id="lvCuriosita"></span></div>
+    <button class="grande" id="bContinua" data-t="continua"></button>
   </div>
 </div>
 
 <div class="velo" id="schermoFine" hidden>
   <div class="scheda">
     <div class="esito">🍯</div>
-    <h2>Fine del gioco</h2>
+    <h2 data-t="fine"></h2>
     <p id="fnTesto"></p>
     <ol class="classifica" id="classificaFine"></ol>
-    <button class="grande" id="bRigioca">RIGIOCA</button>
+    <button class="grande" id="bRigioca" data-t="rigioca"></button>
   </div>
 </div>
 
@@ -195,14 +195,43 @@ const DIFFICOLTA = {
   medio:     { nome: "Medio",     tempoScrittura: 18, riduzionePerLivello: 0.08, tempoMin: 6,  msPerCella: 350, vite: 4, ragnateleDalLivello: 3 },
   difficile: { nome: "Difficile", tempoScrittura: 12, riduzionePerLivello: 0.10, tempoMin: 4,  msPerCella: 300, vite: 3, ragnateleDalLivello: 2 },
 };
-const CURIOSITA = [
-  "Un'ape in tutta la sua vita produce circa un cucchiaino di miele.",
-  "Le api comunicano con una danza: la direzione del ballo indica dove sono i fiori.",
-  "In un alveare vivono fino a 60.000 api, ma c'è una sola regina.",
-  "Le api vedono i colori diversamente da noi: non vedono il rosso, ma vedono l'ultravioletto.",
-  "Per fare un chilo di miele le api visitano circa 4 milioni di fiori.",
-  "Le api battono le ali più di 200 volte al secondo: ecco da dove viene il ronzio.",
-];
+// ===================== lingua (scelta nella pagina principale) =====================
+function leggiLingua() { try { const l = localStorage.getItem("scuolaApe.lingua"); if (l === "it" || l === "en") return l; } catch (e) {} return (navigator.language || "it").toLowerCase().startsWith("en") ? "en" : "it"; }
+const L = leggiLingua();
+const T = {
+  it: { titolo: "🐝 Ape Coder", intro: "Scrivi il codice per portare l'ape dall'alveare all'albero col miele, prima che il miele finisca!",
+    r1: "Ogni freccia è un passo. Tocca due volte la stessa per fare 2 passi.", r2: "Premi INVIA: l'ape vola. Se atterra sull'albero, punti!",
+    r3: "Se atterra su una ragnatela, perde una vita.", r4: "Passa sopra un fiore per riprendere una vita.",
+    nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", gioca: "GIOCA", invia: "INVIA",
+    aiuto: "Tocca una freccia per aggiungere un passo. Il tempo di ogni albero è scritto sotto di lui.",
+    sapevi: "Lo sapevi?", continua: "CONTINUA", fine: "Fine del gioco", rigioca: "RIGIOCA", liv: "Liv.", livello: "Livello",
+    vuoto: "Scrivi qui il codice con le frecce…", porta: "Porta l'ape all'albero 🌳 col miele!", nuovoLiv: "Nuovo livello: la griglia è più grande!",
+    appassito: "Il fiore è appassito.", tardi: "Troppo tardi! Il miele è finito. −1 vita", ragnatela: "Ahi, una ragnatela! −1 vita", noMiele: "Qui non c'è miele. Riprova!",
+    consegnato: "Miele consegnato!", corto: " (codice corto!)", serie: " · serie ×", fiore: "Fiore! +1 vita e +",
+    lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per scrivere il codice.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
+    fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
+    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile" },
+    curiosita: ["Un'ape in tutta la sua vita produce circa un cucchiaino di miele.", "Le api comunicano con una danza: la direzione del ballo indica dove sono i fiori.",
+      "In un alveare vivono fino a 60.000 api, ma c'è una sola regina.", "Le api vedono i colori diversamente da noi: non vedono il rosso, ma vedono l'ultravioletto.",
+      "Per fare un chilo di miele le api visitano circa 4 milioni di fiori.", "Le api battono le ali più di 200 volte al secondo: ecco da dove viene il ronzio."] },
+  en: { titolo: "🐝 Bee Coder", intro: "Write the code to take the bee from the hive to the honey tree, before the honey runs out!",
+    r1: "Each arrow is one step. Tap the same arrow twice for 2 steps.", r2: "Press GO: the bee flies. Land on the tree to score!",
+    r3: "Land on a spider web and you lose a life.", r4: "Fly over a flower to get a life back.",
+    nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", gioca: "PLAY", invia: "GO",
+    aiuto: "Tap an arrow to add a step. Each tree's time is written under it.",
+    sapevi: "Did you know?", continua: "CONTINUE", fine: "Game over", rigioca: "PLAY AGAIN", liv: "Lv.", livello: "Level",
+    vuoto: "Write your code here with the arrows…", porta: "Take the bee to the honey tree 🌳!", nuovoLiv: "New level: the grid is bigger!",
+    appassito: "The flower wilted.", tardi: "Too late! The honey is gone. −1 life", ragnatela: "Ouch, a spider web! −1 life", noMiele: "No honey here. Try again!",
+    consegnato: "Honey delivered!", corto: " (short code!)", serie: " · streak ×", fiore: "Flower! +1 life and +",
+    lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds to write your code.`, vitaExtra: " You earned an extra life! ❤️",
+    fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
+    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard" },
+    curiosita: ["In its whole life a bee makes about one teaspoon of honey.", "Bees talk by dancing: the direction of the dance says where the flowers are.",
+      "Up to 60,000 bees live in one hive, but there is only one queen.", "Bees see colours differently: they can't see red, but they can see ultraviolet.",
+      "To make one kilo of honey, bees visit about 4 million flowers.", "Bees beat their wings over 200 times a second: that's where the buzz comes from."] },
+};
+const t = k => T[L][k];
+const CURIOSITA = T[L].curiosita;
 const DIR = { U: [0, -1], D: [0, 1], L: [-1, 0], R: [1, 0] };
 const FRECCIA = { U: "▲", D: "▼", L: "◀", R: "▶" };
 const SVG_ALVEARE = '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="8" y="6" width="24" height="7" rx="3.5" fill="#f6b73c"/><rect x="5" y="13" width="30" height="7" rx="3.5" fill="#e9a52c"/><rect x="4" y="20" width="32" height="7" rx="3.5" fill="#f6b73c"/><rect x="6" y="27" width="28" height="7" rx="3.5" fill="#e9a52c"/><circle cx="20" cy="30" r="3" fill="#3b2a10"/></svg>';
@@ -274,12 +303,12 @@ function disegna() {
   aggiornaStato(); disegnaCodice();
 }
 function aggiornaStato() {
-  $("sNome").textContent = S.nome; $("sLivello").textContent = "Liv. " + S.livello; $("sDiff").textContent = DIFFICOLTA[S.diff].nome; $("sPunti").textContent = S.punti;
+  $("sNome").textContent = S.nome; $("sLivello").textContent = t("liv") + " " + S.livello; $("sDiff").textContent = t("diffNomi")[S.diff]; $("sPunti").textContent = S.punti;
   $("sVite").textContent = "❤️".repeat(S.vite) + "🤍".repeat(Math.max(0, CONFIG.viteMax - S.vite));
 }
 function disegnaCodice() {
   el.codice.innerHTML = S.comandi.length ? S.comandi.map(c => `<span class="chip">${FRECCIA[c.d]}${c.n > 1 ? " " + c.n : ""}</span>`).join("")
-    : '<span class="vuoto">Scrivi qui il codice con le frecce…</span>';
+    : `<span class="vuoto">${t("vuoto")}</span>`;
 }
 function messaggio(t, tipo) { el.msg.textContent = t; el.msg.className = "msg " + (tipo || ""); }
 
@@ -293,7 +322,7 @@ function tick() {
     e.querySelector(".tempo").textContent = Math.ceil(sec);
     e.classList.toggle("urgente", sec <= 3);
   }
-  if (S.fiore && ora >= S.fiore.scade) { S.fiore = null; disegna(); messaggio("Il fiore è appassito.", ""); }
+  if (S.fiore && ora >= S.fiore.scade) { S.fiore = null; disegna(); messaggio(t("appassito"), ""); }
 }
 function avviaLoop() { fermaLoop(); S.loop = setInterval(tick, 100); }
 function fermaLoop() { if (S.loop) clearInterval(S.loop); S.loop = null; }
@@ -307,7 +336,7 @@ function perdiVita(testo) {
 function fallito(albero) {
   S.alberi = S.alberi.filter(a => a !== albero);
   S.fase = "fermo"; S.comandi = []; S.ape = { ...S.alveare };
-  if (!perdiVita("Troppo tardi! Il miele è finito. −1 vita")) return;
+  if (!perdiVita(t("tardi"))) return;
   nuovoAlbero(); disegna();
 }
 function successo(albero) {
@@ -319,7 +348,7 @@ function successo(albero) {
   const guadagno = Math.round((CONFIG.punti.base + bonus + corto) * molt);
   S.punti += guadagno; S.serie++;
   S.alberi = S.alberi.filter(a => a !== albero);
-  messaggio(`Miele consegnato! +${guadagno}` + (corto ? " (codice corto!)" : "") + (S.serie > 1 ? ` · serie ×${S.serie}` : ""), "bene");
+  messaggio(`${t("consegnato")} +${guadagno}` + (corto ? t("corto") : "") + (S.serie > 1 ? `${t("serie")}${S.serie}` : ""), "bene");
   S.ape = { ...S.alveare }; S.comandi = []; S.fase = "fermo";
   if (S.punti >= sogliaLivello(S.livello)) { salitaLivello(); return; }
   nuovoAlbero(); disegna();
@@ -327,9 +356,9 @@ function successo(albero) {
 function salitaLivello() {
   fermaLoop(); S.livello++;
   let extra = "";
-  if ((S.livello - 1) % CONFIG.vitaOgniLivelli === 0 && S.vite < CONFIG.viteMax) { S.vite++; extra = " Hai guadagnato una vita in più! ❤️"; }
-  $("lvTitolo").textContent = `Livello ${S.livello}!`;
-  $("lvTesto").textContent = `Hai ${S.punti} punti. Ora hai ${Math.round(tempoScrittura(S.livello))} secondi per scrivere il codice.` + extra;
+  if ((S.livello - 1) % CONFIG.vitaOgniLivelli === 0 && S.vite < CONFIG.viteMax) { S.vite++; extra = t("vitaExtra"); }
+  $("lvTitolo").textContent = `${t("livello")} ${S.livello}!`;
+  $("lvTesto").textContent = t("lvTesto")(S.punti, Math.round(tempoScrittura(S.livello))) + extra;
   $("lvCuriosita").textContent = CURIOSITA[(S.livello - 2) % CURIOSITA.length];
   $("schermoLivello").hidden = false; $("bContinua").focus();
 }
@@ -337,7 +366,7 @@ function fineGioco() {
   fermaLoop(); S.fase = "fine";
   const classifica = salvaPunteggio(S.nome, S.punti, S.livello);
   const posizione = classifica.findIndex(r => r.io) + 1;
-  $("fnTesto").textContent = `${S.nome}, hai fatto ${S.punti} punti (${DIFFICOLTA[S.diff].nome}) e sei arrivato al livello ${S.livello}.` + (posizione > 0 ? ` Sei in classifica al posto ${posizione}!` : "");
+  $("fnTesto").textContent = t("fnTesto")(S.nome, S.punti, t("diffNomi")[S.diff], S.livello) + (posizione > 0 ? t("posizione")(posizione) : "");
   mostraClassifica($("classificaFine"), classifica);
   $("schermoFine").hidden = false; $("bRigioca").focus();
 }
@@ -358,7 +387,7 @@ function invia() {
     if (S.fiore && S.fiore.x === x && S.fiore.y === y) {
       S.fiore = null; S.punti += CONFIG.fiore.punti;
       if (S.vite < CONFIG.viteMax) S.vite++;
-      aggiornaStato(); messaggio(`Fiore! +1 vita e +${CONFIG.fiore.punti}`, "bene");
+      aggiornaStato(); messaggio(`${t("fiore")}${CONFIG.fiore.punti}`, "bene");
       const f = el.griglia.querySelector(".fiore"); if (f) f.remove();
     }
     setTimeout(passo, CONFIG.msPerCella);
@@ -370,8 +399,8 @@ function atterra(x, y) {
   const albero = S.alberi.find(a => a.x === x && a.y === y);
   if (albero) { successo(albero); return; }
   S.fase = "fermo"; S.comandi = []; S.ape = { ...S.alveare };
-  if (S.ragnatele.some(r => r.x === x && r.y === y)) { if (!perdiVita("Ahi, una ragnatela! −1 vita")) return; }
-  else messaggio("Qui non c'è miele. Riprova!", "male");
+  if (S.ragnatele.some(r => r.x === x && r.y === y)) { if (!perdiVita(t("ragnatela"))) return; }
+  else messaggio(t("noMiele"), "male");
   setTimeout(disegna, 350);
 }
 
@@ -409,8 +438,8 @@ function salvaPunteggio(nome, punti, livello) {
   return top;
 }
 function mostraClassifica(ol, lista) {
-  ol.innerHTML = lista.length ? lista.map((r, i) => `<li class="${r.io ? "io" : ""}"><b>${i + 1}.</b><span>${r.nome.replace(/[<>&]/g, "")}</span><span class="pt">${r.punti}</span><span>liv. ${r.livello}</span></li>`).join("")
-    : '<li><span></span><span>Nessun punteggio ancora. Sarai il primo!</span></li>';
+  ol.innerHTML = lista.length ? lista.map((r, i) => `<li class="${r.io ? "io" : ""}"><b>${i + 1}.</b><span>${r.nome.replace(/[<>&]/g, "")}</span><span class="pt">${r.punti}</span><span>${t("liv").toLowerCase()} ${r.livello}</span></li>`).join("")
+    : `<li><span></span><span>${t("nessuno")}</span></li>`;
 }
 
 // ===================== avvio =====================
@@ -418,14 +447,14 @@ function mostraGioco(v) { [el.stato, el.campo, el.msg, el.codice, el.pad].forEac
 function iniziaPartita() {
   Object.assign(CONFIG, DIFFICOLTA[S.diff]);
   S.livello = 1; S.punti = 0; S.vite = CONFIG.vite; S.serie = 0; S.idAlbero = 0;
-  mostraGioco(true); costruisciLivello(); messaggio("Porta l'ape all'albero 🌳 col miele!", ""); avviaLoop();
+  mostraGioco(true); costruisciLivello(); messaggio(t("porta"), ""); avviaLoop();
 }
 $("formInizio").addEventListener("submit", e => {
   e.preventDefault(); S.nome = $("inNome").value.trim().slice(0, 10) || "Ape";
   S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
   $("schermoInizio").hidden = true; iniziaPartita();
 });
-$("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; costruisciLivello(); messaggio("Nuovo livello: la griglia è più grande!", ""); avviaLoop(); });
+$("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; costruisciLivello(); messaggio(t("nuovoLiv"), ""); avviaLoop(); });
 $("bRigioca").addEventListener("click", () => { $("schermoFine").hidden = true; $("inNome").value = S.nome; classificaIniziale(); $("schermoInizio").hidden = false; mostraGioco(false); });
 window.addEventListener("resize", () => { if (!el.campo.hidden) el.campo.style.setProperty("--cella", `calc(${el.campo.clientWidth}px / ${S.N})`); });
 function classificaIniziale() {
@@ -434,6 +463,10 @@ function classificaIniziale() {
   if (lista.length) { const ol = document.createElement("ol"); ol.className = "classifica"; mostraClassifica(ol, lista.slice(0, 5)); $("classificaInizio").appendChild(ol); }
 }
 document.querySelectorAll('input[name="diff"]').forEach(r => r.addEventListener("change", classificaIniziale));
+document.documentElement.lang = L;
+document.title = L === "en" ? "Bee Coder" : "Ape Coder";
+document.querySelectorAll("[data-t]").forEach(e => e.textContent = t(e.dataset.t));
+document.querySelectorAll("[data-ph]").forEach(e => e.placeholder = t(e.dataset.ph));
 classificaIniziale();
 </script>
 
