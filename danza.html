@@ -106,6 +106,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
 .classifica li.io{background:var(--honey)}
 .classifica li span:last-child{color:var(--ink-soft);font-size:13px}
 .classifica .pt{font-family:var(--display);font-size:18px}
+.codice.esempio{background:var(--sky);justify-content:center;min-height:0;padding:10px}
 .esito{font-family:var(--display);font-size:52px;color:var(--honey-d);line-height:1}
 </style>
 </head>
@@ -168,6 +169,17 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sky-d);outline-
   </div>
 </div>
 
+<div class="velo" id="schermoTutorial" hidden>
+  <div class="scheda">
+    <div class="esito" id="tuEm">🔁</div>
+    <h2 id="tuTitolo"></h2>
+    <p id="tuTesto"></p>
+    <div class="codice esempio" id="tuEsempio"></div>
+    <p id="tuNota"></p>
+    <button class="grande" id="bTutorialOk" data-t="capito"></button>
+  </div>
+</div>
+
 <div class="velo" id="schermoFine" hidden>
   <div class="scheda">
     <div class="esito">💃</div>
@@ -200,8 +212,8 @@ const L = leggiLingua();
 const T = {
   it: { titolo: "💃 Danza dell'ape", intro: "I fiori formano una figura che si ripete. Scrivi il programma più corto che li visita tutti!",
     r1: "L'ape deve passare su tutti i fiori. Il programma parte dall'alveare.",
-    r2: "RIPETI apre un blocco: quello che c'è dentro viene rifatto tante volte. ×+ cambia le volte, ] chiude il blocco.",
-    r3: "Hai pochi mattoncini: ogni freccia e ogni RIPETI ne usa uno. Senza RIPETI non ce la fai!",
+    r2: "Dal livello 2 arriva RIPETI: quello che c'è nel blocco viene rifatto tante volte.",
+    r3: "Hai pochi mattoncini: ogni freccia e ogni RIPETI ne usa uno. I tasti nuovi arrivano un livello alla volta.",
     r4: "La barra gialla è il tempo. Se finisce, perdi una vita.",
     nome: "Il tuo nome", facile: "🐣 Facile", medio: "🐝 Medio", difficile: "🔥 Difficile", gioca: "GIOCA", invia: "INVIA",
     ripeti: "🔁 RIPETI", volte: "×+", chiudi: "]", aiuto: "Dentro al blocco aperto le frecce vanno nel RIPETI",
@@ -211,14 +223,20 @@ const T = {
     bravo: "Tutti i fiori!", corto: " (programma corto!)", serie: " · serie ×", tropp: "Hai finito i mattoncini: usa RIPETI!",
     lvTesto: (p, s) => `Hai ${p} punti. Ora hai ${s} secondi per ogni figura.`, vitaExtra: " Hai guadagnato una vita in più! ❤️",
     fnTesto: (n, p, d, l) => `${n}, hai fatto ${p} punti (${d}) e sei arrivato al livello ${l}.`, posizione: p => ` Sei in classifica al posto ${p}!`,
-    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile" },
+    nessuno: "Nessun punteggio ancora. Sarai il primo!", diffNomi: { facile: "Facile", medio: "Medio", difficile: "Difficile" }, capito: "HO CAPITO!",
+    tutorial: {
+      2: { em: "🔁", titolo: "Nuovo tasto: RIPETI", testo: "Tocca 🔁 RIPETI e poi una freccia: la freccia entra nel blocco viola. Con ×+ scegli quante volte ripetere. Quando premi INVIA il blocco si chiude da solo.",
+           nota: "Questo programma fa andare l'ape a destra 3 volte, come ▶ ▶ ▶, ma usa 2 mattoncini invece di 3. Con pochi mattoncini, RIPETI è l'unico modo!" },
+      3: { em: "]", titolo: "Nuovo tasto: ]", testo: "La parentesi ] chiude il blocco. Dopo averla premuta, le frecce o un nuovo RIPETI vengono DOPO il blocco, non dentro.",
+           nota: "Prima 3 passi a destra, poi 2 passi in su. Serve quando la figura cambia direzione: come un angolo." },
+    },
     curiosita: ["La danza dell'ape: se balla in cerchio, i fiori sono vicini; se fa un otto, sono lontani.", "Nella danza a otto, l'angolo rispetto al sole dice in che direzione sono i fiori.",
       "Più a lungo l'ape scodinzola durante la danza, più i fiori sono lontani.", "Le api danzano al buio, dentro l'alveare: le compagne la 'leggono' toccandola.",
       "Karl von Frisch ha vinto il premio Nobel nel 1973 per aver decifrato la danza delle api.", "Un'ape può ricordare la posizione di un campo di fiori per giorni."] },
   en: { titolo: "💃 Bee Dance", intro: "The flowers form a repeating shape. Write the shortest program that visits them all!",
     r1: "The bee must fly over every flower. The program starts at the hive.",
-    r2: "REPEAT opens a block: what is inside is done again and again. ×+ changes the count, ] closes the block.",
-    r3: "You have few blocks: every arrow and every REPEAT uses one. Without REPEAT you can't make it!",
+    r2: "From level 2 you get REPEAT: what is in the block is done again and again.",
+    r3: "You have few blocks: every arrow and every REPEAT uses one. New buttons arrive one level at a time.",
     r4: "The yellow bar is the time. When it runs out, you lose a life.",
     nome: "Your name", facile: "🐣 Easy", medio: "🐝 Medium", difficile: "🔥 Hard", gioca: "PLAY", invia: "GO",
     ripeti: "🔁 REPEAT", volte: "×+", chiudi: "]", aiuto: "While a block is open, arrows go inside the REPEAT",
@@ -228,7 +246,13 @@ const T = {
     bravo: "All the flowers!", corto: " (short program!)", serie: " · streak ×", tropp: "No blocks left: use REPEAT!",
     lvTesto: (p, s) => `You have ${p} points. You now get ${s} seconds per shape.`, vitaExtra: " You earned an extra life! ❤️",
     fnTesto: (n, p, d, l) => `${n}, you scored ${p} points (${d}) and reached level ${l}.`, posizione: p => ` You are number ${p} on the leaderboard!`,
-    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard" },
+    nessuno: "No scores yet. You'll be the first!", diffNomi: { facile: "Easy", medio: "Medium", difficile: "Hard" }, capito: "GOT IT!",
+    tutorial: {
+      2: { em: "🔁", titolo: "New button: REPEAT", testo: "Tap 🔁 REPEAT and then an arrow: the arrow goes inside the purple block. With ×+ you choose how many times to repeat. When you press GO the block closes by itself.",
+           nota: "This program moves the bee right 3 times, like ▶ ▶ ▶, but uses 2 blocks instead of 3. With few blocks, REPEAT is the only way!" },
+      3: { em: "]", titolo: "New button: ]", testo: "The bracket ] closes the block. After pressing it, arrows or a new REPEAT come AFTER the block, not inside.",
+           nota: "First 3 steps right, then 2 steps up. You need it when the shape changes direction, like a corner." },
+    },
     curiosita: ["The bee dance: a round dance means flowers are near; a figure-eight means they are far.", "In the figure-eight dance, the angle to the sun tells the direction of the flowers.",
       "The longer the bee waggles during the dance, the farther away the flowers are.", "Bees dance in the dark inside the hive: the others 'read' it by touching her.",
       "Karl von Frisch won the Nobel Prize in 1973 for decoding the bee dance.", "A bee can remember where a flower field is for days."] },
@@ -241,13 +265,16 @@ const SVG_ALVEARE = '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="8" y="
 // ===================== figure: ogni funzione restituisce i fiori e il numero minimo di mattoncini =====================
 // mattoncini: ogni freccia = 1, ogni RIPETI = 1. Un RIPETI n[▶ ▶] costa 3.
 const FIGURE = [
-  { nome: "riga", min: 1, gen: (N, h) => { const k = N >= 7 && Math.random() < .5 ? 2 : 1, n = Math.floor((N - 1) / k); return { fiori: seq(n, i => ({ x: h.x + (i + 1) * k, y: h.y })), ottimo: 1 + k }; } },
-  { nome: "colonna", min: 1, gen: (N, h) => { const k = N >= 7 && Math.random() < .5 ? 2 : 1, n = Math.floor((N - 1) / k); return { fiori: seq(n, i => ({ x: h.x, y: h.y - (i + 1) * k })), ottimo: 1 + k }; } },
-  { nome: "scala", min: 2, gen: (N, h) => ({ fiori: seq(N - 1, i => ({ x: h.x + i + 1, y: h.y - i - 1 })), ottimo: 3 }) },
-  { nome: "scala larga", min: 3, gen: (N, h) => { const n = Math.floor((N - 1) / 2); return { fiori: seq(n, i => ({ x: h.x + 2 * (i + 1), y: h.y - i - 1 })), ottimo: 4 }; } },
+  // livello 1: solo frecce, 3 o 4 fiori in fila; "ottimo" è il numero di frecce (nessun ciclo)
+  { nome: "fila corta", min: 1, max: 1, gen: (N, h) => { const n = 3 + Math.floor(Math.random() * 2), v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - i - 1 } : { x: h.x + i + 1, y: h.y }), ottimo: n, extra: 2 }; } },
+  // livello 2: arriva RIPETI (senza chiusura)
+  { nome: "riga", min: 2, max: 3, gen: (N, h) => { const n = N - 1, v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - i - 1 } : { x: h.x + i + 1, y: h.y }), ottimo: 2 }; } },
+  { nome: "riga a salti", min: 2, max: 4, gen: (N, h) => { const n = Math.floor((N - 1) / 2), v = Math.random() < .5; return { fiori: seq(n, i => v ? { x: h.x, y: h.y - 2 * (i + 1) } : { x: h.x + 2 * (i + 1), y: h.y }), ottimo: 3 }; } },
+  { nome: "scala", min: 4, gen: (N, h) => ({ fiori: seq(N - 1, i => ({ x: h.x + i + 1, y: h.y - i - 1 })), ottimo: 3 }) },
+  { nome: "scala larga", min: 5, gen: (N, h) => { const n = Math.floor((N - 1) / 2); return { fiori: seq(n, i => ({ x: h.x + 2 * (i + 1), y: h.y - i - 1 })), ottimo: 4 }; } },
   { nome: "angolo", min: 3, gen: (N, h) => { const a = N - 1; return { fiori: seq(a, i => ({ x: h.x + i + 1, y: h.y })).concat(seq(a, i => ({ x: h.x + a, y: h.y - i - 1 }))), ottimo: 4 }; } },
-  { nome: "zigzag", min: 4, gen: (N, h) => { const n = Math.floor((N - 1) / 2); let f = []; for (let i = 0; i < n; i++) { f.push({ x: h.x + 2 * i + 1, y: h.y - 1 }); f.push({ x: h.x + 2 * i + 2, y: h.y }); } return { fiori: f, ottimo: 5 }; } },
-  { nome: "rettangolo", min: 5, gen: (N, h) => { const a = N - 1, b = Math.min(N - 1, 3 + Math.floor(Math.random() * (N - 3))); let f = [];
+  { nome: "zigzag", min: 6, gen: (N, h) => { const n = Math.floor((N - 1) / 2); let f = []; for (let i = 0; i < n; i++) { f.push({ x: h.x + 2 * i + 1, y: h.y - 1 }); f.push({ x: h.x + 2 * i + 2, y: h.y }); } return { fiori: f, ottimo: 5 }; } },
+  { nome: "rettangolo", min: 7, gen: (N, h) => { const a = N - 1, b = Math.min(N - 1, 3 + Math.floor(Math.random() * (N - 3))); let f = [];
       for (let i = 1; i <= a; i++) f.push({ x: h.x + i, y: h.y }); for (let i = 1; i <= b; i++) f.push({ x: h.x + a, y: h.y - i });
       for (let i = 1; i <= a; i++) f.push({ x: h.x + a - i, y: h.y - b }); for (let i = 1; i < b; i++) f.push({ x: h.x, y: h.y - b + i });
       return { fiori: f, ottimo: 8 }; } },
@@ -263,19 +290,19 @@ const tempoLivello = lv => Math.max(CONFIG.tempoMin, CONFIG.tempoLivello * Math.
 const sogliaLivello = lv => CONFIG.soglie[Math.min(lv, CONFIG.soglie.length) - 1] + Math.max(0, lv - CONFIG.soglie.length) * 3000;
 
 function nuovaFigura() {
-  const N = Math.min(CONFIG.grigliaMax, CONFIG.grigliaMin + Math.floor((S.livello - 1) / 2));
+  const N = Math.min(CONFIG.grigliaMax, CONFIG.grigliaMin + Math.floor((S.livello - 1) / 3));
   S.N = N; S.alveare = { x: 0, y: N - 1 }; S.ape = { ...S.alveare };
-  const possibili = FIGURE.filter(f => f.min <= S.livello);
+  const possibili = FIGURE.filter(f => f.min <= S.livello && (!f.max || S.livello <= f.max));
   const scelte = possibili.slice(-3);                       // le figure più recenti sbloccate
   const fig = scelte[Math.floor(Math.random() * scelte.length)];
   const r = fig.gen(N, S.alveare);
   S.fiori = r.fiori.filter(f => f.x >= 0 && f.x < N && f.y >= 0 && f.y < N).map(f => ({ ...f, preso: false }));
-  S.ottimo = r.ottimo; S.budget = r.ottimo + CONFIG.slack;
+  S.ottimo = r.ottimo; S.budget = r.ottimo + (r.extra || 0) + CONFIG.slack;
   S.prog = []; S.aperto = null; S.fase = "fermo";
   S.totale = tempoLivello(S.livello) * 1000; S.scade = Date.now() + S.totale;
   el.griglia.style.gridTemplateColumns = `repeat(${N},1fr)`; el.griglia.style.gridTemplateRows = `repeat(${N},1fr)`;
   el.campo.style.setProperty("--cella", `calc(${el.campo.clientWidth}px / ${N})`);
-  disegna();
+  aggiornaTasti(); disegna();
 }
 
 // ===================== disegno =====================
@@ -309,6 +336,8 @@ function disegnaCodice() {
   $("bChiudi").disabled = S.fase !== "fermo" || !S.aperto;
   $("bVolte").disabled = S.fase !== "fermo" || !S.prog.some(c => c.rep);
 }
+const sbloccato = () => ({ rip: S.livello >= 2, chiudi: S.livello >= 3 });
+function aggiornaTasti() { const u = sbloccato(); $("bRip").hidden = !u.rip; $("bVolte").hidden = !u.rip; $("bChiudi").hidden = !u.chiudi; $("bAiuto").hidden = !u.rip; }
 function messaggio(m, tipo) { el.msg.textContent = m; el.msg.className = "msg " + (tipo || ""); }
 
 // ===================== tempo =====================
@@ -457,7 +486,15 @@ $("formInizio").addEventListener("submit", e => {
   S.diff = (document.querySelector('input[name="diff"]:checked') || {}).value || "facile";
   $("schermoInizio").hidden = true; iniziaPartita();
 });
-$("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; nuovaFigura(); messaggio(t("nuovoLiv"), ""); avviaLoop(); });
+const ESEMPI = { 2: [{ rep: true, n: 3, body: [{ d: "R" }] }], 3: [{ rep: true, n: 3, body: [{ d: "R" }] }, { rep: true, n: 2, body: [{ d: "U" }] }] };
+function mostraTutorial(lv, poi) {
+  const tu = t("tutorial")[lv]; if (!tu) { poi(); return; }
+  $("tuEm").textContent = tu.em; $("tuTitolo").textContent = tu.titolo; $("tuTesto").textContent = tu.testo; $("tuNota").textContent = tu.nota;
+  $("tuEsempio").innerHTML = ESEMPI[lv].map(c => chipHtml(c, null)).join("");
+  $("schermoTutorial").hidden = false; $("bTutorialOk").focus();
+  $("bTutorialOk").onclick = () => { $("schermoTutorial").hidden = true; poi(); };
+}
+$("bContinua").addEventListener("click", () => { $("schermoLivello").hidden = true; mostraTutorial(S.livello, () => { nuovaFigura(); messaggio(t("nuovoLiv"), ""); avviaLoop(); }); });
 $("bRigioca").addEventListener("click", () => { $("schermoFine").hidden = true; $("inNome").value = S.nome; classificaIniziale(); $("schermoInizio").hidden = false; mostraGioco(false); });
 document.querySelectorAll('input[name="diff"]').forEach(r => r.addEventListener("change", classificaIniziale));
 window.addEventListener("resize", () => { if (!el.campo.hidden) el.campo.style.setProperty("--cella", `calc(${el.campo.clientWidth}px / ${S.N})`); });
