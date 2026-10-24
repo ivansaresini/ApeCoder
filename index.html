@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Scuola Ape</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@600;800&display=swap">
 <style>
+@font-face{font-family:'Fredoka';font-weight:500 700;font-display:swap;src:url(fonts/fredoka.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-weight:600 800;font-display:swap;src:url(fonts/nunito.woff2) format('woff2')}
 /* Layout: prato e cielo come nei giochi; titolo, griglia di quadrati 2 colonne (3 su schermi larghi) */
 :root{
   --sky:#dcf1fb; --meadow:#9bd56a; --honey:#f6b73c; --honey-d:#c98610; --ink:#3b2a10; --ink-soft:#7a6240;
-  --paper:#fffaf0; --sky-d:#2d7fc1; --display:'Fredoka',system-ui,sans-serif; --body:'Nunito',system-ui,sans-serif; color-scheme:light;
+  --paper:#fffaf0; --sky-d:#2d7fc1; --display:'Fredoka',ui-rounded,'Arial Rounded MT Bold','Nunito',system-ui,sans-serif; --body:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; color-scheme:light;
 }
 *{box-sizing:border-box}
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -44,6 +45,7 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,7.5vw,44px);m
 .scheda h2{font-family:var(--display);font-size:28px;margin:0;text-align:center;line-height:1.1}
 .scheda .cosa{text-align:center;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--sky-d);font-weight:800}
 .scheda p{margin:0;line-height:1.45;font-size:16px}
+.scheda a{color:var(--sky-d)}
 .blocco{background:var(--sky);border-radius:14px;padding:12px 14px}
 .blocco b{font-family:var(--display);color:var(--sky-d);display:block;margin-bottom:4px}
 .codice{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff;border-radius:8px;padding:4px 8px;display:inline-block;font-size:14px;margin-top:4px}
@@ -95,6 +97,10 @@ footer{text-align:center;font-size:12px;color:var(--ink-soft)}
     <h2>Riconoscimenti</h2>
     <p>Scuola Ape è nata per un progetto scolastico sulle api. Le curiosità sulle api vengono dall'apicoltura e dalla divulgazione scientifica; i giochi sono originali.</p>
     <p>App generata con l'intelligenza artificiale (Claude di Anthropic). Idea, direzione e proprietà intellettuale di <b>Xei S.r.l.</b></p>
+    <h2>Privacy</h2>
+    <p>Scuola Ape non raccoglie dati personali: non ci sono registrazioni, pubblicità, cookie di profilazione né strumenti di analisi. Il nome che scrivi e i punteggi restano solo sul tuo dispositivo (memoria locale del browser) e puoi cancellarli dalle impostazioni del browser. Nessuna informazione viene inviata a Xei S.r.l. o a terzi.</p>
+    <p>Il sito è ospitato su GitHub Pages: per servire le pagine GitHub può registrare dati tecnici di connessione (come l'indirizzo IP) secondo la <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">privacy policy di GitHub</a>.</p>
+    <p>I bambini possono giocare senza l'intervento di un adulto: non viene chiesto né trattato alcun dato che richieda il consenso dei genitori.</p>
     <div class="azioni"><button class="chiudi" id="bChiudiInfo">Chiudi</button></div>
   </div>
 </div>
