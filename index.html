@@ -36,7 +36,9 @@ main{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column
 .coppaLista li > span:nth-child(2){grid-area:nome;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .coppaLista li .pt{grid-area:pt;font-family:var(--display);font-size:17px}
 .coppaLista li small{grid-area:diff;color:var(--ink-soft);font-size:12px;line-height:1.2}
-#schedaCoppa .azioni{position:sticky;bottom:0;background:var(--paper);padding-top:8px;margin-bottom:-22px;padding-bottom:22px}
+#schedaCoppa{overflow:hidden}
+#schedaCoppa .coppaLista{overflow:auto;min-height:0;flex:1 1 auto;padding-right:2px}
+#schedaCoppa > :not(.coppaLista){flex-shrink:0}
 .coppaLista .nessuno{color:var(--ink-soft);font-size:14px}
 h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,7.5vw,44px);margin:0;text-align:center;color:var(--honey-d);text-wrap:balance;line-height:1.1}
 .sotto{text-align:center;margin:0;color:var(--ink-soft);font-size:14px}

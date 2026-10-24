@@ -116,7 +116,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .azioni2 button{line-height:1.2;font-size:clamp(16px,4.6vw,18px)}
 @media (max-width:400px){.azioni2{flex-direction:column}}
 @media (max-height:720px){.grado{padding:8px 10px;gap:2px}.grado .gEm{font-size:36px}.grado .gTit{font-size:19px}.grado .gNota{font-size:13px;line-height:1.3}#classificaFine li{padding:2px 8px;font-size:14px}}
-#schermoFine .grande{position:sticky;bottom:0;box-shadow:0 4px 0 var(--honey-d),0 -10px 10px var(--paper)}
+#schermoFine .scheda{overflow:hidden}
+#schermoFine .scheda > *{flex-shrink:0}
+#classificaFine{overflow:auto;min-height:72px;flex:1 1 auto}
 .stato .esci:active{background:var(--sky)}
 .grado{background:var(--sky);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px}
 .grado .gEm{font-size:44px;line-height:1}
